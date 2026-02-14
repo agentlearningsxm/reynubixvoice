@@ -5,6 +5,8 @@ export type Language = 'en' | 'fr' | 'nl';
 export const translations = {
   en: {
     nav: {
+      receptionist: "Receptionist",
+      automations: "Automations",
       calculator: "Calculator",
       solutions: "Solutions",
       comparison: "Comparison",
@@ -102,6 +104,8 @@ export const translations = {
   },
   fr: {
     nav: {
+      receptionist: "Réceptionniste",
+      automations: "Automatisations",
       calculator: "Calculatrice",
       solutions: "Solutions",
       comparison: "Comparaison",
@@ -199,6 +203,8 @@ export const translations = {
   },
   nl: {
     nav: {
+      receptionist: "Receptionist",
+      automations: "Automatisering",
       calculator: "Calculator",
       solutions: "Oplossingen",
       comparison: "Vergelijking",
@@ -296,7 +302,8 @@ export const translations = {
   }
 };
 
-interface LanguageContextType {
+interface LanguageContextType
+{
   language: Language;
   setLanguage: (lang: Language) => void;
   t: typeof translations.en;
@@ -304,7 +311,8 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
+{
   const [language, setLanguage] = useState<Language>('en');
 
   return (
@@ -314,9 +322,11 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   );
 };
 
-export const useLanguage = () => {
+export const useLanguage = () =>
+{
   const context = useContext(LanguageContext);
-  if (context === undefined) {
+  if (context === undefined)
+  {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;

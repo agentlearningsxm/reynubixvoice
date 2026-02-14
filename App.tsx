@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import AutomationCards from './components/AutomationCards';
 import Calculator from './components/Calculator';
 import IndustrySlider from './components/IndustrySlider';
 import Comparison from './components/Comparison';
@@ -10,7 +11,8 @@ import Spotlight from './components/ui/Spotlight';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
-const App: React.FC = () => {
+const App: React.FC = () =>
+{
   return (
     <ThemeProvider>
       <LanguageProvider>
@@ -20,7 +22,7 @@ const App: React.FC = () => {
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-primary/10 rounded-full blur-[120px] animate-pulse-slow" />
             <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-brand-secondary/10 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
           </div>
-          
+
           <div className="relative z-10">
             <Navbar />
             <main>
@@ -28,6 +30,7 @@ const App: React.FC = () => {
               <Calculator />
               <IndustrySlider />
               <Comparison />
+              <AutomationCards />
               <SocialProof />
             </main>
             <Footer />

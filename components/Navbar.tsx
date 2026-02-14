@@ -55,9 +55,11 @@ const Navbar: React.FC = () =>
           </div>
 
           <div className="hidden md:flex items-center gap-6">
+            <a href="#receptionist" className="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium">{t.nav.receptionist}</a>
             <a href="#calculator" className="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium">{t.nav.calculator}</a>
             <a href="#solutions" className="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium">{t.nav.solutions}</a>
             <a href="#comparison" className="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium">{t.nav.comparison}</a>
+            <a href="#automations" className="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium">{t.nav.automations}</a>
             <a href="#reviews" className="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium">{t.nav.reviews}</a>
 
             {/* Language Selector */}
@@ -178,9 +180,11 @@ const Navbar: React.FC = () =>
       {isMobileMenuOpen && (
         <div className="md:hidden glass-card absolute top-full left-0 right-0 p-4 border-t border-border">
           <div className="flex flex-col gap-4">
+            <a href="#receptionist" className="text-text-secondary hover:text-text-primary p-2" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.receptionist}</a>
             <a href="#calculator" className="text-text-secondary hover:text-text-primary p-2" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.calculator}</a>
             <a href="#solutions" className="text-text-secondary hover:text-text-primary p-2" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.solutions}</a>
             <a href="#comparison" className="text-text-secondary hover:text-text-primary p-2" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.comparison}</a>
+            <a href="#automations" className="text-text-secondary hover:text-text-primary p-2" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.automations}</a>
             <a href="#reviews" className="text-text-secondary hover:text-text-primary p-2" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.reviews}</a>
 
             <div className="flex gap-2 p-2 overflow-x-auto">

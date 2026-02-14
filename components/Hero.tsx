@@ -14,7 +14,7 @@ const TOOLS = [
     functionDeclarations: [
       {
         name: "highlight_element",
-        description: "Visually highlight a specific element on the screen. Supported IDs: hero, calculator, input-revenue, input-calls, result-box, solutions, comparison, reviews",
+        description: "Visually highlight a specific element on the screen. Supported IDs: receptionist, calculator, input-revenue, input-calls, result-box, solutions, comparison, automations, reviews",
         parameters: {
           type: Type.OBJECT,
           properties: {
@@ -28,7 +28,7 @@ const TOOLS = [
       },
       {
         name: "control_website",
-        description: "Scroll the webpage to a specific section. Supported Targets: calculator, solutions, comparison, reviews, hero",
+        description: "Scroll the webpage to a specific section. Supported Targets: receptionist, calculator, solutions, comparison, automations, reviews",
         parameters: {
           type: Type.OBJECT,
           properties: {
@@ -388,7 +388,7 @@ const Hero: React.FC = () =>
   };
 
   return (
-    <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden" id="hero">
+    <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden" id="receptionist">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
 
