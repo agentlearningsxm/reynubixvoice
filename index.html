@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReynubixVoice - Stop Missing Revenue</title>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230EA5E9'/%3E%3Cstop offset='100%25' stop-color='%2338BDF8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='%230f172a'/%3E%3Ctext x='6' y='24' font-family='Arial,sans-serif' font-size='22' font-weight='bold' fill='url(%23g)'%3ER%3C/text%3E%3Cpath d='M20 10 Q24 10 24 14 Q24 16 22 17' stroke='%230EA5E9' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M20 7 Q28 7 28 14 Q28 18 24 20' stroke='%2338BDF8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Open Sans', 'sans-serif'],
+            display: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            bg: {
+              main: 'var(--bg-main)',
+              card: 'var(--bg-card)',
+              glass: 'var(--bg-glass)',
+            },
+            text: {
+              primary: 'var(--text-primary)',
+              secondary: 'var(--text-secondary)',
+            },
+            border: {
+              DEFAULT: 'var(--border)',
+            },
+            brand: {
+              primary: 'var(--accent-primary)',
+              secondary: 'var(--accent-secondary)',
+              glow: 'var(--accent-glow)',
+              subtle: 'var(--accent-subtle)',
+              accent: 'var(--accent-secondary)', // Mapping for backwards compatibility if needed
+            },
+            money: {
+              loss: '#ef4444',
+              gain: '#10b981',
+            }
+          },
+          animation: {
+            'float': 'float 6s ease-in-out infinite',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-main);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    :root {
+      /* Default Variables (Dark Mode Base) */
+      --bg-main: #0A0A0F;
+      --bg-card: rgba(255, 255, 255, 0.03);
+      --bg-glass: rgba(10, 10, 15, 0.7);
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --border: rgba(255, 255, 255, 0.08);
+
+      /* Accent: Blue (Default) */
+      --accent-primary: #3B82F6;
+      --accent-secondary: #60A5FA;
+      --accent-glow: rgba(59, 130, 246, 0.4);
+      --accent-subtle: rgba(59, 130, 246, 0.1);
+    }
+
+    /* Light Mode Overrides */
+    .light {
+      --bg-main: #F0F9FF;
+      /* Soft Sky Blue */
+      --bg-card: rgba(255, 255, 255, 0.6);
+      /* Glassy white */
+      --bg-glass: rgba(240, 249, 255, 0.8);
+      --text-primary: #0C4A6E;
+      /* Dark Blue Text */
+      --text-secondary: #334155;
+      /* Slate 700 */
+      --border: rgba(14, 165, 233, 0.2);
+      /* Light Blue Border */
+    }
+
+    /* Accent Themes */
+    [data-accent="blue"] {
+      --accent-primary: #0EA5E9;
+      /* Sky 500 */
+      --accent-secondary: #38BDF8;
+      /* Sky 400 */
+      --accent-glow: rgba(14, 165, 233, 0.4);
+      --accent-subtle: rgba(14, 165, 233, 0.1);
+    }
+
+    [data-accent="green"] {
+      --accent-primary: #22C55E;
+      --accent-secondary: #4ADE80;
+      --accent-glow: rgba(34, 197, 94, 0.4);
+      --accent-subtle: rgba(34, 197, 94, 0.1);
+    }
+
+    [data-accent="orange"] {
+      --accent-primary: #F97316;
+      /* Orange 500 */
+      --accent-secondary: #FB923C;
+      /* Orange 400 */
+      --accent-glow: rgba(249, 115, 22, 0.4);
+      --accent-subtle: rgba(249, 115, 22, 0.1);
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .glass-card:hover {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 20px var(--accent-subtle);
+    }
+
+    .glass-nav {
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .text-gradient-danger {
+      background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Light Mode Scrollbar */
+    .light ::-webkit-scrollbar-track {
+      background: #F0F9FF;
+    }
+
+    .light ::-webkit-scrollbar-thumb {
+      background: #94A3B8;
+    }
+
+    .light ::-webkit-scrollbar-thumb:hover {
+      background: #64748B;
+    }
+
+    /* Accessibility: Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "framer-motion": "https://esm.sh/framer-motion@^12.34.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@^3.4.0",
+    "clsx": "https://esm.sh/clsx@^2.1.1",
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
+  }
+}
+</script>
+
+</head>
+
+<body class="bg-bg-main text-text-primary antialiased selection:bg-brand-primary selection:text-white">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

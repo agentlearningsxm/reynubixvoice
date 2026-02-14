@@ -1,0 +1,7 @@
+{
+  "name": "ReynubixVoice Landing Page",
+  "description": "A high-conversion landing page for ReynubixVoice AI Agent service, featuring a revenue loss calculator, industry-specific solutions, and a sleek tech-trust aesthetic.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
