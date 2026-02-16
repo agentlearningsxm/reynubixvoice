@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import Logo from './Logo';
 
@@ -21,7 +22,7 @@ const Footer: React.FC = () =>
           <div className="flex gap-8 text-sm text-text-secondary">
             <a href="#" className="hover:text-text-primary transition-colors cursor-pointer">{t.footer.privacy}</a>
             <a href="#" className="hover:text-text-primary transition-colors cursor-pointer">{t.footer.terms}</a>
-            <a href="#" className="hover:text-text-primary transition-colors cursor-pointer">{t.footer.contact}</a>
+            <Link to="/contact" className="hover:text-text-primary transition-colors cursor-pointer">{t.footer.contact}</Link>
           </div>
 
           <div className="text-text-secondary text-sm">

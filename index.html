@@ -45,7 +45,11 @@
             money: {
               loss: '#ef4444',
               gain: '#10b981',
-            }
+            },
+            background: "var(--bg-main)",
+            foreground: "var(--text-primary)",
+            secondary: "var(--bg-card)",
+            "muted-foreground": "var(--text-secondary)",
           },
           animation: {
             'float': 'float 6s ease-in-out infinite',
@@ -81,60 +85,51 @@
     }
 
     :root {
-      /* Default Variables (Dark Mode Base) */
-      --bg-main: #0A0A0F;
-      --bg-card: rgba(255, 255, 255, 0.03);
-      --bg-glass: rgba(10, 10, 15, 0.7);
+      /* Default Variables (Enhanced Dark Mode) */
+      --bg-main: #050508; /* Deep Rich Black */
+      --bg-card: rgba(255, 255, 255, 0.02);
+      --bg-glass: rgba(5, 5, 8, 0.85);
       --text-primary: #F8FAFC;
-      --text-secondary: #94A3B8;
-      --border: rgba(255, 255, 255, 0.08);
+      --text-secondary: #64748B;
+      --border: rgba(255, 255, 255, 0.05);
 
       /* Accent: Blue (Default) */
-      --accent-primary: #3B82F6;
-      --accent-secondary: #60A5FA;
-      --accent-glow: rgba(59, 130, 246, 0.4);
-      --accent-subtle: rgba(59, 130, 246, 0.1);
+      --accent-primary: #0EA5E9;
+      --accent-secondary: #38BDF8;
+      --accent-glow: rgba(14, 165, 233, 0.25);
+      --accent-subtle: rgba(14, 165, 233, 0.05);
     }
 
-    /* Light Mode Overrides */
+    /* Light Mode Overrides - High Contrast & Premium Feel */
     .light {
-      --bg-main: #F0F9FF;
-      /* Soft Sky Blue */
-      --bg-card: rgba(255, 255, 255, 0.6);
-      /* Glassy white */
-      --bg-glass: rgba(240, 249, 255, 0.8);
-      --text-primary: #0C4A6E;
-      /* Dark Blue Text */
-      --text-secondary: #334155;
-      /* Slate 700 */
-      --border: rgba(14, 165, 233, 0.2);
-      /* Light Blue Border */
+      --bg-main: #FFFFFF;
+      --bg-card: #F8FAFC; /* Slate 50 */
+      --bg-glass: rgba(255, 255, 255, 0.9);
+      --text-primary: #0F172A; /* Slate 900 */
+      --text-secondary: #475569; /* Slate 600 */
+      --border: #E2E8F0; /* Slate 200 */
     }
 
-    /* Accent Themes */
+    /* Accent Themes - Sync with variables */
     [data-accent="blue"] {
       --accent-primary: #0EA5E9;
-      /* Sky 500 */
       --accent-secondary: #38BDF8;
-      /* Sky 400 */
-      --accent-glow: rgba(14, 165, 233, 0.4);
-      --accent-subtle: rgba(14, 165, 233, 0.1);
+      --accent-glow: rgba(14, 165, 233, 0.3);
+      --accent-subtle: rgba(14, 165, 233, 0.08);
     }
 
     [data-accent="green"] {
-      --accent-primary: #22C55E;
-      --accent-secondary: #4ADE80;
-      --accent-glow: rgba(34, 197, 94, 0.4);
-      --accent-subtle: rgba(34, 197, 94, 0.1);
+      --accent-primary: #10B981;
+      --accent-secondary: #34D399;
+      --accent-glow: rgba(16, 185, 129, 0.3);
+      --accent-subtle: rgba(16, 185, 129, 0.08);
     }
 
     [data-accent="orange"] {
       --accent-primary: #F97316;
-      /* Orange 500 */
       --accent-secondary: #FB923C;
-      /* Orange 400 */
-      --accent-glow: rgba(249, 115, 22, 0.4);
-      --accent-subtle: rgba(249, 115, 22, 0.1);
+      --accent-glow: rgba(249, 115, 22, 0.3);
+      --accent-subtle: rgba(249, 115, 22, 0.08);
     }
 
     body {
@@ -190,6 +185,217 @@
       background: #64748B;
     }
 
+    /* Dramatic Animated Border Styles */
+    .dramatic-border-container {
+      padding: 2px;
+      border-radius: 1.5rem;
+      position: relative;
+      background: linear-gradient(-30deg,
+          var(--dramatic-gradient-color, rgba(14, 165, 233, 0.4)),
+          transparent,
+          var(--dramatic-gradient-color, rgba(14, 165, 233, 0.4))),
+        linear-gradient(to bottom,
+          rgba(0, 0, 0, 0.185),
+          rgba(0, 0, 0, 0.185));
+    }
+
+    .dramatic-border-inner {
+      position: relative;
+    }
+
+    .dramatic-border-outer {
+      border: 2px solid var(--dramatic-border-color-50, rgba(14, 165, 233, 0.5));
+      border-radius: 1.5rem;
+      padding-right: .15em;
+      padding-bottom: .15em;
+    }
+
+    .dramatic-main-card {
+      border-radius: 1.5rem;
+      border: 2px solid var(--dramatic-border-color, #0EA5E9);
+      margin-top: -4px;
+      margin-left: -4px;
+    }
+
+    /* Animated border layer - separate from content */
+    .dramatic-border-animation {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 1.5rem;
+      border: 2px solid transparent;
+      filter: url(#dramatic-border-filter);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .dramatic-glow-layer-1 {
+      border: 2px solid var(--dramatic-border-color-60, rgba(14, 165, 233, 0.6));
+      border-radius: 1.5rem;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      filter: blur(1px);
+      pointer-events: none;
+    }
+
+    .dramatic-glow-layer-2 {
+      border: 2px solid var(--dramatic-border-color, #0EA5E9);
+      border-radius: 1.5rem;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      filter: blur(4px);
+      pointer-events: none;
+    }
+
+    .dramatic-overlay-1 {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 1.5rem;
+      opacity: 1;
+      mix-blend-mode: overlay;
+      transform: scale(1.1);
+      filter: blur(16px);
+      background: linear-gradient(-30deg,
+          white,
+          transparent 30%,
+          transparent 70%,
+          white);
+      pointer-events: none;
+    }
+
+    .dramatic-overlay-2 {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 1.5rem;
+      opacity: 0.5;
+      mix-blend-mode: overlay;
+      transform: scale(1.1);
+      filter: blur(16px);
+      background: linear-gradient(-30deg,
+          white,
+          transparent 30%,
+          transparent 70%,
+          white);
+      pointer-events: none;
+    }
+
+    .dramatic-background-glow {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 1.5rem;
+      filter: blur(32px);
+      transform: scale(1.1);
+      opacity: 0.3;
+      z-index: -1;
+      background: linear-gradient(-30deg,
+          var(--dramatic-border-color, #0EA5E9),
+          transparent,
+          var(--dramatic-border-color, #0EA5E9));
+      pointer-events: none;
+    }
+
+    /* Light mode adjustments for dramatic border */
+    .light .dramatic-border-container {
+      background: linear-gradient(-30deg,
+          var(--dramatic-gradient-color, rgba(14, 165, 233, 0.3)),
+          transparent,
+          var(--dramatic-gradient-color, rgba(14, 165, 233, 0.3))),
+        linear-gradient(to bottom,
+          rgba(255, 255, 255, 0.8),
+          rgba(255, 255, 255, 0.8));
+    }
+
+    .light .dramatic-overlay-1,
+    .light .dramatic-overlay-2 {
+      background: linear-gradient(-30deg,
+          rgba(0, 0, 0, 0.1),
+          transparent 30%,
+          transparent 70%,
+          rgba(0, 0, 0, 0.1));
+    }
+
+    .light .dramatic-background-glow {
+      opacity: 0.2;
+    }
+
+    /* Accent color variations for dramatic border */
+    [data-accent="blue"] .dramatic-border-container {
+      --dramatic-border-color: #0EA5E9;
+      --dramatic-border-color-50: rgba(14, 165, 233, 0.5);
+      --dramatic-border-color-60: rgba(14, 165, 233, 0.6);
+      --dramatic-gradient-color: rgba(14, 165, 233, 0.4);
+    }
+
+    [data-accent="green"] .dramatic-border-container {
+      --dramatic-border-color: #22C55E;
+      --dramatic-border-color-50: rgba(34, 197, 94, 0.5);
+      --dramatic-border-color-60: rgba(34, 197, 94, 0.6);
+      --dramatic-gradient-color: rgba(34, 197, 94, 0.4);
+    }
+
+    [data-accent="orange"] .dramatic-border-container {
+      --dramatic-border-color: #F97316;
+      --dramatic-border-color-50: rgba(249, 115, 22, 0.5);
+      --dramatic-border-color-60: rgba(249, 115, 22, 0.6);
+      --dramatic-gradient-color: rgba(249, 115, 22, 0.4);
+    }
+
+    /* Toggle button for dramatic border */
+    .dramatic-toggle-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+    }
+
+    .dramatic-toggle-btn:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+
+    .dramatic-toggle-btn.active {
+      background: var(--accent-subtle);
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+
     /* Accessibility: Reduced Motion */
     @media (prefers-reduced-motion: reduce) {
 
@@ -217,6 +423,57 @@
   }
 }
 </script>
+
+  <!-- SVG Filters for Dramatic Animated Border -->
+  <svg class="svg-container" style="position: absolute; width: 0; height: 0; overflow: hidden;">
+    <defs>
+      <!-- Dramatic Filter - uses theme colors -->
+      <filter id="dramatic-border-filter" colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="1" />
+        <feOffset in="noise1" dx="0" dy="0" result="offsetNoise1">
+          <animate attributeName="dy" values="700; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
+        </feOffset>
+
+        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="1" />
+        <feOffset in="noise2" dx="0" dy="0" result="offsetNoise2">
+          <animate attributeName="dy" values="0; -700" dur="6s" repeatCount="indefinite" calcMode="linear" />
+        </feOffset>
+
+        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise1" seed="2" />
+        <feOffset in="noise1" dx="0" dy="0" result="offsetNoise3">
+          <animate attributeName="dx" values="490; 0" dur="6s" repeatCount="indefinite" calcMode="linear" />
+        </feOffset>
+
+        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="10" result="noise2" seed="2" />
+        <feOffset in="noise2" dx="0" dy="0" result="offsetNoise4">
+          <animate attributeName="dx" values="0; -490" dur="6s" repeatCount="indefinite" calcMode="linear" />
+        </feOffset>
+
+        <feComposite in="offsetNoise1" in2="offsetNoise2" result="part1" />
+        <feComposite in="offsetNoise3" in2="offsetNoise4" result="part2" />
+        <feBlend in="part1" in2="part2" mode="color-dodge" result="combinedNoise" />
+
+        <feDisplacementMap in="SourceGraphic" in2="combinedNoise" scale="30" xChannelSelector="R"
+          yChannelSelector="B" />
+      </filter>
+
+      <!-- Hue Animation Filter -->
+      <filter id="dramatic-border-hue" colorInterpolationFilters="sRGB" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="7" />
+        <feColorMatrix type="hueRotate" result="pt1">
+          <animate attributeName="values" values="0;360;" dur=".6s" repeatCount="indefinite" calcMode="paced" />
+        </feColorMatrix>
+        <feComposite />
+        <feTurbulence type="turbulence" baseFrequency="0.03" numOctaves="7" seed="5" />
+        <feColorMatrix type="hueRotate" result="pt2">
+          <animate attributeName="values" values="0; 333; 199; 286; 64; 168; 256; 157; 360;" dur="5s"
+            repeatCount="indefinite" calcMode="paced" />
+        </feColorMatrix>
+        <feBlend in="pt1" in2="pt2" mode="normal" result="combinedNoise" />
+        <feDisplacementMap in="SourceGraphic" scale="30" xChannelSelector="R" yChannelSelector="B" />
+      </filter>
+    </defs>
+  </svg>
 
 </head>
 

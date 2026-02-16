@@ -7,7 +7,7 @@
 ---
 
 **Project:** ReynubixVoice
-**Generated:** 2026-02-14 03:13:56
+**Generated:** 2026-02-16 12:55:00
 **Category:** Service Landing Page
 
 ---
@@ -28,14 +28,14 @@
 
 ### Typography
 
-- **Heading Font:** Poppins
-- **Body Font:** Open Sans
-- **Mood:** modern, professional, clean, corporate, friendly, approachable
-- **Google Fonts:** [Poppins + Open Sans](https://fonts.google.com/share?selection.family=Open+Sans:wght@300;400;500;600;700|Poppins:wght@400;500;600;700)
+- **Heading Font:** Satoshi
+- **Body Font:** General Sans
+- **Mood:** premium, modern, clean, sophisticated, versatile, balanced
+- **Google Fonts:** [Satoshi + General Sans](https://fonts.google.com/share?selection.family=DM+Sans:wght@400;500;700)
 
 **CSS Import:**
 ```css
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
 ```
 
 ### Spacing Variables
@@ -153,21 +153,21 @@
 
 ## Style Guidelines
 
-**Style:** Minimalism & Swiss Style
+**Style:** Social Proof-Focused
 
-**Keywords:** Clean, simple, spacious, functional, white space, high contrast, geometric, sans-serif, grid-based, essential
+**Keywords:** Testimonials prominent, client logos displayed, case studies sections, reviews/ratings, user avatars, success metrics, credibility markers
 
-**Best For:** Enterprise apps, dashboards, documentation sites, SaaS platforms, professional tools
+**Best For:** B2B SaaS, professional services, premium products, e-commerce conversion pages, established brands
 
-**Key Effects:** Subtle hover (200-250ms), smooth transitions, sharp shadows if any, clear type hierarchy, fast loading
+**Key Effects:** Testimonial carousel animations, logo grid fade-in, stat counter animations (number count-up), review star ratings
 
 ### Page Pattern
 
-**Pattern Name:** Scroll-Triggered Storytelling
+**Pattern Name:** Minimal Single Column
 
-- **Conversion Strategy:** Narrative increases time-on-page 3x. Use progress indicator. Mobile: simplify animations.
-- **CTA Placement:** End of each chapter (mini) + Final climax CTA
-- **Section Order:** 1. Intro hook, 2. Chapter 1 (problem), 3. Chapter 2 (journey), 4. Chapter 3 (solution), 5. Climax CTA
+- **Conversion Strategy:** Single CTA focus. Large typography. Lots of whitespace. No nav clutter. Mobile-first.
+- **CTA Placement:** Center, large CTA button
+- **Section Order:** 1. Hero headline, 2. Short description, 3. Benefit bullets (3 max), 4. CTA, 5. Footer
 
 ---
 

@@ -63,6 +63,7 @@ const Hero: React.FC = () =>
   // Connection State
   const [connected, setConnected] = useState(false);
   const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
+  const [isUserSpeaking, setIsUserSpeaking] = useState(false); // New state for user speech
   const [error, setError] = useState<string | null>(null);
 
   // Audio Refs
@@ -72,6 +73,9 @@ const Hero: React.FC = () =>
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const outputAudioContextRef = useRef<AudioContext | null>(null);
   const outputNodeRef = useRef<GainNode | null>(null);
+
+  // Volume detection ref to avoid state spam
+  const userSpeakingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Playback Queue
   const nextStartTimeRef = useRef<number>(0);
@@ -92,6 +96,17 @@ const Hero: React.FC = () =>
       result[i] = input[Math.floor(i * ratio)];
     }
     return result;
+  };
+
+  // Helper: Calculate RMS (Root Mean Square) for volume detection
+  const calculateRMS = (buffer: Float32Array): number =>
+  {
+    let sum = 0;
+    for (let i = 0; i < buffer.length; i++)
+    {
+      sum += buffer[i] * buffer[i];
+    }
+    return Math.sqrt(sum / buffer.length);
   };
 
   // Audio Processing Helpers
@@ -227,6 +242,38 @@ const Hero: React.FC = () =>
               processor.onaudioprocess = (e) =>
               {
                 const inputData = e.inputBuffer.getChannelData(0);
+
+                // --- User Speaking Detection ---
+                // Only detect user speech when agent is NOT speaking
+                // to prevent echo/feedback from agent audio triggering this
+                if (sourcesRef.current.size === 0)
+                {
+                  const rms = calculateRMS(inputData);
+                  const speakingThreshold = 0.015; // Sensitive but not too noisy
+
+                  if (rms > speakingThreshold)
+                  {
+                    setIsUserSpeaking(true);
+
+                    // Clear existing timeout to keep "speaking" true while talking
+                    if (userSpeakingTimeoutRef.current)
+                    {
+                      clearTimeout(userSpeakingTimeoutRef.current);
+                    }
+
+                    // Set timeout to false after brief silence
+                    userSpeakingTimeoutRef.current = setTimeout(() =>
+                    {
+                      setIsUserSpeaking(false);
+                    }, 300); // 300ms of silence = stopped speaking (snappier)
+                  }
+                } else
+                {
+                  // Agent is speaking — force user speaking off
+                  setIsUserSpeaking(false);
+                }
+                // -------------------------------
+
                 // IMPORTANT: Downsample to 16000Hz before creating blob
                 const downsampledData = downsampleTo16k(inputData, inputSampleRate);
                 const blob = createBlob(downsampledData);
@@ -313,9 +360,20 @@ const Hero: React.FC = () =>
               source.buffer = buffer;
               source.connect(outputNodeRef.current!);
 
-              source.start(nextStartTimeRef.current);
+              const scheduledStart = nextStartTimeRef.current;
+              source.start(scheduledStart);
               nextStartTimeRef.current += buffer.duration;
               sourcesRef.current.add(source);
+
+              // Set speaking TRUE when this chunk actually starts playing
+              const delayUntilPlay = Math.max(0, (scheduledStart - now) * 1000);
+              setTimeout(() =>
+              {
+                if (sourcesRef.current.has(source))
+                {
+                  setIsAgentSpeaking(true);
+                }
+              }, delayUntilPlay);
 
               source.onended = () =>
               {
@@ -325,8 +383,6 @@ const Hero: React.FC = () =>
                   setIsAgentSpeaking(false);
                 }
               };
-
-              setIsAgentSpeaking(true);
             }
 
             if (msg.serverContent?.interrupted)
@@ -420,7 +476,14 @@ const Hero: React.FC = () =>
                 {connected ? <MicOff className="w-5 h-5" /> : <Play className="w-5 h-5 fill-current" />}
                 {connected ? "End Demo" : t.hero.listenSample}
               </Button>
-              <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+              <Button
+                variant="secondary"
+                size="lg"
+                className="w-full sm:w-auto"
+                data-cal-link="reynubix-voice/let-s-talk"
+                data-cal-namespace="let-s-talk"
+                data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+              >
                 {t.hero.bookDemo} <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
@@ -452,45 +515,112 @@ const Hero: React.FC = () =>
             <motion.div
               animate={{ y: [0, -20, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-              className="relative w-[320px] h-[640px] bg-bg-main border-[8px] border-bg-card rounded-[3rem] shadow-2xl overflow-hidden z-10"
+              className="relative w-[320px] h-[640px] rounded-[3rem] overflow-hidden z-10"
+              style={{
+                background: 'linear-gradient(145deg, #1a1a2e 0%, #0a0a0f 50%, #16162a 100%)',
+                boxShadow: `
+                  0 0 0 1px rgba(255,255,255,0.06),
+                  0 0 0 3px #0a0a0f,
+                  0 0 0 4px rgba(255,255,255,0.08),
+                  0 25px 60px -12px rgba(0,0,0,0.7),
+                  0 8px 20px rgba(0,0,0,0.4),
+                  inset 0 1px 0 rgba(255,255,255,0.05)
+                `,
+              }}
             >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-bg-card rounded-b-xl z-20"></div>
+              {/* Side button accents */}
+              <div className="absolute right-[-1px] top-[120px] w-[3px] h-[40px] rounded-l-sm"
+                style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05))' }} />
+              <div className="absolute right-[-1px] top-[180px] w-[3px] h-[60px] rounded-l-sm"
+                style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))' }} />
+              <div className="absolute left-[-1px] top-[160px] w-[3px] h-[35px] rounded-r-sm"
+                style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03))' }} />
 
-              <div className="w-full h-full bg-bg-main flex flex-col relative text-text-primary">
-                <div className="flex-1 flex flex-col items-center justify-center pt-20 pb-10 px-6">
-                  <div className="w-64 h-64 flex items-center justify-center mb-6 relative">
-                    <VoiceOrb isActive={connected} isSpeaking={isAgentSpeaking} />
+              {/* Dynamic Island */}
+              <div className="absolute top-[12px] left-1/2 -translate-x-1/2 w-[120px] h-[32px] bg-black rounded-full z-20 flex items-center justify-center gap-2"
+                style={{ boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04)' }}>
+                <div className="w-[10px] h-[10px] rounded-full bg-[#1a1a2e] border border-[#2a2a3e]" />
+                <div className="w-[6px] h-[6px] rounded-full bg-[#0f0f1a]" />
+              </div>
+
+              {/* Screen */}
+              <div className="w-full h-full flex flex-col relative"
+                style={{ background: 'linear-gradient(180deg, #0c0c14 0%, #060609 40%, #0a0a12 100%)' }}>
+
+                {/* Voice Assistant Area */}
+                <div className="flex-1 flex flex-col items-center justify-center pt-16 pb-8 px-6">
+                  <div className="w-56 h-56 flex items-center justify-center mb-8 relative">
+                    <VoiceOrb isActive={connected} isSpeaking={isAgentSpeaking} isUserSpeaking={isUserSpeaking} />
                   </div>
-                  <h3 className="text-2xl font-semibold text-text-primary mb-2">
-                    {connected ? 'Reyna (AI)' : 'Start Demo'}
+                  <h3 className="text-xl font-semibold text-white/90 mb-1.5 tracking-wide font-display">
+                    {connected ? 'Reyna' : 'Start Demo'}
                   </h3>
-                  <p className="text-text-secondary text-sm font-mono">
-                    {connected ? (isAgentSpeaking ? 'Speaking...' : 'Listening...') : 'Tap Green Button'}
+                  <p className="text-[11px] text-white/40 font-mono tracking-[0.2em] uppercase">
+                    {connected ? (isAgentSpeaking ? '● Speaking' : '● Listening') : 'Tap to Connect'}
                   </p>
                 </div>
-                <div className="h-24 bg-bg-card/50 backdrop-blur-md flex items-center justify-around px-8 pb-4">
+
+                {/* Bottom Controls */}
+                <div className="h-28 flex items-center justify-around px-8 pb-6"
+                  style={{
+                    background: 'linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.02) 100%)',
+                    borderTop: '1px solid rgba(255,255,255,0.04)'
+                  }}>
+                  {/* End Call */}
                   <button
                     onClick={disconnect}
                     disabled={!connected}
-                    className={`w-12 h-12 rounded-full flex items-center justify-center text-white transition-colors ${connected ? 'bg-red-500/20 hover:bg-red-500/40 text-red-500' : 'bg-bg-card text-text-secondary'
-                      }`}
+                    className="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300"
+                    style={{
+                      background: connected ? 'rgba(239, 68, 68, 0.15)' : 'rgba(255,255,255,0.04)',
+                      border: `1px solid ${connected ? 'rgba(239, 68, 68, 0.3)' : 'rgba(255,255,255,0.06)'}`,
+                      color: connected ? '#ef4444' : 'rgba(255,255,255,0.2)',
+                    }}
                   >
                     <PhoneCall className="w-5 h-5 rotate-[135deg]" />
                   </button>
+
+                  {/* Main Action Button */}
                   <button
                     onClick={connected ? disconnect : connectToGemini}
-                    className={`w-16 h-16 rounded-full flex items-center justify-center text-white shadow-lg transition-all transform hover:scale-105 active:scale-95 ${!connected
-                      ? 'bg-green-500 shadow-green-500/40 animate-pulse cursor-pointer'
-                      : 'bg-text-primary text-bg-main'
-                      }`}
+                    className="w-16 h-16 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                    style={{
+                      background: !connected
+                        ? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+                        : 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%)',
+                      boxShadow: !connected
+                        ? '0 0 20px rgba(34, 197, 94, 0.4), 0 4px 12px rgba(0,0,0,0.3)'
+                        : '0 4px 12px rgba(0,0,0,0.3)',
+                      color: !connected ? 'white' : '#0f172a',
+                      animation: !connected ? 'phone-btn-pulse 2s ease-in-out infinite' : 'none',
+                    }}
                   >
-                    {connected ? <Mic className="w-8 h-8" /> : <PhoneCall className="w-8 h-8" />}
+                    {connected ? <Mic className="w-7 h-7" /> : <PhoneCall className="w-7 h-7" />}
                   </button>
-                  <button className="w-12 h-12 rounded-full bg-bg-card flex items-center justify-center text-text-secondary">
+
+                  {/* Mute */}
+                  <button className="w-12 h-12 rounded-full flex items-center justify-center"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      color: 'rgba(255,255,255,0.25)',
+                    }}
+                  >
                     <MicOff className="w-5 h-5" />
                   </button>
                 </div>
+
+                {/* Home indicator */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 rounded-full bg-white/10" />
               </div>
+
+              {/* Phone button pulse animation */}
+              <style>{`
+                @keyframes phone-btn-pulse {
+                  0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4), 0 4px 12px rgba(0,0,0,0.3); }
+                  50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.6), 0 4px 16px rgba(0,0,0,0.4); }
+                }
+              `}</style>
             </motion.div>
 
             <motion.div

@@ -2,6 +2,41 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
 
+// Helper function to detect if light mode is active
+const isLightMode = (): boolean =>
+{
+  return document.documentElement.classList.contains('light');
+};
+
+// Helper function to get the current accent color
+const getAccentColor = (): { primary: string; secondary: string; glow: string } =>
+{
+  const accent = document.documentElement.getAttribute('data-accent') || 'blue';
+
+  switch (accent)
+  {
+    case 'green':
+      return {
+        primary: '#22C55E',
+        secondary: '#4ADE80',
+        glow: 'rgba(34, 197, 94, 0.4)'
+      };
+    case 'orange':
+      return {
+        primary: '#F97316',
+        secondary: '#FB923C',
+        glow: 'rgba(249, 115, 22, 0.4)'
+      };
+    case 'blue':
+    default:
+      return {
+        primary: '#3B82F6',
+        secondary: '#60A5FA',
+        glow: 'rgba(59, 130, 246, 0.4)'
+      };
+  }
+};
+
 // Automation tools data with logos and descriptions
 const AUTOMATION_TOOLS = [
   {
@@ -23,10 +58,10 @@ const AUTOMATION_TOOLS = [
   {
     name: 'Antigravity',
     description: 'Advanced AI automation for enterprise workflows',
-    logo: 'https://www.google.com/favicon.ico',
-    color: '#4285F4',
-    gradient: 'from-blue-500 to-cyan-500',
-    iconBg: 'bg-gradient-to-br from-blue-400 to-cyan-500'
+    logo: 'https://antigravity.google/favicon.ico',
+    color: '#8B5CF6',
+    gradient: 'from-purple-500 to-violet-600',
+    iconBg: 'bg-gradient-to-br from-purple-400 to-violet-500'
   },
   {
     name: 'Make',
@@ -45,12 +80,28 @@ const AUTOMATION_TOOLS = [
     iconBg: 'bg-gradient-to-br from-emerald-400 to-teal-500'
   },
   {
-    name: 'Zapier',
-    description: 'Connect apps and automate workflows effortlessly',
-    logo: 'https://cdn.simpleicons.org/zapier/FF4A00',
-    color: '#FF4A00',
-    gradient: 'from-orange-500 to-red-500',
-    iconBg: 'bg-gradient-to-br from-orange-400 to-red-500'
+    name: 'Retell AI',
+    description: 'Real-time voice AI for conversational applications',
+    logo: 'https://th.bing.com/th/id/R.5db8691bc02eda31959d57f64c3e2364?rik=JUuA1tpydosKxQ&riu=http%3a%2f%2fai-321.com%2fwp-content%2fuploads%2f2024%2f05%2f4e6b7-www.retellai.com.png&ehk=Uvrao5pgOZvZkvs8jPLiZcUgLINzGafz6baUEYVQkiQ%3d&risl=&pid=ImgRaw&r=0',
+    color: '#3B82F6',
+    gradient: 'from-blue-500 to-cyan-500',
+    iconBg: 'bg-gradient-to-br from-blue-400 to-cyan-500'
+  },
+  {
+    name: 'LiveKit',
+    description: 'Build voice, video, and physical AI agents with open source',
+    logo: 'https://livekit.io/favicon.ico',
+    color: '#FF6B6B',
+    gradient: 'from-red-500 to-orange-500',
+    iconBg: 'bg-gradient-to-br from-red-400 to-orange-500'
+  },
+  {
+    name: 'Perplexity',
+    description: 'AI-powered search engine with real-time answers',
+    logo: 'https://assets.airtel.in/static-assets/thanks/images/static/perplexity-logo-new.png',
+    color: '#20B2AA',
+    gradient: 'from-teal-500 to-cyan-500',
+    iconBg: 'bg-gradient-to-br from-teal-400 to-cyan-500'
   }
 ];
 
@@ -85,6 +136,7 @@ class ParticleSystem
   private velocities: Float32Array;
   private alphas: Float32Array;
   private animationId: number | null = null;
+  private currentTexture: THREE.CanvasTexture | null = null;
 
   constructor(canvas: HTMLCanvasElement)
   {
@@ -116,6 +168,91 @@ class ParticleSystem
     this.animate();
 
     window.addEventListener('resize', () => this.onWindowResize());
+
+    // Listen for theme changes
+    this.observeThemeChanges();
+  }
+
+  private observeThemeChanges()
+  {
+    const observer = new MutationObserver(() =>
+    {
+      this.updateParticleColors();
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-accent']
+    });
+  }
+
+  private updateParticleColors()
+  {
+    if (!this.particles) return;
+
+    // Create new texture with updated colors
+    const canvas = document.createElement('canvas');
+    canvas.width = 100;
+    canvas.height = 100;
+    const ctx = canvas.getContext('2d')!;
+    const half = canvas.width / 2;
+
+    const lightMode = document.documentElement.classList.contains('light');
+    const accentColor = getAccentColor();
+
+    const hexToRgb = (hex: string) =>
+    {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 59, g: 130, b: 246 };
+    };
+
+    const primaryRgb = hexToRgb(accentColor.primary);
+    const secondaryRgb = hexToRgb(accentColor.secondary);
+
+    const gradient = ctx.createRadialGradient(half, half, 0, half, half, half);
+
+    if (lightMode)
+    {
+      // Light mode: Use darker accent color for visibility
+      const darkerR = Math.floor(primaryRgb.r * 0.6);
+      const darkerG = Math.floor(primaryRgb.g * 0.6);
+      const darkerB = Math.floor(primaryRgb.b * 0.6);
+      gradient.addColorStop(0.025, accentColor.primary);
+      gradient.addColorStop(0.1, `rgba(${darkerR}, ${darkerG}, ${darkerB}, 0.9)`);
+      gradient.addColorStop(0.25, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.5)`);
+      gradient.addColorStop(1, "transparent");
+    } else
+    {
+      // Dark mode: Use white with accent tint
+      gradient.addColorStop(0.025, "#fff");
+      gradient.addColorStop(0.1, `rgba(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}, 0.8)`);
+      gradient.addColorStop(0.25, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.3)`);
+      gradient.addColorStop(1, "transparent");
+    }
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(half, half, half, 0, Math.PI * 2);
+    ctx.fill();
+
+    const newTexture = new THREE.CanvasTexture(canvas);
+
+    // Update the material texture
+    const material = this.particles.material as THREE.ShaderMaterial;
+    if (material.uniforms && material.uniforms.pointTexture)
+    {
+      material.uniforms.pointTexture.value = newTexture;
+    }
+
+    // Dispose old texture
+    if (this.currentTexture)
+    {
+      this.currentTexture.dispose();
+    }
+    this.currentTexture = newTexture;
   }
 
   private createParticles()
@@ -125,19 +262,51 @@ class ParticleSystem
     const colors = new Float32Array(this.particleCount * 3);
     const sizes = new Float32Array(this.particleCount);
 
-    // Create particle texture
+    // Create particle texture - adapt to theme and accent color
     const canvas = document.createElement('canvas');
     canvas.width = 100;
     canvas.height = 100;
     const ctx = canvas.getContext('2d')!;
     const half = canvas.width / 2;
-    const hue = 217;
+
+    // Detect light mode and accent color for particle colors
+    const lightMode = document.documentElement.classList.contains('light');
+    const accentColor = getAccentColor();
+
+    // Parse the accent color to get RGB values
+    const hexToRgb = (hex: string) =>
+    {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 59, g: 130, b: 246 };
+    };
+
+    const primaryRgb = hexToRgb(accentColor.primary);
+    const secondaryRgb = hexToRgb(accentColor.secondary);
 
     const gradient = ctx.createRadialGradient(half, half, 0, half, half, half);
-    gradient.addColorStop(0.025, "#fff");
-    gradient.addColorStop(0.1, `hsl(${hue}, 61%, 33%)`);
-    gradient.addColorStop(0.25, `hsl(${hue}, 64%, 6%)`);
-    gradient.addColorStop(1, "transparent");
+
+    if (lightMode)
+    {
+      // Light mode: Use darker accent color for visibility
+      const darkerR = Math.floor(primaryRgb.r * 0.6);
+      const darkerG = Math.floor(primaryRgb.g * 0.6);
+      const darkerB = Math.floor(primaryRgb.b * 0.6);
+      gradient.addColorStop(0.025, accentColor.primary);
+      gradient.addColorStop(0.1, `rgba(${darkerR}, ${darkerG}, ${darkerB}, 0.9)`);
+      gradient.addColorStop(0.25, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.5)`);
+      gradient.addColorStop(1, "transparent");
+    } else
+    {
+      // Dark mode: Use white with accent tint
+      gradient.addColorStop(0.025, "#fff");
+      gradient.addColorStop(0.1, `rgba(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}, 0.8)`);
+      gradient.addColorStop(0.25, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.3)`);
+      gradient.addColorStop(1, "transparent");
+    }
 
     ctx.fillStyle = gradient;
     ctx.beginPath();
@@ -145,6 +314,7 @@ class ParticleSystem
     ctx.fill();
 
     const texture = new THREE.CanvasTexture(canvas);
+    this.currentTexture = texture;
 
     for (let i = 0; i < this.particleCount; i++)
     {
@@ -275,6 +445,10 @@ class ParticleSystem
       this.particles.geometry.dispose();
       (this.particles.material as THREE.Material).dispose();
     }
+    if (this.currentTexture)
+    {
+      this.currentTexture.dispose();
+    }
   }
 }
 
@@ -304,6 +478,7 @@ class ParticleScanner
   private currentGlowIntensity: number = 1;
   private gradientCanvas: HTMLCanvasElement;
   private gradientCtx: CanvasRenderingContext2D;
+  private themeObserver: MutationObserver | null = null;
 
   constructor(canvas: HTMLCanvasElement)
   {
@@ -334,16 +509,64 @@ class ParticleScanner
     this.animate();
 
     window.addEventListener('resize', () => this.onResize());
+
+    // Listen for theme changes
+    this.observeThemeChanges();
+  }
+
+  private observeThemeChanges()
+  {
+    this.themeObserver = new MutationObserver(() =>
+    {
+      this.createGradientCache();
+    });
+    this.themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class', 'data-accent']
+    });
   }
 
   private createGradientCache()
   {
     const half = this.gradientCanvas.width / 2;
     const gradient = this.gradientCtx.createRadialGradient(half, half, 0, half, half, half);
-    gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-    gradient.addColorStop(0.3, "rgba(196, 181, 253, 0.8)");
-    gradient.addColorStop(0.7, "rgba(139, 92, 246, 0.4)");
-    gradient.addColorStop(1, "transparent");
+
+    // Detect light mode and accent color for particle colors
+    const lightMode = document.documentElement.classList.contains('light');
+    const accentColor = getAccentColor();
+
+    // Parse the accent color to get RGB values
+    const hexToRgb = (hex: string) =>
+    {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 59, g: 130, b: 246 };
+    };
+
+    const primaryRgb = hexToRgb(accentColor.primary);
+    const secondaryRgb = hexToRgb(accentColor.secondary);
+
+    if (lightMode)
+    {
+      // Light mode: Use darker accent color for visibility
+      const darkerR = Math.floor(primaryRgb.r * 0.6);
+      const darkerG = Math.floor(primaryRgb.g * 0.6);
+      const darkerB = Math.floor(primaryRgb.b * 0.6);
+      gradient.addColorStop(0, `rgba(${darkerR}, ${darkerG}, ${darkerB}, 1)`);
+      gradient.addColorStop(0.3, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.9)`);
+      gradient.addColorStop(0.7, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.5)`);
+      gradient.addColorStop(1, "transparent");
+    } else
+    {
+      // Dark mode: Use white with accent tint
+      gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
+      gradient.addColorStop(0.3, `rgba(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}, 0.8)`);
+      gradient.addColorStop(0.7, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.4)`);
+      gradient.addColorStop(1, "transparent");
+    }
 
     this.gradientCtx.fillStyle = gradient;
     this.gradientCtx.beginPath();
@@ -482,6 +705,23 @@ class ParticleScanner
     const glow2Alpha = this.scanningActive ? 0.8 : 0.6;
     const glow3Alpha = this.scanningActive ? 0.6 : 0.4;
 
+    // Get accent color for laser
+    const accentColor = getAccentColor();
+
+    // Parse the accent color to get RGB values
+    const hexToRgb = (hex: string) =>
+    {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : { r: 59, g: 130, b: 246 };
+    };
+
+    const primaryRgb = hexToRgb(accentColor.primary);
+    const secondaryRgb = hexToRgb(accentColor.secondary);
+
     // Core gradient
     const coreGradient = this.ctx.createLinearGradient(
       this.lightBarX - lineWidth / 2, 0,
@@ -504,9 +744,9 @@ class ParticleScanner
       this.lightBarX - lineWidth * 2, 0,
       this.lightBarX + lineWidth * 2, 0
     );
-    glow1Gradient.addColorStop(0, "rgba(139, 92, 246, 0)");
-    glow1Gradient.addColorStop(0.5, `rgba(196, 181, 253, ${0.8 * glowIntensity})`);
-    glow1Gradient.addColorStop(1, "rgba(139, 92, 246, 0)");
+    glow1Gradient.addColorStop(0, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0)`);
+    glow1Gradient.addColorStop(0.5, `rgba(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}, ${0.8 * glowIntensity})`);
+    glow1Gradient.addColorStop(1, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0)`);
 
     this.ctx.globalAlpha = glow1Alpha;
     this.ctx.fillStyle = glow1Gradient;
@@ -519,9 +759,9 @@ class ParticleScanner
       this.lightBarX - lineWidth * 4, 0,
       this.lightBarX + lineWidth * 4, 0
     );
-    glow2Gradient.addColorStop(0, "rgba(139, 92, 246, 0)");
-    glow2Gradient.addColorStop(0.5, `rgba(139, 92, 246, ${0.4 * glowIntensity})`);
-    glow2Gradient.addColorStop(1, "rgba(139, 92, 246, 0)");
+    glow2Gradient.addColorStop(0, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0)`);
+    glow2Gradient.addColorStop(0.5, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, ${0.4 * glowIntensity})`);
+    glow2Gradient.addColorStop(1, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0)`);
 
     this.ctx.globalAlpha = glow2Alpha;
     this.ctx.fillStyle = glow2Gradient;
@@ -536,9 +776,9 @@ class ParticleScanner
         this.lightBarX - lineWidth * 8, 0,
         this.lightBarX + lineWidth * 8, 0
       );
-      glow3Gradient.addColorStop(0, "rgba(139, 92, 246, 0)");
-      glow3Gradient.addColorStop(0.5, "rgba(139, 92, 246, 0.2)");
-      glow3Gradient.addColorStop(1, "rgba(139, 92, 246, 0)");
+      glow3Gradient.addColorStop(0, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0)`);
+      glow3Gradient.addColorStop(0.5, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.2)`);
+      glow3Gradient.addColorStop(1, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0)`);
 
       this.ctx.globalAlpha = glow3Alpha;
       this.ctx.fillStyle = glow3Gradient;
@@ -660,6 +900,10 @@ class ParticleScanner
     {
       cancelAnimationFrame(this.animationId);
     }
+    if (this.themeObserver)
+    {
+      this.themeObserver.disconnect();
+    }
     this.particles = [];
     this.count = 0;
   }
@@ -774,7 +1018,7 @@ const AutomationCards: React.FC = () =>
     return (
       <div key={index} className="card-wrapper" data-index={index}>
         <div className="card card-normal">
-          <div className="card-gradient bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" style={{ '--brand-color': tool.color } as React.CSSProperties}>
+          <div className="card-gradient bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" style={{ '--brand-color': tool.color } as React.CSSProperties}>
             {/* Brand color accent bar at top */}
             <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, transparent, ${tool.color}, transparent)` }}></div>
             {/* Subtle brand color glow */}
@@ -1003,7 +1247,7 @@ const AutomationCards: React.FC = () =>
   }
 
   return (
-    <section className="py-24 relative overflow-hidden bg-black" id="automations">
+    <section className="py-24 relative overflow-hidden bg-bg-main" id="automations">
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-purple-500/5 rounded-full blur-[120px]" />
@@ -1131,6 +1375,15 @@ const AutomationCards: React.FC = () =>
           clip-path: inset(0 0 0 var(--clip-right, 0%));
         }
 
+        /* Light mode card styling */
+        .light .card-normal {
+          box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .light .card-gradient {
+          background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1e293b 100%) !important;
+        }
+
         .card-gradient {
           width: 100%;
           height: 100%;
@@ -1228,6 +1481,7 @@ const AutomationCards: React.FC = () =>
           white-space: pre;
           padding: 0;
           text-align: left;
+          background: rgba(15, 23, 42, 0.95);
           vertical-align: top;
           box-sizing: border-box;
           -webkit-mask-image: linear-gradient(
@@ -1247,6 +1501,12 @@ const AutomationCards: React.FC = () =>
             rgba(0, 0, 0, 0.2) 100%
           );
           animation: glitch 0.1s infinite linear alternate-reverse;
+        }
+
+        /* Light mode ASCII content styling - darker for visibility */
+        .light .ascii-content {
+          color: rgba(30, 64, 175, 0.9);
+          background: rgba(241, 245, 249, 0.95);
         }
 
         @keyframes glitch {
