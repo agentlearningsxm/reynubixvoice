@@ -130,10 +130,22 @@ export function PremiumContact()
         if (!validateForm()) return;
 
         setIsSubmitting(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setIsSubmitting(false);
-        setIsSubmitted(true);
+        try
+        {
+            const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+            if (!res.ok) throw new Error('Failed to send');
+            setIsSubmitted(true);
+        } catch
+        {
+            setErrors({ message: 'Failed to send message. Please try emailing us directly at voice@reynubix.com' });
+        } finally
+        {
+            setIsSubmitting(false);
+        }
     };
 
     const fadeInUp = {
