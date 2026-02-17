@@ -371,7 +371,7 @@ export function PremiumContact()
                                         <div className="relative">
                                             <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-secondary/50 group-focus-within:text-brand-primary transition-colors" />
                                             <input
-                                                type="email"
+                                                type="text"
                                                 placeholder="Email Address"
                                                 value={formData.email}
                                                 onChange={(e) => handleInputChange('email', e.target.value)}
