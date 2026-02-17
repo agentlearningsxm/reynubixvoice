@@ -107,7 +107,7 @@ export function PremiumContact()
         if (!formData.email.trim())
         {
             newErrors.email = 'Email is required';
-        } else if (!/\\S+@\\S+\\.\\S+/.test(formData.email))
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
         {
             newErrors.email = 'Please enter a valid email';
         }
