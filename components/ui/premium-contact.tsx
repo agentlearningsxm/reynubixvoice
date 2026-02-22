@@ -27,9 +27,10 @@ const contactMethods = [
         value: "voice@reynubix.com",
         link: "mailto:voice@reynubix.com",
         gradient: "from-blue-500/20 to-cyan-500/20",
-        gradientLight: "from-blue-500/30 to-cyan-500/30",
-        iconColor: "text-blue-500 dark:text-blue-400",
-        hoverColor: "blue"
+        gradientLight: "from-blue-100 to-cyan-100",
+        iconColor: "text-blue-700 dark:text-blue-400",
+        hoverColorRgb: "59, 130, 246",
+        comingSoon: false
     },
     {
         icon: Phone,
@@ -38,9 +39,10 @@ const contactMethods = [
         value: "+31 6 8536 7996",
         link: "https://wa.me/31685367996",
         gradient: "from-green-500/20 to-emerald-500/20",
-        gradientLight: "from-green-500/30 to-emerald-500/30",
-        iconColor: "text-green-500 dark:text-green-400",
-        hoverColor: "green"
+        gradientLight: "from-green-100 to-emerald-100",
+        iconColor: "text-green-700 dark:text-green-400",
+        hoverColorRgb: "34, 197, 94",
+        comingSoon: false
     },
     {
         icon: MapPin,
@@ -49,20 +51,22 @@ const contactMethods = [
         value: "Zuilenstein 2, 3334 CZ Zwijndrecht",
         link: "https://www.google.com/maps/search/?api=1&query=Zuilenstein+2,+3334+CZ+Zwijndrecht",
         gradient: "from-purple-500/20 to-pink-500/20",
-        gradientLight: "from-purple-500/30 to-pink-500/30",
-        iconColor: "text-purple-500 dark:text-purple-400",
-        hoverColor: "purple"
+        gradientLight: "from-purple-100 to-pink-100",
+        iconColor: "text-purple-700 dark:text-purple-400",
+        hoverColorRgb: "168, 85, 247",
+        comingSoon: false
     },
     {
         icon: Calendar,
         title: "Book an Appointment",
         description: "Schedule a time with us",
-        value: "Coming Soon",
-        link: "#", // No link yet
+        value: "Pick a time that works for you",
+        link: "https://cal.com/reynubix-voice/let-s-talk",
         gradient: "from-orange-500/20 to-red-500/20",
-        gradientLight: "from-orange-500/30 to-red-500/30",
-        iconColor: "text-orange-500 dark:text-orange-400",
-        hoverColor: "orange"
+        gradientLight: "from-orange-100 to-red-100",
+        iconColor: "text-orange-700 dark:text-orange-400",
+        hoverColorRgb: "249, 115, 22",
+        comingSoon: false
     }
 ];
 
@@ -518,31 +522,60 @@ export function PremiumContact()
                         </div>
 
                         <div className="space-y-6">
-                            {contactMethods.map((method, index) => (
-                                <motion.a
-                                    key={index}
-                                    href={method.link}
-                                    className="block p-8 bg-bg-card border border-border backdrop-blur-2xl rounded-3xl hover:bg-brand-subtle hover:border-brand-primary/30 shadow-lg shadow-black/5 dark:shadow-black/5 shadow-slate-200/50 transition-all group"
-                                    variants={fadeInUp}
-                                    whileHover={{ scale: 1.02, y: -4 }}
-                                >
-                                    <div className="flex items-center gap-6">
+                            {contactMethods.map((method, index) => {
+                                if (method.comingSoon) {
+                                    return (
                                         <motion.div
-                                            className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${method.gradientLight} dark:${method.gradient} border border-slate-200 dark:border-brand-primary/10 flex items-center justify-center shadow-inner shadow-slate-200/50 dark:shadow-none`}
-                                            whileHover={{ scale: 1.1, rotateY: 180 }}
-                                            transition={{ duration: 0.6 }}
+                                            key={index}
+                                            className="relative block p-8 bg-bg-card border border-border/80 backdrop-blur-2xl rounded-3xl opacity-70 cursor-not-allowed shadow-[0_2px_16px_rgba(0,0,0,0.06),0_1px_4px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_28px_rgba(0,0,0,0.5)]"
+                                            variants={fadeInUp}
                                         >
-                                            <method.icon className={`w-8 h-8 ${method.iconColor}`} />
+                                            <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+                                                Coming Soon
+                                            </div>
+                                            <div className="flex items-center gap-6">
+                                                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${method.gradientLight} dark:${method.gradient} border border-slate-200 dark:border-brand-primary/10 flex items-center justify-center shadow-inner shadow-slate-200/50 dark:shadow-none`}>
+                                                    <method.icon className={`w-8 h-8 ${method.iconColor}`} />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="text-2xl font-bold text-text-primary mb-1 tracking-tight">{method.title}</h4>
+                                                    <p className="text-text-secondary text-base font-light mb-2">{method.description}</p>
+                                                    <p className="text-lg font-semibold text-text-secondary">{method.value}</p>
+                                                </div>
+                                            </div>
                                         </motion.div>
-                                        <div className="flex-1">
-                                            <h4 className="text-2xl font-bold text-text-primary mb-1 tracking-tight">{method.title}</h4>
-                                            <p className="text-text-secondary text-base font-light mb-2">{method.description}</p>
-                                            <p className="text-lg font-semibold text-text-primary group-hover:text-brand-primary transition-colors">{method.value}</p>
+                                    );
+                                }
+                                return (
+                                    <motion.a
+                                        key={index}
+                                        href={method.link}
+                                        className="relative block p-8 bg-bg-card border border-border/80 backdrop-blur-2xl rounded-3xl hover:bg-brand-subtle hover:border-brand-primary/30 transition-all group shadow-[0_2px_16px_rgba(0,0,0,0.06),0_1px_4px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_28px_rgba(0,0,0,0.5)]"
+                                        variants={fadeInUp}
+                                        whileHover={{
+                                            scale: 1.02,
+                                            y: -4,
+                                            boxShadow: `0 8px 32px rgba(${method.hoverColorRgb}, 0.22), 0 2px 8px rgba(${method.hoverColorRgb}, 0.12)`
+                                        }}
+                                    >
+                                        <div className="flex items-center gap-6">
+                                            <motion.div
+                                                className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${method.gradientLight} dark:${method.gradient} border border-slate-200 dark:border-brand-primary/10 flex items-center justify-center shadow-inner shadow-slate-200/50 dark:shadow-none`}
+                                                whileHover={{ scale: 1.1, rotateY: 180 }}
+                                                transition={{ duration: 0.6 }}
+                                            >
+                                                <method.icon className={`w-8 h-8 ${method.iconColor}`} />
+                                            </motion.div>
+                                            <div className="flex-1">
+                                                <h4 className="text-2xl font-bold text-text-primary mb-1 tracking-tight">{method.title}</h4>
+                                                <p className="text-text-secondary text-base font-light mb-2">{method.description}</p>
+                                                <p className="text-lg font-semibold text-text-primary group-hover:text-brand-primary transition-colors">{method.value}</p>
+                                            </div>
+                                            <ArrowRight className="w-6 h-6 text-slate-300 dark:text-text-secondary/30 group-hover:text-brand-primary group-hover:translate-x-2 transition-all" />
                                         </div>
-                                        <ArrowRight className="w-6 h-6 text-slate-300 dark:text-text-secondary/30 group-hover:text-brand-primary group-hover:translate-x-2 transition-all" />
-                                    </div>
-                                </motion.a>
-                            ))}
+                                    </motion.a>
+                                );
+                            })}
                         </div>
 
                         {/* Additional Info */}

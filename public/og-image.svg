@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#060609"/>
+      <stop offset="100%" stop-color="#0c0c18"/>
+    </linearGradient>
+
+    <!-- Brand accent gradient -->
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+
+    <!-- Orb gradient -->
+    <radialGradient id="orb" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#0EA5E9" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#0369A1" stop-opacity="0.1"/>
+    </radialGradient>
+
+    <!-- Orb glow -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#0EA5E9" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Subtle grid pattern -->
+    <pattern id="grid" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+    </pattern>
+
+    <filter id="blur-lg">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+    <filter id="blur-sm">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <filter id="blur-orb">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+
+  <!-- Top-left ambient glow -->
+  <ellipse cx="200" cy="150" rx="300" ry="250" fill="#0EA5E9" opacity="0.07" filter="url(#blur-lg)"/>
+  <!-- Bottom-right ambient glow -->
+  <ellipse cx="980" cy="480" rx="250" ry="200" fill="#38BDF8" opacity="0.06" filter="url(#blur-lg)"/>
+
+  <!-- ─── RIGHT SIDE — Orb Visual ─── -->
+  <!-- Outer glow ring -->
+  <circle cx="880" cy="315" r="200" fill="url(#glow)" filter="url(#blur-lg)"/>
+  <!-- Orb rings -->
+  <circle cx="880" cy="315" r="160" fill="none" stroke="#0EA5E9" stroke-width="1" opacity="0.15"/>
+  <circle cx="880" cy="315" r="130" fill="none" stroke="#38BDF8" stroke-width="1" opacity="0.2"/>
+  <circle cx="880" cy="315" r="100" fill="none" stroke="#0EA5E9" stroke-width="1.5" opacity="0.3"/>
+  <!-- Orb body -->
+  <circle cx="880" cy="315" r="90" fill="url(#orb)" filter="url(#blur-sm)"/>
+  <!-- Core highlight -->
+  <circle cx="855" cy="290" r="28" fill="white" opacity="0.12" filter="url(#blur-sm)"/>
+  <circle cx="858" cy="292" r="10" fill="white" opacity="0.2"/>
+
+  <!-- Wave arcs below orb (voice indicator) -->
+  <path d="M 800 390 Q 880 360 960 390" fill="none" stroke="#0EA5E9" stroke-width="2" opacity="0.4" stroke-linecap="round"/>
+  <path d="M 780 410 Q 880 370 980 410" fill="none" stroke="#38BDF8" stroke-width="1.5" opacity="0.25" stroke-linecap="round"/>
+  <path d="M 760 430 Q 880 382 1000 430" fill="none" stroke="#0EA5E9" stroke-width="1" opacity="0.15" stroke-linecap="round"/>
+
+  <!-- Vertical divider -->
+  <line x1="660" y1="120" x2="660" y2="510" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+
+  <!-- ─── LEFT SIDE — Text Content ─── -->
+
+  <!-- Brand pill badge -->
+  <rect x="80" y="155" width="186" height="34" rx="17" fill="#0EA5E9" fill-opacity="0.12" stroke="#0EA5E9" stroke-width="1" stroke-opacity="0.4"/>
+  <!-- Ping dot -->
+  <circle cx="102" cy="172" r="5" fill="#0EA5E9"/>
+  <circle cx="102" cy="172" r="8" fill="#0EA5E9" fill-opacity="0.3"/>
+  <text x="116" y="177" font-family="'Helvetica Neue', Arial, sans-serif" font-size="12" font-weight="600" fill="#38BDF8" letter-spacing="1.5">AI VOICE RECEPTIONIST</text>
+
+  <!-- Main headline -->
+  <text x="80" y="280" font-family="'Helvetica Neue', Arial, sans-serif" font-size="72" font-weight="800" fill="white" letter-spacing="-2">Reynubix</text>
+  <text x="80" y="356" font-family="'Helvetica Neue', Arial, sans-serif" font-size="72" font-weight="800" fill="url(#accent)" letter-spacing="-2">Voice</text>
+
+  <!-- Tagline -->
+  <text x="80" y="415" font-family="'Helvetica Neue', Arial, sans-serif" font-size="22" font-weight="400" fill="rgba(255,255,255,0.55)" letter-spacing="0.2">Never miss a call. Never lose a customer.</text>
+
+  <!-- Accent underline bar -->
+  <rect x="80" y="438" width="120" height="3" rx="2" fill="url(#accent)"/>
+
+  <!-- Bottom stat pills -->
+  <rect x="80" y="478" width="148" height="36" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="154" y="501" font-family="'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.6)" text-anchor="middle">24/7 Available</text>
+
+  <rect x="244" y="478" width="148" height="36" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="318" y="501" font-family="'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.6)" text-anchor="middle">Books Appointments</text>
+
+  <rect x="408" y="478" width="140" height="36" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+  <text x="478" y="501" font-family="'Helvetica Neue', Arial, sans-serif" font-size="13" font-weight="500" fill="rgba(255,255,255,0.6)" text-anchor="middle">Stops Lost Revenue</text>
+
+  <!-- Domain watermark -->
+  <text x="80" y="568" font-family="'Helvetica Neue', Arial, sans-serif" font-size="14" fill="rgba(255,255,255,0.2)" letter-spacing="0.5">reynubixvoice.com</text>
+</svg>

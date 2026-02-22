@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Enterprise 3D Dynamic QR - Three.js</title>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #17191f;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    .lil-gui.root {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      top: auto !important;
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+    }
+
+    .back-to-studio {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 50;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(10, 15, 23, 0.86);
+      color: #f8fafc;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      backdrop-filter: blur(8px);
+      transition: border-color 160ms ease, background-color 160ms ease;
+    }
+
+    .back-to-studio:hover {
+      border-color: rgba(255, 255, 255, 0.5);
+      background: rgba(10, 15, 23, 0.95);
+    }
+  </style>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+      "lil-gui": "https://unpkg.com/lil-gui@0.19.1/dist/lil-gui.esm.min.js"
+    }
+  }
+  </script>
+  <script src="https://unpkg.com/qrcode-generator@1.4.4/qrcode.js"></script>
+</head>
+<body>
+  <a class="back-to-studio" href="/">Back to Home</a>
+  <script type="module" src="/enterprise-qr/enterprise-qr.js"></script>
+</body>
+</html>

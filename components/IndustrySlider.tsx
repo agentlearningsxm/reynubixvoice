@@ -32,7 +32,7 @@ const IndustrySlider: React.FC = () =>
       id: key,
       title: key === 'hvac' ? 'Plumbing & AC' : data.name,
       description: data.desc,
-      image: industryImages[key] || 'https://picsum.photos/800/1200',
+      image: industryImages[key] || 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop',
     };
   });
 

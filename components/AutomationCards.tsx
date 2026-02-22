@@ -58,7 +58,7 @@ const AUTOMATION_TOOLS = [
   {
     name: 'Antigravity',
     description: 'Advanced AI automation for enterprise workflows',
-    logo: 'https://antigravity.google/favicon.ico',
+    logo: 'https://cdn.simpleicons.org/google/8B5CF6',
     color: '#8B5CF6',
     gradient: 'from-purple-500 to-violet-600',
     iconBg: 'bg-gradient-to-br from-purple-400 to-violet-500'
@@ -82,7 +82,7 @@ const AUTOMATION_TOOLS = [
   {
     name: 'Retell AI',
     description: 'Real-time voice AI for conversational applications',
-    logo: 'https://th.bing.com/th/id/R.5db8691bc02eda31959d57f64c3e2364?rik=JUuA1tpydosKxQ&riu=http%3a%2f%2fai-321.com%2fwp-content%2fuploads%2f2024%2f05%2f4e6b7-www.retellai.com.png&ehk=Uvrao5pgOZvZkvs8jPLiZcUgLINzGafz6baUEYVQkiQ%3d&risl=&pid=ImgRaw&r=0',
+    logo: 'https://www.retellai.com/favicon.ico',
     color: '#3B82F6',
     gradient: 'from-blue-500 to-cyan-500',
     iconBg: 'bg-gradient-to-br from-blue-400 to-cyan-500'
@@ -98,7 +98,7 @@ const AUTOMATION_TOOLS = [
   {
     name: 'Perplexity',
     description: 'AI-powered search engine with real-time answers',
-    logo: 'https://assets.airtel.in/static-assets/thanks/images/static/perplexity-logo-new.png',
+    logo: 'https://www.perplexity.ai/favicon.ico',
     color: '#20B2AA',
     gradient: 'from-teal-500 to-cyan-500',
     iconBg: 'bg-gradient-to-br from-teal-400 to-cyan-500'

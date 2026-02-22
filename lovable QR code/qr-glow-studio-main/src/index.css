@@ -1,0 +1,181 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 240 15% 5%;
+    --foreground: 45 10% 90%;
+
+    --card: 240 10% 10%;
+    --card-foreground: 45 10% 90%;
+
+    --popover: 240 10% 10%;
+    --popover-foreground: 45 10% 90%;
+
+    --primary: 120 100% 25%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 45 100% 50%;
+    --secondary-foreground: 240 15% 5%;
+
+    --muted: 240 10% 15%;
+    --muted-foreground: 240 5% 55%;
+
+    --accent: 0 100% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 240 10% 18%;
+    --input: 240 10% 15%;
+    --ring: 120 100% 25%;
+
+    --radius: 0.75rem;
+
+    --rasta-green: 120 100% 25%;
+    --rasta-gold: 45 100% 50%;
+    --rasta-red: 0 100% 50%;
+
+    --glass-bg: 240 10% 12% / 0.6;
+    --glass-border: 240 10% 25% / 0.3;
+    --glass-glow-green: 120 100% 40% / 0.15;
+    --glass-glow-gold: 45 100% 50% / 0.1;
+
+    --sidebar-background: 240 10% 8%;
+    --sidebar-foreground: 45 10% 90%;
+    --sidebar-primary: 120 100% 25%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 10% 15%;
+    --sidebar-accent-foreground: 45 10% 90%;
+    --sidebar-border: 240 10% 18%;
+    --sidebar-ring: 120 100% 25%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply rounded-xl border backdrop-blur-xl;
+    background: hsla(var(--glass-bg));
+    border-color: hsla(var(--glass-border));
+    box-shadow:
+      0 0 30px hsla(var(--glass-glow-green)),
+      inset 0 1px 0 hsla(240 10% 100% / 0.05);
+  }
+
+  .glass-input {
+    @apply rounded-lg border px-4 py-2.5 text-sm transition-all duration-200 outline-none;
+    background: hsla(240 10% 8% / 0.8);
+    border-color: hsla(var(--glass-border));
+    color: hsl(var(--foreground));
+  }
+
+  .glass-input:focus {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 12px hsla(var(--glass-glow-green));
+  }
+
+  .glass-input::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .rasta-gradient-text {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--rasta-green)),
+      hsl(var(--rasta-gold)),
+      hsl(var(--rasta-red))
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .rasta-gradient-border {
+    position: relative;
+  }
+
+  .rasta-gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--rasta-green)),
+      hsl(var(--rasta-gold)),
+      hsl(var(--rasta-red))
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .glow-green {
+    box-shadow: 0 0 20px hsla(var(--rasta-green) / 0.3), 0 0 40px hsla(var(--rasta-green) / 0.1);
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 20px hsla(var(--rasta-gold) / 0.3), 0 0 40px hsla(var(--rasta-gold) / 0.1);
+  }
+
+  .font-mono-display {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .scan-lines {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      hsla(120 100% 50% / 0.03) 2px,
+      hsla(120 100% 50% / 0.03) 4px
+    );
+  }
+
+  .btn-rasta {
+    @apply px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-300;
+    background: linear-gradient(135deg, hsl(var(--rasta-green)), hsl(var(--rasta-gold)));
+    color: hsl(var(--background));
+  }
+
+  .btn-rasta:hover {
+    box-shadow: 0 0 25px hsla(var(--rasta-green) / 0.4);
+    transform: translateY(-1px);
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}

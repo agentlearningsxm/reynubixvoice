@@ -19,6 +19,7 @@ const Navbar: React.FC = () =>
   const bubbleRef = useRef<HTMLDivElement>(null);
   const hoverBubbleRef = useRef<HTMLDivElement>(null);
   const linkRefs = useRef<{ [key: string]: HTMLAnchorElement | null }>({});
+  const controlsRef = useRef<HTMLDivElement>(null);
 
   const { t, language, setLanguage } = useLanguage();
   const { accent, setAccent, mode, setMode } = useTheme();
@@ -76,6 +77,21 @@ const Navbar: React.FC = () =>
     (window as any).Cal("init", "let-s-talk", { origin: "https://app.cal.com" });
 
     (window as any).Cal.ns["let-s-talk"]("ui", { "hideEventTypeDetails": false, "layout": "month_view" });
+  }, []);
+
+  // Close dropdowns on outside click
+  useEffect(() =>
+  {
+    const handleClickOutside = (e: MouseEvent) =>
+    {
+      if (controlsRef.current && !controlsRef.current.contains(e.target as Node))
+      {
+        setIsLangMenuOpen(false);
+        setIsThemeMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const updateBubblePosition = () =>
@@ -155,10 +171,10 @@ const Navbar: React.FC = () =>
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'py-3' : 'py-5'
         }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto pl-3 pr-4 sm:pl-4 sm:pr-6 lg:pl-6 lg:pr-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 cursor-pointer">
+          <Link to="/" className="flex items-center gap-1.5 cursor-pointer">
             <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
               <Logo size={24} />
             </div>
@@ -215,11 +231,11 @@ const Navbar: React.FC = () =>
 
           {/* Right Side Controls - Wrapped in Pill Style */}
           <div className="hidden md:flex items-center">
-            <div className="controls-wrap relative">
+            <div ref={controlsRef} className="controls-wrap relative">
               {/* Language Selector */}
               <div className="control-item">
                 <button
-                  onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                  onClick={() => { setIsLangMenuOpen(prev => !prev); setIsThemeMenuOpen(false); }}
                   className="control-btn"
                 >
                   <Globe size={16} />
@@ -256,7 +272,7 @@ const Navbar: React.FC = () =>
               {/* Theme Toggle */}
               <div className="control-item">
                 <button
-                  onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)}
+                  onClick={() => { setIsThemeMenuOpen(prev => !prev); setIsLangMenuOpen(false); }}
                   className="control-btn theme-btn"
                 >
                   <Palette size={16} />
@@ -366,6 +382,20 @@ const Navbar: React.FC = () =>
               </a>
             ))}
 
+            {/* Language Switcher Row */}
+            <div className="mobile-theme-row">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => setLanguage(lang.code)}
+                  className={`mobile-theme-btn ${language === lang.code ? 'active' : ''}`}
+                >
+                  <Globe size={12} />
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+
             <div className="mobile-theme-row">
               {themes.map((theme) => (
                 <button
@@ -449,11 +479,13 @@ const Navbar: React.FC = () =>
         }
 
         .nav-link.active {
-          color: #0f0f0f;
+          color: var(--accent-primary);
+          font-weight: 600;
         }
 
         .light .nav-link.active {
-          color: #1f2937;
+          color: var(--accent-primary);
+          font-weight: 600;
         }
 
         .nav-bubble {
@@ -467,13 +499,15 @@ const Navbar: React.FC = () =>
 
         .nav-bubble.active {
           z-index: 2;
-          background: linear-gradient(180deg, #f2f2f2, #b3b3b3);
-          box-shadow: inset 0 2px 7px rgba(255, 255, 255, 0.8), 0 2px 8px rgba(0, 0, 0, 0.2);
+          background: var(--accent-subtle);
+          box-shadow: inset 0 2px 7px rgba(255, 255, 255, 0.08), 0 0 12px var(--accent-glow), 0 2px 8px rgba(0, 0, 0, 0.2);
+          border: 1px solid var(--accent-primary);
         }
 
         .light .nav-bubble.active {
-          background: linear-gradient(180deg, #ffffff, #e5e7eb);
-          box-shadow: inset 0 2px 7px rgba(255, 255, 255, 1), 0 2px 8px rgba(0, 0, 0, 0.1);
+          background: var(--accent-subtle);
+          box-shadow: inset 0 2px 7px rgba(255, 255, 255, 0.6), 0 0 10px var(--accent-glow), 0 2px 6px rgba(0, 0, 0, 0.08);
+          border: 1px solid var(--accent-primary);
         }
 
         .nav-bubble.hover {

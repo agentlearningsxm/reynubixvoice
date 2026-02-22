@@ -21,7 +21,7 @@ export const translations = {
       payoff: "Pay for itself with just one saved client.",
       listenSample: "Listen to Sample",
       bookDemo: "Book a Demo",
-      trustedBy: "Trusted by 500+ businesses",
+      trustedBy: "Our goal: help you adapt AI, save time & make money",
       widget: {
         incoming: "Incoming Call...",
         agent: "Reyna",
@@ -134,7 +134,7 @@ export const translations = {
       payoff: "Se paie avec un seul client sauvé.",
       listenSample: "Écouter un Exemple",
       bookDemo: "Réserver une Démo",
-      trustedBy: "Reconnu par 500+ entreprises",
+      trustedBy: "Notre but : vous aider à adopter l'IA, gagner du temps & rentabiliser",
       widget: {
         incoming: "Appel Entrant...",
         agent: "Reyna",
@@ -247,7 +247,7 @@ export const translations = {
       payoff: "Verdient zichzelf terug met slechts één geredde klant.",
       listenSample: "Luister naar Voorbeeld",
       bookDemo: "Boek een Demo",
-      trustedBy: "Vertrouwd door 500+ bedrijven",
+      trustedBy: "Ons doel: AI adopteren, tijd besparen & meer verdienen",
       widget: {
         incoming: "Inkomende Oproep...",
         agent: "Reyna",

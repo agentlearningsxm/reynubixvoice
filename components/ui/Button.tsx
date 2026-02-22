@@ -20,6 +20,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
   children,
+  disabled,
   ...props
 }) =>
 {
@@ -38,14 +39,15 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <motion.button
-      whileHover={{ scale: 1.05, y: -2 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={disabled ? undefined : { scale: 1.03, y: -1 }}
+      whileTap={disabled ? undefined : { scale: 0.98 }}
       className={cn(
-        'rounded-full transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer',
+        'rounded-full transition-colors transition-transform duration-200 motion-reduce:transition-none flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed',
         variants[variant],
         sizes[size],
         className
       )}
+      disabled={disabled}
       {...props}
     >
       {children}

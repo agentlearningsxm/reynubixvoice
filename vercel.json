@@ -1,5 +1,7 @@
 {
   "rewrites": [
-    { "source": "/((?!api/.*).*)", "destination": "/index.html" }
+    { "source": "/r/(.*)", "destination": "/api/r/$1" },
+    { "source": "/enterprise-qr.html", "destination": "/enterprise-qr.html" },
+    { "source": "/((?!api/|r/|enterprise-qr/|enterprise-qr\\.html$).*)", "destination": "/index.html" }
   ]
 }

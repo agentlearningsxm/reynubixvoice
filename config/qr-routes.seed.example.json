@@ -1,0 +1,18 @@
+{
+  "frontdesk-main": {
+    "name": "Front Desk Main",
+    "destination": "https://reynubixvoice.com/contact",
+    "enabled": true,
+    "redirectType": "single",
+    "fallbackUrl": "https://reynubixvoice.com",
+    "openInNewTab": false
+  },
+  "voice-demo": {
+    "name": "Voice Demo",
+    "destination": "https://reynubixvoice.com/#demo",
+    "enabled": true,
+    "redirectType": "single",
+    "fallbackUrl": "https://reynubixvoice.com",
+    "openInNewTab": false
+  }
+}
