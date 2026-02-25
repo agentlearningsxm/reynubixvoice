@@ -158,19 +158,30 @@ const Calculator: React.FC = () =>
       <div className="flex flex-col justify-center gap-6" id="result-box">
         <motion.div
           animate={controls}
-          className="glass-card bg-money-loss/10 border-money-loss/30 rounded-2xl p-6 text-center"
+          className="glass-card rounded-2xl p-7 text-center relative overflow-hidden"
+          style={{
+            background: 'rgba(239,68,68,0.06)',
+            borderColor: 'rgba(239,68,68,0.25)',
+            boxShadow: '0 0 40px rgba(239,68,68,0.08) inset, 0 4px 24px rgba(0,0,0,0.3)'
+          }}
         >
-          <p className="text-money-loss font-semibold uppercase tracking-wider text-sm mb-1">{t.calculator.monthlyLoss}</p>
-          <h3 className="text-5xl font-bold text-text-primary mb-2">{t.currency}{monthlyLoss.toLocaleString()}</h3>
-          <p className="text-xs text-text-secondary">{t.calculator.disclaimer}</p>
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 100%, rgba(239,68,68,0.08), transparent)' }} />
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-red-400 mb-2 relative z-10">{t.calculator.monthlyLoss}</p>
+          <h3 className="text-[3.5rem] lg:text-[4rem] font-bold font-display tracking-[-0.04em] text-text-primary mb-2 relative z-10 leading-none">
+            {t.currency}{monthlyLoss.toLocaleString()}
+          </h3>
+          <p className="text-xs text-text-secondary relative z-10">{t.calculator.disclaimer}</p>
         </motion.div>
 
         <motion.div
           animate={controls}
-          className="glass-card bg-bg-card border-border rounded-2xl p-6 text-center"
+          className="glass-card rounded-2xl p-6 text-center"
         >
-          <p className="text-text-secondary font-semibold uppercase tracking-wider text-sm mb-1">{t.calculator.yearlyLoss}</p>
-          <h3 className="text-4xl font-bold text-text-primary">{t.currency}{yearlyLoss.toLocaleString()}</h3>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-secondary mb-2">{t.calculator.yearlyLoss}</p>
+          <h3 className="text-[2.75rem] font-bold font-display tracking-[-0.04em] text-text-primary leading-none">
+            {t.currency}{yearlyLoss.toLocaleString()}
+          </h3>
         </motion.div>
 
         <div className="bg-money-gain/10 border border-money-gain/20 rounded-xl p-4 flex items-center gap-4">
@@ -190,8 +201,13 @@ const Calculator: React.FC = () =>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div className="text-center mb-16">
-          <h2 className="text-4xl lg:text-5xl font-display font-bold mb-4 text-text-primary">{t.calculator.title} <span className="text-gradient-danger">{t.calculator.titleHighlight}</span></h2>
-          <p className="text-text-secondary text-lg">{t.calculator.subtitle}</p>
+          <div className="flex justify-center mb-3">
+            <span className="section-eyebrow">Revenue Loss Calculator</span>
+          </div>
+          <h2 className="text-4xl lg:text-5xl font-display font-bold mb-4 tracking-[-0.02em] text-text-primary">
+            {t.calculator.title} <span className="text-gradient-danger">{t.calculator.titleHighlight}</span>
+          </h2>
+          <p className="text-text-secondary text-base max-w-xl mx-auto">{t.calculator.subtitle}</p>
         </div>
 
         {dramaticBorderEnabled ? (

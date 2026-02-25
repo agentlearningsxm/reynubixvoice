@@ -64,21 +64,24 @@ const referralCards: CardStackItem[] = [
 export default function ReferralSection()
 {
     return (
-        <section className="relative w-full bg-black py-24 overflow-hidden">
+        <section className="relative w-full py-24 overflow-hidden border-y border-border">
             {/* Background Gradient Effects */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950 to-black" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/20 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-bg-main via-bg-card/50 to-bg-main" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-primary/10 via-transparent to-transparent" />
 
             <div className="container relative z-10 mx-auto px-4">
                 {/* Header */}
                 <div className="mb-16 text-center">
-                    <h2 className="mb-4 text-5xl font-bold tracking-tight text-white sm:text-6xl">
-                        Join the <span className="text-cyan-400">Family</span>
+                    <div className="flex justify-center mb-4">
+                      <span className="section-eyebrow">Social Proof</span>
+                    </div>
+                    <h2 className="mb-4 text-5xl font-bold font-display tracking-[-0.02em] text-text-primary sm:text-6xl">
+                        Join the <span className="text-gradient">Family</span>
                     </h2>
 
-                    <p className="mx-auto max-w-2xl text-xl text-gray-300">
+                    <p className="mx-auto max-w-2xl text-xl text-text-secondary">
                         Every great partnership starts with one 'yes'. <br />
-                        <span className="text-cyan-400 font-semibold">Will you be next?</span>
+                        <span className="text-brand-primary font-semibold">Will you be next?</span>
                     </p>
                 </div>
 
@@ -98,7 +101,8 @@ export default function ReferralSection()
                 <div className="mt-16 text-center">
                     <Link
                         to="/contact"
-                        className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-cyan-500/30 transition-all hover:scale-105 hover:shadow-cyan-500/50"
+                        className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-white shadow-[0_0_24px_rgba(14,165,233,0.28),0_4px_14px_rgba(0,0,0,0.3)] hover:shadow-[0_0_36px_rgba(14,165,233,0.42),0_6px_20px_rgba(0,0,0,0.35)] transition-all hover:scale-105"
+                        style={{ background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)' }}
                     >
                         Start Your Success Story
                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
