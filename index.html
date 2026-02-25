@@ -435,6 +435,33 @@
       box-shadow: 0 4px 16px var(--accent-subtle), 0 1px 4px rgba(0, 0, 0, 0.06);
     }
 
+    /* ===== Seamless Section Transitions ===== */
+    main > section {
+      position: relative;
+    }
+    main > section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(to bottom, var(--bg-main), transparent);
+      pointer-events: none;
+      z-index: 25;
+    }
+    main > section::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(to top, var(--bg-main), transparent);
+      pointer-events: none;
+      z-index: 25;
+    }
+
     /* Accessibility: Reduced Motion */
     @media (prefers-reduced-motion: reduce) {
 

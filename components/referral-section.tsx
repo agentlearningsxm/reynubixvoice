@@ -64,7 +64,7 @@ const referralCards: CardStackItem[] = [
 export default function ReferralSection()
 {
     return (
-        <section className="relative w-full bg-black py-24 overflow-hidden">
+        <section className="relative w-full bg-bg-main py-24 overflow-hidden">
             {/* Background Gradient Effects */}
             <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-950 to-black" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-cyan-900/20 via-transparent to-transparent" />

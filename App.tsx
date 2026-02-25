@@ -29,7 +29,17 @@ const MarketingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
     <div className="relative z-10">
       <Navbar />
-      <main>{children}</main>
+      <main className="relative">
+        {/* Scrolling ambient orbs — visual flow between sections */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+          <div className="absolute top-[12%] right-[-8%] w-[50%] h-[18%] bg-brand-primary/5 rounded-full blur-[130px]" />
+          <div className="absolute top-[28%] left-[-10%] w-[45%] h-[14%] bg-purple-500/5 rounded-full blur-[120px]" />
+          <div className="absolute top-[45%] right-[-5%] w-[40%] h-[16%] bg-brand-secondary/5 rounded-full blur-[110px]" />
+          <div className="absolute top-[62%] left-[-8%] w-[45%] h-[14%] bg-brand-primary/4 rounded-full blur-[130px]" />
+          <div className="absolute top-[78%] right-[5%] w-[40%] h-[15%] bg-purple-500/4 rounded-full blur-[120px]" />
+        </div>
+        {children}
+      </main>
       <Footer />
     </div>
   </div>

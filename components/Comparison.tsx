@@ -153,7 +153,7 @@ const Comparison: React.FC = () =>
   };
 
   return (
-    <section className="py-24 bg-bg-primary overflow-hidden relative min-h-[800px] flex flex-col items-center justify-center select-none" id="comparison">
+    <section className="py-24 bg-bg-main overflow-hidden relative min-h-[800px] flex flex-col items-center justify-center select-none" id="comparison">
       {/* Background Ambience */}
       <div className="absolute inset-0 bg-gradient pointer-events-none" />
       <div className="absolute inset-0 bg-grid pointer-events-none opacity-20" />

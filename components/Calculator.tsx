@@ -186,7 +186,7 @@ const Calculator: React.FC = () =>
   );
 
   return (
-    <section className="py-20 relative border-y border-border" id="calculator">
+    <section className="py-20 relative" id="calculator">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div className="text-center mb-16">
