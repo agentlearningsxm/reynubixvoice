@@ -160,9 +160,11 @@ const Comparison: React.FC = () =>
 
       <div className="container relative z-10 flex flex-col items-center">
         <header className="text-center mb-12">
-          <h2 className="text-sm font-medium tracking-widest text-text-secondary uppercase mb-3">Interactive Showcase</h2>
-          <h1 className="text-4xl lg:text-5xl font-light tracking-tight text-text-primary">
-            {t.comparison.title} <span className="font-bold text-brand-primary">{t.comparison.titleHighlight}</span>
+          <div className="flex justify-center mb-3">
+            <span className="section-eyebrow">Interactive Showcase</span>
+          </div>
+          <h1 className="text-4xl lg:text-5xl font-bold font-display tracking-[-0.02em] text-text-primary">
+            {t.comparison.title} <span className="text-brand-primary">{t.comparison.titleHighlight}</span>
           </h1>
         </header>
 

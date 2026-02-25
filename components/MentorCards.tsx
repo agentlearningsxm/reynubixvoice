@@ -439,15 +439,17 @@ const MentorCards: React.FC = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
         {/* Section Header */}
         <div className="mb-12 text-center">
-          <div className="mb-5 inline-flex items-center rounded-full glass-card px-4 py-2 text-sm font-medium text-brand-primary">
-            <span className="relative flex h-2 w-2 mr-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-primary" />
+          <div className="flex justify-center mb-5">
+            <span className="section-eyebrow">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-primary" />
+              </span>
+              {copy.eyebrow}
             </span>
-            {copy.eyebrow}
           </div>
 
-          <h2 className="mx-auto mb-5 max-w-5xl text-3xl font-bold font-display leading-tight text-text-primary md:text-4xl lg:text-5xl">
+          <h2 className="mx-auto mb-5 max-w-5xl text-3xl font-bold font-display leading-tight tracking-[-0.02em] text-text-primary md:text-4xl lg:text-5xl">
             {copy.title}
             <br />
             <span className="text-gradient">{copy.highlight}</span>

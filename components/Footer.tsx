@@ -10,21 +10,54 @@ const Footer: React.FC = () =>
   return (
     <footer className="border-t border-border bg-bg-main">
 
-      {/* CTA Banner */}
-      <div className="border-b border-border py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div>
-            <p className="text-xs font-semibold tracking-widest uppercase text-brand-primary mb-1">Ready to stop missing calls?</p>
-            <h2 className="text-xl font-bold font-display text-text-primary">Your AI receptionist is waiting.</h2>
+      {/* CTA Banner — Premium */}
+      <div className="relative overflow-hidden border-b border-border py-16 md:py-20">
+        {/* Ambient glow layers */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 80% at 50% 120%, rgba(14,165,233,0.13), transparent 70%)' }} />
+        <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none" />
+
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          {/* Eyebrow */}
+          <div className="flex justify-center mb-5">
+            <span className="section-eyebrow">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-primary"></span>
+              </span>
+              Taking Bookings Now
+            </span>
           </div>
+
+          {/* Headline */}
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display tracking-[-0.03em] text-text-primary mb-4 leading-[1.1]">
+            Every missed call is a<br />
+            <span className="text-gradient">missed opportunity.</span>
+          </h2>
+
+          {/* Sub-copy */}
+          <p className="text-text-secondary text-base md:text-lg max-w-xl mx-auto mb-8 leading-relaxed">
+            Your AI receptionist answers 24/7 — before your competitor does.
+          </p>
+
+          {/* CTA Button */}
           <a
             data-cal-link="reynubix-voice/let-s-talk"
             data-cal-namespace="let-s-talk"
             data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-brand-primary text-white font-semibold text-sm cursor-pointer hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-white font-semibold text-[15px] cursor-pointer transition-all hover:scale-[1.025] active:scale-[0.975]"
+            style={{
+              background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+              boxShadow: '0 0 28px rgba(14,165,233,0.30), 0 4px 16px rgba(0,0,0,0.35)'
+            }}
           >
-            Let&apos;s Talk →
+            Book a Free Demo
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
           </a>
+
+          {/* Trust micro-copy */}
+          <p className="mt-4 text-xs text-text-secondary opacity-60">No commitment · 15-min call · See ROI live</p>
         </div>
       </div>
 

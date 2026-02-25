@@ -294,7 +294,10 @@ const IndustrySlider: React.FC = () =>
 
       {/* Hero text below the cards */}
       <div className="absolute bottom-8 left-0 right-0 z-[1] pointer-events-none text-center px-4">
-        <h2 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-tight mb-3">
+        <div className="flex justify-center mb-4">
+          <span className="section-eyebrow">Industries We Serve</span>
+        </div>
+        <h2 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-[-0.02em] mb-3">
           <span className="text-text-primary">{t.industries.title} </span>
           <span className="text-brand-primary">{t.industries.titleHighlight}</span>
           <span className="text-text-primary"> {t.industries.titleSuffix}</span>

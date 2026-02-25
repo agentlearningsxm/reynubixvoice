@@ -1261,15 +1261,17 @@ const AutomationCards: React.FC = () =>
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card text-brand-primary text-sm font-medium mb-6">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-primary"></span>
+          <div className="flex justify-center mb-6">
+            <span className="section-eyebrow">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-primary"></span>
+              </span>
+              And we're not done yet...
             </span>
-            And we're not done yet...
           </div>
 
-          <h2 className="text-4xl lg:text-5xl font-bold font-display tracking-tight mb-4 text-text-primary">
+          <h2 className="text-4xl lg:text-5xl font-bold font-display tracking-[-0.02em] mb-4 text-text-primary">
             You Also Get <span className="text-gradient">Automations</span> to Speed Up Your Productivity
           </h2>
 
