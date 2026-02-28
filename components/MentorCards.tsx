@@ -121,17 +121,17 @@ youtubeChannel: 'https://www.youtube.com/@HenrykAutomation',
     specialty: 'Voice AI Agency Builder & SaaS Founder',
     youtubeChannel: 'https://www.youtube.com/@jannismoore',
 videos: [
-      { id: 'gh9Y3tHeFXQ', title: "How I'd Start a Voice AI Agency in 2025" },
+      { id: 'wOmtvSPp2_k', title: "How I'd Start a Voice AI Agency in 2025" },
     ],
     skoolLink: 'https://www.skool.com/voice-ai-bootcamp',
     gradient: 'from-cyan-500 to-green-600',
     description:
       "Jannis built multiple SaaS companies and co-runs the Voice AI Bootcamp. He showed me exactly how to build and scale voice AI systems  from first agent to fully automated phone operations that save businesses thousands per month. His approach: never let another call go unanswered, and turn every missed call into a booked job.",
   },
-  {
+{
     id: 7,
-    name: 'Jack',
-    initials: 'JK',
+    name: 'Roberts',
+    initials: 'JR',
     category: 'web',
     specialty: 'AI-Powered Web Design & Vibe Coding',
     youtubeChannel: 'https://www.youtube.com/@Itssssss_Jack',
