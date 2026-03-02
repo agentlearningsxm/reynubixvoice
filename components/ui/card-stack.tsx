@@ -406,7 +406,7 @@ function DefaultFanCard({ item }: { item: CardStackItem; active: boolean })
                         {/* Portrait photo centered */}
                         <div className="absolute inset-0 flex items-center justify-center">
                             <img
-                                src="/hair-to-dreads-salon.png"
+                                src="/hair-to-dreads-salon.webp"
                                 alt="Hair to Dreads Salon"
                                 className="h-full w-auto max-w-none object-contain drop-shadow-2xl"
                                 draggable={false}
@@ -437,7 +437,7 @@ function DefaultFanCard({ item }: { item: CardStackItem; active: boolean })
                 <div className="absolute top-4 left-4 z-20">
                     <div className="bg-black/40 backdrop-blur-md rounded-xl border border-white/15 p-1.5 shadow-lg">
                         <img
-                            src="/hair-to-dreads-logo.png"
+                            src="/hair-to-dreads-logo.webp"
                             alt="Hair to Dreads"
                             className="h-12 w-12 rounded-lg object-contain"
                             draggable={false}

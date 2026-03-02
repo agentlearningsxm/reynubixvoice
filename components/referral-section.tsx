@@ -26,7 +26,7 @@ const referralCards: CardStackItem[] = [
     {
         id: 3,
         title: "Ready to Join the Family?",
-        description: "One conversation could change everything. Let us show you how 24/7 AI reception transforms your business—just like it did for Hair to Dreads.",
+        description: "One conversation could change everything. Let us show you how 24/7 AI reception transforms your business just like it did for Hair to Dreads.",
         imageSrc: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
         tag: "💡 Take the Leap",
     },
@@ -35,7 +35,7 @@ const referralCards: CardStackItem[] = [
     {
         id: 4,
         title: "Be the Next Success",
-        description: "Every great partnership starts with one 'yes'. Your clients are calling—let's make sure you're always there to answer.",
+        description: "Every great partnership starts with one 'yes'. Your clients are calling let's make sure you're always there to answer.",
         imageSrc: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80",
         tag: "🚀 Your Turn",
     },

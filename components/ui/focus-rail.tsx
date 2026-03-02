@@ -281,15 +281,6 @@ export function FocusRail({
         </div>
       </div>
 
-      <style>{`
-        .focus-rail-vignette {
-          background: linear-gradient(to top, var(--bg-main) 0%, rgba(5, 5, 8, 0.45) 45%, transparent 100%);
-        }
-
-        .light .focus-rail-vignette {
-          background: linear-gradient(to top, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 252, 0.6) 45%, transparent 100%);
-        }
-      `}</style>
     </div>
   );
 }

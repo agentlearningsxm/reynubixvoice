@@ -24,3 +24,16 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Environment & secrets
+.env
+
+# Dev logs
+dev-server*.log
+
+# Agent tooling
+.agent/
+.claude/
+
+# Brand assets (not app code)
+brand-logos*

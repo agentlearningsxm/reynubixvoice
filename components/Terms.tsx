@@ -25,7 +25,7 @@ const Terms: React.FC = () => (
 
                 <div>
                     <h2 className="text-xl font-semibold text-text-primary mb-3">4. Intellectual Property</h2>
-                    <p>All content on this website — including text, graphics, logos, and software — is the property of ReynubixVoice and protected by applicable intellectual property laws. You may not reproduce or redistribute any content without our prior written consent.</p>
+                    <p>All content on this website  including text, graphics, logos, and software  is the property of ReynubixVoice and protected by applicable intellectual property laws. You may not reproduce or redistribute any content without our prior written consent.</p>
                 </div>
 
                 <div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import
 {
@@ -88,7 +88,7 @@ export function PremiumContact()
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
-    const containerRef = useRef<HTMLDivElement>(null);
+
 
     const handleInputChange = (field: string, value: string) =>
     {
@@ -240,7 +240,6 @@ export function PremiumContact()
             </div>
 
             <motion.div
-                ref={containerRef}
                 className="relative z-10 max-w-7xl mx-auto px-6"
                 variants={staggerContainer}
                 initial="hidden"

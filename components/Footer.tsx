@@ -36,7 +36,7 @@ const Footer: React.FC = () =>
 
           {/* Sub-copy */}
           <p className="text-text-secondary text-base md:text-lg max-w-xl mx-auto mb-8 leading-relaxed">
-            Your AI receptionist answers 24/7 — before your competitor does.
+            Your AI receptionist answers 24/7  before your competitor does.
           </p>
 
           {/* CTA Button */}
