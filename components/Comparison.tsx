@@ -18,6 +18,7 @@ const Comparison: React.FC = () =>
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HTMLDivElement>(null);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
   // Use gallery from translations
@@ -27,9 +28,20 @@ const Comparison: React.FC = () =>
   }));
 
   const cellCount = cards.length;
-  // Calculate radius based on cell width (280px) + gap
-  const radius = 340;
+  // Dynamic radius — scales with the .scene element width
+  const [radius, setRadius] = useState(340);
   const theta = 360 / cellCount;
+
+  useEffect(() => {
+    const updateRadius = () => {
+      const sceneW = sceneRef.current?.offsetWidth || 300;
+      // ratio: 340px radius for a 300px scene
+      setRadius(Math.round(sceneW * 1.13));
+    };
+    updateRadius();
+    window.addEventListener('resize', updateRadius);
+    return () => window.removeEventListener('resize', updateRadius);
+  }, []);
 
   const rotateCarousel = (index: number) =>
   {
@@ -43,7 +55,7 @@ const Comparison: React.FC = () =>
   useEffect(() =>
   {
     rotateCarousel(selectedIndex);
-  }, [selectedIndex]);
+  }, [selectedIndex, radius]);
 
   const nextSlide = () =>
   {
@@ -175,12 +187,12 @@ const Comparison: React.FC = () =>
   };
 
   return (
-    <section className="py-24 bg-bg-main overflow-hidden relative min-h-[800px] flex flex-col items-center justify-center select-none" id="comparison">
+    <section className="py-24 bg-bg-main overflow-hidden relative min-h-[600px] md:min-h-[700px] lg:min-h-[800px] flex flex-col items-center justify-center select-none" id="comparison">
       {/* Background Ambience */}
       <div className="absolute inset-0 bg-gradient pointer-events-none" />
       <div className="absolute inset-0 bg-grid pointer-events-none opacity-20" />
 
-      <div className="container relative z-10 flex flex-col items-center">
+      <div className="page-container relative z-10 flex flex-col items-center">
         <header className="text-center mb-12">
           <div className="flex justify-center mb-3">
             <span className="section-eyebrow">Interactive Showcase</span>
@@ -200,7 +212,7 @@ const Comparison: React.FC = () =>
           onTouchMove={handleDragMove}
           onTouchEnd={handleDragEnd}
         >
-          <div className="scene">
+          <div className="scene" ref={sceneRef}>
             <div className="light-sphere" />
             <div className="carousel" ref={carouselRef}>
               {cards.map((card, i) => (
@@ -222,7 +234,7 @@ const Comparison: React.FC = () =>
         </div>
 
         {/* Controls */}
-        <div className="absolute top-[50%] -translate-y-[50%] left-[10%] hidden md:flex flex-col items-center gap-4 z-50 pointer-events-none">
+        <div className="absolute top-[50%] -translate-y-[50%] left-[10%] hidden md:flex flex-col items-center gap-4 z-20 pointer-events-none">
           <button onClick={prevSlide} className="nav-btn pointer-events-auto">
             <ChevronLeft size={24} />
           </button>
@@ -231,7 +243,7 @@ const Comparison: React.FC = () =>
           </div>
         </div>
 
-        <div className="absolute top-[50%] -translate-y-[50%] right-[10%] hidden md:flex flex-col items-center gap-4 z-50 pointer-events-none">
+        <div className="absolute top-[50%] -translate-y-[50%] right-[10%] hidden md:flex flex-col items-center gap-4 z-20 pointer-events-none">
           <button onClick={nextSlide} className="nav-btn pointer-events-auto">
             <ChevronRight size={24} />
           </button>
@@ -240,7 +252,7 @@ const Comparison: React.FC = () =>
           </div>
         </div>
 
-        <div className="mt-16 flex flex-col items-center gap-6 z-50">
+        <div className="mt-16 flex flex-col items-center gap-6 z-20">
           <div className="flex gap-2">
             {cards.map((_, i) => (
               <button

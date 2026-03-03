@@ -69,7 +69,7 @@ export default function ReferralSection()
             <div className="absolute inset-0 bg-gradient-to-b from-bg-main via-bg-card/50 to-bg-main" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-primary/10 via-transparent to-transparent" />
 
-            <div className="container relative z-10 mx-auto px-4">
+            <div className="page-container relative z-10">
                 {/* Header */}
                 <div className="mb-16 text-center">
                     <div className="flex justify-center mb-4">

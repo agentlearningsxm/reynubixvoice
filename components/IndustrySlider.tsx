@@ -157,7 +157,7 @@ const IndustrySlider: React.FC = () =>
 
   return (
     <section
-      className="relative w-full h-[1000px] overflow-hidden bg-[var(--bg-main)] text-[var(--text-primary)]"
+      className="relative w-full h-[650px] md:h-[800px] lg:h-[950px] overflow-hidden bg-[var(--bg-main)] text-[var(--text-primary)]"
       id="solutions"
       ref={containerRef}
       onPointerDown={handlePointerDown}
@@ -175,7 +175,7 @@ const IndustrySlider: React.FC = () =>
         /* ALL classes scoped under #solutions to prevent collision with AutomationCards */
         #solutions .industry-wrapper {
           --card-border-radius: 16px;
-          --card-width: max(220px, 20vw);
+          --card-width: 18rem;
           --card-height: calc(var(--card-width) * 1.4);
           --radius: calc(var(--card-width) * var(--cards) / (2 * 3.1416));
 
@@ -195,29 +195,30 @@ const IndustrySlider: React.FC = () =>
           --card-phase: calc((var(--card-i) - 1) / var(--cards) - 0.75);
           --card-pos: mod(calc(var(--card-phase) + var(--rotate) + 1), 1);
           --card-dist: min(var(--card-pos),calc(1 - var(--card-pos)));
-          
+
           --card-grayscale: clamp(0, calc(var(--card-dist) * var(--cards)), 1);
           --card-opacity: calc(1 - (var(--card-dist) / 0.15 ));
-          --card-scale: calc(1 - (var(--card-dist) * 0.5)); 
+          --card-scale: calc(1 - (var(--card-dist) * 0.5));
 
           position: absolute;
           width: var(--card-width);
           aspect-ratio: 5/7;
           border-radius: var(--card-border-radius);
-          
+          container-type: inline-size;
+
           offset-path: var(--card-offset-radius);
           offset-distance: var(--card-offset-distance);
           offset-rotate: auto;
           offset-anchor: 50% 100%;
-          
+
           transform-origin: center calc(var(--card-height) * 2 * -1);
           transform: scale(var(--card-scale));
-          
+
           transition: transform 0.1s linear, box-shadow 0.3s ease;
           box-shadow: 0 20px 50px -10px rgba(0,0,0,0.5);
           overflow: hidden;
           pointer-events: auto;
-          
+
           z-index: calc(100 - (var(--card-dist) * 1000));
         }
 
@@ -246,7 +247,7 @@ const IndustrySlider: React.FC = () =>
           flex-direction: column;
           justify-content: center;
           align-items: center;
-          padding: 1.5rem;
+          padding: clamp(0.75rem, 4cqi, 1.5rem);
           text-align: center;
           opacity: 0;
           transition: opacity 0.4s ease;
@@ -254,6 +255,7 @@ const IndustrySlider: React.FC = () =>
           color: white;
           z-index: 2;
           pointer-events: none;
+          overflow: hidden;
         }
 
         #solutions .industry-card:hover .industry-card-overlay {
@@ -262,20 +264,25 @@ const IndustrySlider: React.FC = () =>
 
         #solutions .industry-card-title {
           font-family: var(--font-display, sans-serif);
-          font-size: 1.5rem;
+          font-size: clamp(0.85rem, 5cqi, 1.5rem);
           font-weight: 700;
           margin-bottom: 0.5rem;
           text-shadow: 0 2px 4px rgba(0,0,0,0.8);
           transform: translateY(10px);
           transition: transform 0.4s ease;
+          word-break: break-word;
         }
 
         #solutions .industry-card-desc {
-          font-size: 0.95rem;
+          font-size: clamp(0.65rem, 3.2cqi, 0.95rem);
           line-height: 1.4;
           opacity: 0.9;
           transform: translateY(20px);
-          transition: transform 0.4s ease 0.1s; 
+          transition: transform 0.4s ease 0.1s;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 8;
+          -webkit-box-orient: vertical;
         }
 
         #solutions .industry-card:hover .industry-card-title,

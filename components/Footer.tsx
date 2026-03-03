@@ -16,7 +16,7 @@ const Footer: React.FC = () =>
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 70% 80% at 50% 120%, rgba(14,165,233,0.13), transparent 70%)' }} />
         <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none" />
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <div className="page-container max-w-4xl text-center relative z-10">
           {/* Eyebrow */}
           <div className="flex justify-center mb-5">
             <span className="section-eyebrow">
@@ -63,7 +63,7 @@ const Footer: React.FC = () =>
 
       {/* Main Footer */}
       <div className="py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="page-container">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
 
             {/* Brand */}

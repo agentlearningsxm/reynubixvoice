@@ -87,6 +87,22 @@ body::after {
   z-index: 9998;
 }
 
+/* ===== Unified Page Container ===== */
+.page-container {
+  width: 100%;
+  max-width: 80rem; /* 1280px */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+@media (min-width: 640px) {
+  .page-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .page-container { padding-left: 2rem; padding-right: 2rem; }
+}
+
 /* Section eyebrow label — used in every section heading */
 .section-eyebrow {
   display: inline-flex;
@@ -174,6 +190,7 @@ body::after {
   padding: 2px;
   border-radius: 1.5rem;
   position: relative;
+  overflow: hidden;
   background: linear-gradient(-30deg,
       var(--dramatic-gradient-color, rgba(14, 165, 233, 0.4)),
       transparent,
@@ -400,10 +417,10 @@ main > section::before {
   top: 0;
   left: 0;
   right: 0;
-  height: 100px;
+  height: 60px;
   background: linear-gradient(to bottom, var(--bg-main), transparent);
   pointer-events: none;
-  z-index: 25;
+  z-index: 1;
 }
 main > section::after {
   content: '';
@@ -411,10 +428,10 @@ main > section::after {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 100px;
+  height: 60px;
   background: linear-gradient(to top, var(--bg-main), transparent);
   pointer-events: none;
-  z-index: 25;
+  z-index: 1;
 }
 
 /* Accessibility: Reduced Motion */
@@ -771,7 +788,7 @@ main > section::after {
 
 .card-stream {
   position: absolute;
-  width: 100vw;
+  width: 100%;
   height: 180px;
   display: flex;
   align-items: center;
@@ -794,8 +811,8 @@ main > section::after {
 
 .card-wrapper {
   position: relative;
-  width: 400px;
-  height: 250px;
+  width: clamp(280px, 25vw, 400px);
+  height: clamp(175px, 15.6vw, 250px);
   flex-shrink: 0;
 }
 
@@ -803,8 +820,8 @@ main > section::after {
   position: absolute;
   top: 0;
   left: 0;
-  width: 400px;
-  height: 250px;
+  width: 100%;
+  height: 100%;
   border-radius: 15px;
   overflow: hidden;
 }
@@ -931,8 +948,8 @@ main > section::after {
   position: absolute;
   top: 0;
   left: 0;
-  width: 400px;
-  height: 250px;
+  width: 100%;
+  height: 100%;
   border-radius: 15px;
   overflow: hidden;
   clip-path: inset(0 calc(100% - var(--clip-left, 0%)) 0 0);
@@ -1053,8 +1070,8 @@ main > section::after {
 }
 
 .scene {
-  width: 300px;
-  height: 400px;
+  width: clamp(240px, 30vw, 420px);
+  height: clamp(320px, 40vw, 520px);
   position: relative;
   transform-style: preserve-3d;
 }
@@ -1087,8 +1104,8 @@ main > section::after {
 
 .carousel__cell {
   position: absolute;
-  width: 280px;
-  height: 380px;
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
   left: 10px;
   top: 10px;
   border-radius: 24px;

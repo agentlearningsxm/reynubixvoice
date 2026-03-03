@@ -446,7 +446,7 @@ const AutomationCards: React.FC = () =>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-purple-500/5 rounded-full blur-[120px]" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="page-container relative z-10">
         {/* Transition text */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

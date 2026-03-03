@@ -55,6 +55,18 @@ export function FocusRail({
   const [active, setActive] = React.useState(initialIndex);
   const [isHovering, setIsHovering] = React.useState(false);
   const lastWheelTime = React.useRef<number>(0);
+  const railRef = React.useRef<HTMLDivElement>(null);
+  const [spacing, setSpacing] = React.useState(520);
+
+  React.useEffect(() => {
+    const update = () => {
+      const w = railRef.current?.offsetWidth || 1280;
+      setSpacing(Math.min(520, w * 0.4));
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   const count = items.length;
   if (count === 0) return null;
@@ -121,7 +133,7 @@ export function FocusRail({
   return (
     <div
       className={cn(
-        "group relative flex h-[620px] w-full select-none flex-col overflow-hidden overflow-x-hidden rounded-3xl border border-border bg-bg-card text-text-primary outline-none",
+        "group relative flex h-[480px] md:h-[560px] lg:h-[620px] w-full select-none flex-col overflow-hidden overflow-x-hidden rounded-3xl border border-border bg-bg-card text-text-primary outline-none",
         className
       )}
       onMouseEnter={() => setIsHovering(true)}
@@ -152,6 +164,7 @@ export function FocusRail({
 
       <div className="relative z-10 flex flex-1 flex-col justify-center px-4 md:px-8">
         <motion.div
+          ref={railRef}
           className="relative mx-auto flex h-[340px] w-full max-w-7xl cursor-grab items-center justify-center perspective-[1200px] active:cursor-grabbing md:h-[360px]"
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
@@ -168,8 +181,8 @@ export function FocusRail({
             const isCenter = offset === 0;
             const dist = Math.abs(offset);
 
-            const xOffset = offset * 520;
-            const zOffset = -dist * 180;
+            const xOffset = offset * spacing;
+            const zOffset = -dist * (spacing * 0.35);
             const scale = isCenter ? 1 : 0.85;
             const rotateY = offset * -20;
 

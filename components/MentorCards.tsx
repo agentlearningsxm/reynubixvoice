@@ -141,7 +141,7 @@ videos: [
     skoolLink: null,
     gradient: 'from-purple-500 to-pink-600',
     description:
-      "Jack taught me how to build stunning, custom websites using AI tools  in days, not months. No cookie-cutter templates. Your business gets a high-converting site that matches your brand perfectly. That means more leads from your website, faster turnaround, and thousands saved compared to traditional web agencies.",
+      "Roberts taught me how to build stunning, custom websites using AI tools  in days, not months. No cookie-cutter templates. Your business gets a high-converting site that matches your brand perfectly. That means more leads from your website, faster turnaround, and thousands saved compared to traditional web agencies.",
   },
   {
     id: 8,
@@ -459,7 +459,7 @@ const MentorCards: React.FC = () => {
     <section className="relative py-24" id="reviews">
       {/* Light mode subtle background layer */}
       <div className="absolute inset-0 dark:hidden bg-gradient-to-b from-transparent via-slate-100/50 to-transparent pointer-events-none" />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+      <div className="page-container relative">
         {/* Section Header */}
         <div className="mb-12 text-center">
           <div className="flex justify-center mb-5">

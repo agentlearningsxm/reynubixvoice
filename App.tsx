@@ -22,12 +22,12 @@ import Terms from './components/Terms';
 const MarketingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className="min-h-screen w-full overflow-x-hidden bg-bg-main text-text-primary transition-colors duration-300 relative">
     <Spotlight />
-    <div className="fixed inset-0 z-0 pointer-events-none">
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-primary/10 rounded-full blur-[120px] animate-pulse-slow" />
       <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-brand-secondary/10 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
     </div>
 
-    <div className="relative z-10">
+    <div className="relative z-10 max-w-[2000px] mx-auto">
       <Navbar />
       <main className="relative">
         {/* Scrolling ambient orbs — visual flow between sections */}
