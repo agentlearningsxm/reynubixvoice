@@ -1,6 +1,7 @@
 import path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import checker from 'vite-plugin-checker';
 
 export default defineConfig(() =>
 {
@@ -10,7 +11,12 @@ export default defineConfig(() =>
       host: '0.0.0.0',
       strictPort: true,
     },
-    plugins: [react()],
+    plugins: [
+      react(),
+      checker({
+        typescript: true,
+      }),
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

@@ -152,14 +152,14 @@ export function PremiumContact()
         }
     };
 
-    const fadeInUp = {
+    const fadeInUp: import("framer-motion").Variants = {
         hidden: { opacity: 0, y: 60 },
         visible: {
             opacity: 1,
             y: 0,
             transition: {
                 duration: 0.8,
-                ease: [0.23, 0.86, 0.39, 0.96]
+                ease: [0.23, 0.86, 0.39, 0.96] as [number, number, number, number]
             }
         }
     };

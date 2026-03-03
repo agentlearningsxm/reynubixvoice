@@ -31,6 +31,17 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.setItem('voiceflow-accent', accent);
   }, [accent]);
 
+  // Voice agent theme control
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail.mode && (detail.mode === 'dark' || detail.mode === 'light')) setMode(detail.mode);
+      if (detail.accent && ['blue', 'green', 'orange'].includes(detail.accent)) setAccent(detail.accent);
+    };
+    window.addEventListener('toggleTheme', handler);
+    return () => window.removeEventListener('toggleTheme', handler);
+  }, []);
+
   // Apply Mode
   useEffect(() => {
     const root = document.documentElement;

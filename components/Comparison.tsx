@@ -92,6 +92,28 @@ const Comparison: React.FC = () =>
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isPlaying]);
 
+  // Voice agent carousel navigation
+  useEffect(() =>
+  {
+    const handler = (e: Event) =>
+    {
+      const { carousel, action } = (e as CustomEvent).detail;
+      if (carousel !== 'comparison') return;
+      if (action === 'next') {
+        setSelectedIndex((prev) => (prev + 1) % cellCount);
+      } else if (action === 'prev') {
+        setSelectedIndex((prev) => (prev - 1 + cellCount) % cellCount);
+      } else {
+        const index = parseInt(action, 10);
+        if (!isNaN(index) && index >= 0 && index < cellCount) {
+          setSelectedIndex(index);
+        }
+      }
+    };
+    window.addEventListener('navigateCarousel', handler);
+    return () => window.removeEventListener('navigateCarousel', handler);
+  }, [cellCount]);
+
   // Drag / Swipe Logic
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);

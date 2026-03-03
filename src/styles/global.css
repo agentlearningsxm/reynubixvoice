@@ -1335,3 +1335,35 @@ main > section::after {
   filter: blur(20px);
   pointer-events: none;
 }
+
+/* ===== Reyna Voice Agent Animations ===== */
+/* Applied dynamically by trigger_animation tool */
+
+@keyframes reyna-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes reyna-glow {
+  0%, 100% { box-shadow: 0 0 0 0 var(--accent-glow); }
+  50% { box-shadow: 0 0 40px 10px var(--accent-glow), 0 0 80px 20px rgba(14, 165, 233, 0.1); }
+}
+
+@keyframes reyna-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 50%, 90% { transform: translateX(-4px); }
+  30%, 70% { transform: translateX(4px); }
+}
+
+.reyna-animate-pulse {
+  animation: reyna-pulse 0.8s ease-in-out 2;
+}
+
+.reyna-animate-glow {
+  animation: reyna-glow 1s ease-in-out;
+  border-radius: inherit;
+}
+
+.reyna-animate-shake {
+  animation: reyna-shake 0.5s ease-in-out;
+}

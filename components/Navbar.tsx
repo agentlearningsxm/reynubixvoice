@@ -204,7 +204,7 @@ const Navbar: React.FC = () =>
                 {navItems.map((item) => (
                   <a
                     key={item.id}
-                    ref={(el) => linkRefs.current[item.id] = el}
+                    ref={(el) => { linkRefs.current[item.id] = el; }}
                     href={item.id === 'contact' ? '/contact' : `#${item.id}`}
                     className={`nav-link ${activeNav === item.id ? 'active' : ''}`}
                     onClick={(e) =>

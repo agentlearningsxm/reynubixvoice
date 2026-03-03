@@ -132,6 +132,29 @@ const IndustrySlider: React.FC = () =>
     };
   }, []);
 
+  // Voice agent carousel navigation
+  useEffect(() =>
+  {
+    const handler = (e: Event) =>
+    {
+      const { carousel, action } = (e as CustomEvent).detail;
+      if (carousel !== 'industry') return;
+      const step = 1 / totalCards; // 0.05
+      if (action === 'next') {
+        setRotate(prev => prev + step);
+      } else if (action === 'prev') {
+        setRotate(prev => prev - step);
+      } else {
+        const index = parseInt(action, 10);
+        if (!isNaN(index)) {
+          setRotate(-(index / totalCards));
+        }
+      }
+    };
+    window.addEventListener('navigateCarousel', handler);
+    return () => window.removeEventListener('navigateCarousel', handler);
+  }, [totalCards]);
+
   return (
     <section
       className="relative w-full h-[1000px] overflow-hidden bg-[var(--bg-main)] text-[var(--text-primary)]"

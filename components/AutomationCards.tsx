@@ -90,7 +90,7 @@ const AutomationCards: React.FC = () =>
   const isDraggingRef = useRef(false);
   const lastMouseXRef = useRef(0);
   const mouseVelocityRef = useRef(0);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
   const lastTimeRef = useRef(0);
   const particleSystemRef = useRef<ParticleSystem | null>(null);
   const particleScannerRef = useRef<ParticleScanner | null>(null);
@@ -222,6 +222,26 @@ const AutomationCards: React.FC = () =>
       </div>
     );
   };
+
+  // Voice agent carousel navigation
+  useEffect(() =>
+  {
+    const handler = (e: Event) =>
+    {
+      const { carousel, action } = (e as CustomEvent).detail;
+      if (carousel !== 'automation') return;
+      // Boost velocity in the requested direction
+      if (action === 'next') {
+        directionRef.current = -1;
+        velocityRef.current = Math.max(velocityRef.current, 300);
+      } else if (action === 'prev') {
+        directionRef.current = 1;
+        velocityRef.current = Math.max(velocityRef.current, 300);
+      }
+    };
+    window.addEventListener('navigateCarousel', handler);
+    return () => window.removeEventListener('navigateCarousel', handler);
+  }, []);
 
   // Initialize Three.js particle system and scanner
   useEffect(() =>

@@ -41,6 +41,71 @@
 - For production QR features, configure Supabase variables and keep `QR_REQUIRE_DURABLE_STORAGE=true`.
 - Apply `supabase/migrations/202602190001_qr_enterprise_core.sql` before enabling enterprise QR APIs.
 
+## Approved Tools & Extensions
+
+### Voice AI (Gemini Real-Time API)
+| Tool | Purpose | Quick Start |
+|------|---------|-------------|
+| `@google/genai` | Official Google SDK for Gemini 2.0+ with real-time API, multimodal, TTS | `npm install @google/genai` |
+| `Vercel AI SDK` | Unified AI layer works with Gemini + all providers, streaming, tool calls | `npm install ai` |
+
+### UI/UX & Animations
+| Tool | Purpose | Quick Start |
+|------|---------|-------------|
+| `framer-motion` | Best animation library for React, smooth transitions | `npm install framer-motion` |
+| `shadcn/ui + Radix` | Premium accessible components, dark mode ready | `npx shadcn@latest init` |
+| `lucide-react` | Clean, consistent icons | `npm install lucide-react` |
+| `clsx + tailwind-merge` | Conditional CSS classes for Tailwind | `npm install clsx tailwind-merge` |
+
+### Integrations & Automation
+| Tool | Purpose | Quick Start |
+|------|---------|-------------|
+| `Composio MCP` | 10K+ tools for AI agents (GitHub, Slack, Calendar, CRM) | `npx composio bootstrap` |
+| `@anthropic-ai/mcp-docs` | Live documentation access for Claude Code | `npm install @anthropic-ai/mcp-docs` |
+
+### VS Code Extensions (Recommended)
+| Extension | Purpose |
+|-----------|---------|
+| `Roo Code` | Free AI coding assistant, codebase indexing, multi-provider |
+| `GitLens` | Deep Git integration, visualize code history |
+| `Error Lens` | Inline error display for TypeScript/ESLint |
+
+### Important Notes
+- **Voice AI**: Uses Gemini Real-Time API (NOT Retell)
+- **n8n**: Optional for automation - keep if needed
+- **Stack**: Next.js + React + TypeScript + Vercel
+
+## Memory System
+
+### Primary: Project Memory (this folder)
+- `AGENTS.md` - Project context, tools, conventions (this file)
+- `.agent/skills/` - Project-specific skills
+- `.agent/memory/` - Session memory templates
+
+### Secondary: Second Brain (D:\Desktop\Second brain)
+**MCP Connection:** Obsidian running on localhost:27124
+
+**Lookup order:**
+1. This project's AGENTS.md + .agent/skills/
+2. Second Brain: `20_Library/Procedures/system/ai-memory-protocol.md` (read this first!)
+3. Second Brain: `20_Library/Skills/` for existing solutions
+4. Second Brain: `20_Library/Procedures/` for step-by-step guides
+5. Second Brain: `30_System/Context/` for recent session context
+6. Web search as last resort
+
+### Session Workflow
+1. **Start**: Read AGENTS.md → Read ai-memory-protocol.md → Check 30_System/Context/
+2. **Work**: Use full context, search Second Brain as needed
+3. **End**: Write handoff to `30_System/Context/YYYY-MM-DD-kilo-session.md`
+
+### Session Handoff Format
+Always include:
+- What was accomplished
+- Key decisions made
+- Issues encountered
+- Next steps (numbered)
+- Files changed (full paths)
+
 ## AGI-CORE MASTER SYSTEM PROMPT v2.0 (2026)
 
 ```text

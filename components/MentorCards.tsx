@@ -415,6 +415,28 @@ const MentorCards: React.FC = () => {
 
   const handleClose = useCallback(() => setSelectedMentor(null), []);
 
+  // Voice agent section control
+  useEffect(() =>
+  {
+    const handler = (e: Event) =>
+    {
+      const { action, value } = (e as CustomEvent).detail;
+      if (action === 'set_category_filter' && value) {
+        const validCategories = CATEGORIES.map(c => c.id);
+        if (validCategories.includes(value)) {
+          setActiveCategory(value);
+        }
+      } else if (action === 'open_mentor_modal' && value) {
+        const mentor = MENTORS.find(m => m.name.toLowerCase().includes(value.toLowerCase()));
+        if (mentor) setSelectedMentor(mentor);
+      } else if (action === 'close_modal') {
+        setSelectedMentor(null);
+      }
+    };
+    window.addEventListener('toggleSection', handler);
+    return () => window.removeEventListener('toggleSection', handler);
+  }, []);
+
   /* Lookup map: FocusRailItem id → Mentor */
   const mentorMap = useMemo(
     () => Object.fromEntries(MENTORS.map((m) => [m.id, m])) as Record<number, Mentor>,
