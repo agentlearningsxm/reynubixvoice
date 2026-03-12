@@ -1,37 +1,53 @@
-import React from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import AutomationCards from './components/AutomationCards';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
+import type React from 'react';
+import { Suspense, lazy } from 'react';
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from 'react-router-dom';
 import Calculator from './components/Calculator';
-import IndustrySlider from './components/IndustrySlider';
 import Comparison from './components/Comparison';
-import MentorCards from './components/MentorCards';
 import Footer from './components/Footer';
+import Hero from './components/Hero';
+import IndustrySlider from './components/IndustrySlider';
+import MentorCards from './components/MentorCards';
+import Navbar from './components/Navbar';
+import Privacy from './components/Privacy';
 import ReferralSection from './components/referral-section';
+import ScrollToTop from './components/ScrollToTop';
+import TelemetryManager from './components/TelemetryManager';
+import Terms from './components/Terms';
+import { PremiumContact } from './components/ui/premium-contact';
 import Spotlight from './components/ui/Spotlight';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { PremiumContact } from './components/ui/premium-contact';
-import ScrollToTop from './components/ScrollToTop';
-import QRStudioLayout from './components/qr-studio/Layout';
-import QRRedirect from './components/qr-studio/QRRedirect';
-import Privacy from './components/Privacy';
-import Terms from './components/Terms';
 
-const MarketingLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+const AutomationCards = lazy(() => import('./components/AutomationCards'));
+
+const MarketingLayout: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => (
   <div className="min-h-screen w-full overflow-x-hidden bg-bg-main text-text-primary transition-colors duration-300 relative">
     <Spotlight />
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-primary/10 rounded-full blur-[120px] animate-pulse-slow" />
-      <div className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-brand-secondary/10 rounded-full blur-[100px] animate-pulse-slow" style={{ animationDelay: '2s' }} />
+      <div
+        className="absolute bottom-[10%] right-[-5%] w-[30%] h-[30%] bg-brand-secondary/10 rounded-full blur-[100px] animate-pulse-slow"
+        style={{ animationDelay: '2s' }}
+      />
     </div>
 
-    <div className="relative z-10 max-w-[2000px] mx-auto">
+    <div className="relative z-10">
       <Navbar />
       <main className="relative">
         {/* Scrolling ambient orbs — visual flow between sections */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+        <div
+          className="absolute inset-0 pointer-events-none overflow-hidden"
+          style={{ zIndex: 0 }}
+        >
           <div className="absolute top-[12%] right-[-8%] w-[50%] h-[18%] bg-brand-primary/5 rounded-full blur-[130px]" />
           <div className="absolute top-[28%] left-[-10%] w-[45%] h-[14%] bg-purple-500/5 rounded-full blur-[120px]" />
           <div className="absolute top-[45%] right-[-5%] w-[40%] h-[16%] bg-brand-secondary/5 rounded-full blur-[110px]" />
@@ -51,59 +67,60 @@ const HomePage: React.FC = () => (
     <Calculator />
     <IndustrySlider />
     <Comparison />
-    <AutomationCards />
+    <Suspense fallback={<div className="min-h-[400px]" />}>
+      <AutomationCards />
+    </Suspense>
     <MentorCards />
     <ReferralSection />
   </>
 );
 
-const EnterpriseQrRedirect: React.FC = () =>
-{
-  React.useEffect(() =>
-  {
-    window.location.replace('/enterprise-qr/enterprise-qr.html');
-  }, []);
-
-  return null;
-};
-
-const App: React.FC = () =>
-{
-  const isQrSubdomain = typeof window !== 'undefined' && window.location.hostname.startsWith('qr.');
-
-  return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <Router>
-          <ScrollToTop />
-          <Routes>
-            {isQrSubdomain ? (
-              <>
-                <Route path="/enterprise-qr" element={<EnterpriseQrRedirect />} />
-                <Route path="/tools/qr-studio" element={<QRStudioLayout />} />
-                <Route path="/qr-studio" element={<QRStudioLayout />} />
-                <Route path="/qr/:id" element={<QRRedirect />} />
-                <Route path="/" element={<QRStudioLayout />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </>
-            ) : (
-              <>
-                <Route path="/" element={<MarketingLayout><HomePage /></MarketingLayout>} />
-                <Route path="/contact" element={<MarketingLayout><PremiumContact /></MarketingLayout>} />
-                <Route path="/privacy" element={<MarketingLayout><Privacy /></MarketingLayout>} />
-                <Route path="/terms" element={<MarketingLayout><Terms /></MarketingLayout>} />
-                <Route path="/qr-studio" element={<QRStudioLayout />} />
-                <Route path="/tools/qr-studio" element={<QRStudioLayout />} />
-                <Route path="/qr/:id" element={<QRRedirect />} />
-                <Route path="/enterprise-qr" element={<EnterpriseQrRedirect />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </>
-            )}
-          </Routes>
-        </Router>
-      </LanguageProvider>
-    </ThemeProvider>
-  );
-};
+const App: React.FC = () => (
+  <ThemeProvider>
+    <LanguageProvider>
+      <Router>
+        <ScrollToTop />
+        <TelemetryManager />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <MarketingLayout>
+                <HomePage />
+              </MarketingLayout>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <MarketingLayout>
+                <PremiumContact />
+              </MarketingLayout>
+            }
+          />
+          <Route
+            path="/privacy"
+            element={
+              <MarketingLayout>
+                <Privacy />
+              </MarketingLayout>
+            }
+          />
+          <Route
+            path="/terms"
+            element={
+              <MarketingLayout>
+                <Terms />
+              </MarketingLayout>
+            }
+          />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+      <Analytics />
+      <SpeedInsights />
+    </LanguageProvider>
+  </ThemeProvider>
+);
 
 export default App;

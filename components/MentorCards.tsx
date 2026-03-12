@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ExternalLink, Users, X, Youtube, GraduationCap } from 'lucide-react';
-import { useLanguage, type Language } from '../contexts/LanguageContext';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ExternalLink, GraduationCap, Users, X, Youtube } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { type Language, useLanguage } from '../contexts/LanguageContext';
 import { FocusRail, type FocusRailItem } from './ui/focus-rail';
 
 /* ─── Types ──────────────────────────────────────────────────────── */
@@ -45,13 +46,13 @@ const MENTORS: Mentor[] = [
     category: 'n8n',
     specialty: 'n8n Automation Expert & Agency Builder',
     youtubeChannel: 'https://www.youtube.com/@nateherk',
-videos: [
+    videos: [
       { id: 'zKBPwDpBfhs', title: 'n8n Masterclass: Build & Sell AI Agents' },
     ],
     skoolLink: 'https://www.skool.com/ai-automation-society-plus',
     gradient: 'from-cyan-500 to-blue-600',
     description:
-      "Nate taught me to build AI automation systems that run your business while you sleep. His n8n masterclass showed me how to create lead-capture bots, auto-follow-ups, and smart scheduling  so your phone rings with pre-qualified customers, not tire-kickers. Think: a Rotterdam plumber getting 30% more booked jobs without hiring anyone new.",
+      'Nate taught me to build AI automation systems that run your business while you sleep. His n8n masterclass showed me how to create lead-capture bots, auto-follow-ups, and smart scheduling  so your phone rings with pre-qualified customers, not tire-kickers. Think: a Rotterdam plumber getting 30% more booked jobs without hiring anyone new.',
   },
   {
     id: 2,
@@ -60,7 +61,7 @@ videos: [
     category: 'n8n',
     specialty: 'n8n AI Workflows & Sales Automation',
     youtubeChannel: 'https://www.youtube.com/@michtortiyt',
-videos: [
+    videos: [
       { id: 'zVjX_vqyd7I', title: 'n8n AI Agent That Automates Workflows' },
     ],
     skoolLink: 'https://www.skool.com/the-ai-automation-circle',
@@ -74,10 +75,8 @@ videos: [
     initials: 'SF',
     category: 'voice',
     specialty: 'Production-Grade Voice AI Systems',
-youtubeChannel: 'https://www.youtube.com/@SixflowAutomations',
-    videos: [
-      { id: '0_TQV5tfFds', title: 'Production-Grade Voice AI Systems' },
-    ],
+    youtubeChannel: 'https://www.youtube.com/@SixflowAutomations',
+    videos: [{ id: '0_TQV5tfFds', title: 'Production-Grade Voice AI Systems' }],
     skoolLink: 'https://www.skool.com/voiceai',
     gradient: 'from-emerald-500 to-teal-600',
     description:
@@ -90,13 +89,16 @@ youtubeChannel: 'https://www.youtube.com/@SixflowAutomations',
     category: 'voice',
     specialty: 'Retell AI Voice Agent Builders',
     youtubeChannel: 'https://www.youtube.com/@AlejoAndPaige',
-videos: [
-      { id: 'RY3j5aRLLao', title: 'Retell AI Tutorial: Build a Voice Receptionist' },
+    videos: [
+      {
+        id: 'RY3j5aRLLao',
+        title: 'Retell AI Tutorial: Build a Voice Receptionist',
+      },
     ],
     skoolLink: 'https://www.skool.com/amplify-voice-ai',
     gradient: 'from-green-500 to-emerald-600',
     description:
-      "Alejo & Paige run the Amplify Voice AI community  the go-to place for voice agent builders. They taught me step-by-step how to build a voice receptionist that sounds human, books jobs automatically, and never puts a caller on hold. Like having your best receptionist working 24/7  for a fraction of the cost.",
+      'Alejo & Paige run the Amplify Voice AI community  the go-to place for voice agent builders. They taught me step-by-step how to build a voice receptionist that sounds human, books jobs automatically, and never puts a caller on hold. Like having your best receptionist working 24/7  for a fraction of the cost.',
   },
   {
     id: 5,
@@ -104,14 +106,14 @@ videos: [
     initials: 'HB',
     category: 'voice',
     specialty: 'Voice AI Pioneer & Bootcamp Leader',
-youtubeChannel: 'https://www.youtube.com/@HenrykAutomation',
+    youtubeChannel: 'https://www.youtube.com/@HenrykAutomation',
     videos: [
       { id: 'rsks8RkIgbg', title: 'Voice AI Pioneer & Bootcamp Leader' },
     ],
     skoolLink: 'https://www.skool.com/voice-ai-bootcamp',
     gradient: 'from-teal-500 to-cyan-600',
     description:
-      "Henryk is a Voice AI pioneer who deploys agents at 20x lower cost and 32x faster than traditional call centers. His Voice AI Bootcamp taught me how to build systems that handle hundreds of calls simultaneously  meaning your business never misses a lead, even during peak hours. Like hiring 50 receptionists for the price of one.",
+      'Henryk is a Voice AI pioneer who deploys agents at 20x lower cost and 32x faster than traditional call centers. His Voice AI Bootcamp taught me how to build systems that handle hundreds of calls simultaneously  meaning your business never misses a lead, even during peak hours. Like hiring 50 receptionists for the price of one.',
   },
   {
     id: 6,
@@ -120,28 +122,31 @@ youtubeChannel: 'https://www.youtube.com/@HenrykAutomation',
     category: 'voice',
     specialty: 'Voice AI Agency Builder & SaaS Founder',
     youtubeChannel: 'https://www.youtube.com/@jannismoore',
-videos: [
+    videos: [
       { id: 'wOmtvSPp2_k', title: "How I'd Start a Voice AI Agency in 2025" },
     ],
     skoolLink: 'https://www.skool.com/voice-ai-bootcamp',
     gradient: 'from-cyan-500 to-green-600',
     description:
-      "Jannis built multiple SaaS companies and co-runs the Voice AI Bootcamp. He showed me exactly how to build and scale voice AI systems  from first agent to fully automated phone operations that save businesses thousands per month. His approach: never let another call go unanswered, and turn every missed call into a booked job.",
+      'Jannis built multiple SaaS companies and co-runs the Voice AI Bootcamp. He showed me exactly how to build and scale voice AI systems  from first agent to fully automated phone operations that save businesses thousands per month. His approach: never let another call go unanswered, and turn every missed call into a booked job.',
   },
-{
+  {
     id: 7,
     name: 'Roberts',
     initials: 'JR',
     category: 'web',
     specialty: 'AI-Powered Web Design & Vibe Coding',
     youtubeChannel: 'https://www.youtube.com/@Itssssss_Jack',
-videos: [
-      { id: 'gh9Y3tHeFXQ', title: 'Build Web Apps with V0 + Claude AI + Cursor' },
+    videos: [
+      {
+        id: 'gh9Y3tHeFXQ',
+        title: 'Build Web Apps with V0 + Claude AI + Cursor',
+      },
     ],
     skoolLink: null,
     gradient: 'from-purple-500 to-pink-600',
     description:
-      "Roberts taught me how to build stunning, custom websites using AI tools  in days, not months. No cookie-cutter templates. Your business gets a high-converting site that matches your brand perfectly. That means more leads from your website, faster turnaround, and thousands saved compared to traditional web agencies.",
+      'Roberts taught me how to build stunning, custom websites using AI tools  in days, not months. No cookie-cutter templates. Your business gets a high-converting site that matches your brand perfectly. That means more leads from your website, faster turnaround, and thousands saved compared to traditional web agencies.',
   },
   {
     id: 8,
@@ -150,13 +155,13 @@ videos: [
     category: 'claude',
     specialty: 'Claude Code Expert & AI Consultant',
     youtubeChannel: 'https://www.youtube.com/@Mark_Kashef',
-videos: [
+    videos: [
       { id: 'dlb_XgFVrHQ', title: 'Claude Code: Build Apps Without Coding' },
     ],
     skoolLink: null,
     gradient: 'from-orange-500 to-amber-600',
     description:
-      "Mark trained 700+ professionals and has 2M+ views teaching AI on YouTube. He showed me how to use Claude Code as a personal development team  building custom tools, automating repetitive tasks, and replacing expensive software subscriptions. That means lower overhead costs for your business and faster delivery on every project.",
+      'Mark trained 700+ professionals and has 2M+ views teaching AI on YouTube. He showed me how to use Claude Code as a personal development team  building custom tools, automating repetitive tasks, and replacing expensive software subscriptions. That means lower overhead costs for your business and faster delivery on every project.',
   },
   {
     id: 9,
@@ -165,13 +170,11 @@ videos: [
     category: 'mindset',
     specialty: '#1 AI Business Educator (730K+ Subs)',
     youtubeChannel: 'https://www.youtube.com/@LiamOttley',
-videos: [
-      { id: 'ykRToEkWvpA', title: 'The #1 AI Automation Agency Niche' },
-    ],
+    videos: [{ id: 'ykRToEkWvpA', title: 'The #1 AI Automation Agency Niche' }],
     skoolLink: 'https://www.skool.com/ai-automation-agency-hub-8466',
     gradient: 'from-rose-500 to-red-600',
     description:
-      "Liam built an $18M+ AI business portfolio and teaches 35,000+ agency owners. His AI Automation Agency model taught me exactly which AI solutions make businesses the most money  and how to deliver them reliably. Every strategy I use to grow your revenue and cut your costs comes from frameworks proven in his community.",
+      'Liam built an $18M+ AI business portfolio and teaches 35,000+ agency owners. His AI Automation Agency model taught me exactly which AI solutions make businesses the most money  and how to deliver them reliably. Every strategy I use to grow your revenue and cut your costs comes from frameworks proven in his community.',
   },
   {
     id: 10,
@@ -180,13 +183,13 @@ videos: [
     category: 'mindset',
     specialty: '$250M/yr Business Empire Builder',
     youtubeChannel: 'https://www.youtube.com/@AlexHormozi',
-videos: [
+    videos: [
       { id: 'ZuJryiwxjDw', title: 'How to Grow Your Business Fast in 2025' },
     ],
     skoolLink: 'https://www.skool.com/acquisitionuniversity',
     gradient: 'from-red-500 to-orange-600',
     description:
-      "Alex runs a $250M/year business empire and literally wrote the book on getting leads ($100M Leads). His frameworks taught me how to create offers customers can't refuse, generate leads on autopilot, and turn one-time buyers into repeat clients. When I build your systems, they're designed around his proven \"get more customers\" playbook.",
+      'Alex runs a $250M/year business empire and literally wrote the book on getting leads ($100M Leads). His frameworks taught me how to create offers customers can\'t refuse, generate leads on autopilot, and turn one-time buyers into repeat clients. When I build your systems, they\'re designed around his proven "get more customers" playbook.',
   },
   {
     id: 11,
@@ -195,19 +198,28 @@ videos: [
     category: 'mindset',
     specialty: '#1 No-Code Community & AI Automations',
     youtubeChannel: 'https://www.youtube.com/@nicksaraev',
-videos: [
+    videos: [
       { id: 'gcuR_-rzlDw', title: 'n8n For Everyone: AI Agents & Workflows' },
     ],
     skoolLink: 'https://www.skool.com/makemoneywithmake',
     gradient: 'from-amber-500 to-red-600',
     description:
-      "Nick runs the #1 no-code automation community on Skool and teaches 220K+ people. His workflows showed me how to build automations that save businesses 20+ hours a week  lead follow-ups, appointment reminders, customer onboarding  all running on autopilot while you focus on the work that actually pays.",
+      'Nick runs the #1 no-code automation community on Skool and teaches 220K+ people. His workflows showed me how to build automations that save businesses 20+ hours a week  lead follow-ups, appointment reminders, customer onboarding  all running on autopilot while you focus on the work that actually pays.',
   },
 ];
 
 /* ─── Section Copy (Multi-language) ──────────────────────────────── */
 
-const SECTION_COPY: Record<Language, { eyebrow: string; title: string; highlight: string; description: string; cta: string }> = {
+const SECTION_COPY: Record<
+  Language,
+  {
+    eyebrow: string;
+    title: string;
+    highlight: string;
+    description: string;
+    cta: string;
+  }
+> = {
   en: {
     eyebrow: 'Direct Mentor Access',
     title: 'AI Is Moving Fast. These Are the Experts',
@@ -254,7 +266,10 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 /* ─── Mentor Modal Component ─────────────────────────────────────── */
 
-const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({ mentor, onClose }) => {
+const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
+  mentor,
+  onClose,
+}) => {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -301,20 +316,30 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
             </button>
 
             {/* Gradient Header */}
-            <div className={`relative h-44 bg-gradient-to-br ${mentor.gradient} opacity-25 rounded-t-2xl`} />
+            <div
+              className={`relative h-44 bg-gradient-to-br ${mentor.gradient} opacity-25 rounded-t-2xl`}
+            />
 
             {/* Identity Row */}
             <div className="px-7 -mt-12 relative pb-6">
               <div className="flex items-end gap-5 mb-5">
-                <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${mentor.gradient} flex items-center justify-center text-white text-2xl font-bold shadow-2xl border-4 border-bg-main shrink-0`}>
+                <div
+                  className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${mentor.gradient} flex items-center justify-center text-white text-2xl font-bold shadow-2xl border-4 border-bg-main shrink-0`}
+                >
                   {mentor.initials}
                 </div>
                 <div className="pb-1 min-w-0">
-                  <h3 className="text-2xl font-bold text-text-primary font-display leading-tight">{mentor.name}</h3>
-                  <p className="text-sm text-text-secondary mt-0.5">{mentor.specialty}</p>
+                  <h3 className="text-2xl font-bold text-text-primary font-display leading-tight">
+                    {mentor.name}
+                  </h3>
+                  <p className="text-sm text-text-secondary mt-0.5">
+                    {mentor.specialty}
+                  </p>
                 </div>
               </div>
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${CATEGORY_COLORS[mentor.category]}`}>
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${CATEGORY_COLORS[mentor.category]}`}
+              >
                 {CATEGORY_LABELS[mentor.category]}
               </span>
             </div>
@@ -342,7 +367,10 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                   </h4>
                   {mentor.videos.map((video) => (
                     <div key={video.id}>
-                      <div className="relative w-full rounded-xl overflow-hidden border border-border" style={{ paddingBottom: '56.25%' }}>
+                      <div
+                        className="relative w-full rounded-xl overflow-hidden border border-border"
+                        style={{ paddingBottom: '56.25%' }}
+                      >
                         <iframe
                           src={`https://www.youtube.com/embed/${video.id}`}
                           title={video.title}
@@ -352,7 +380,9 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                           loading="lazy"
                         />
                       </div>
-                      <p className="text-sm text-text-secondary mt-2">{video.title}</p>
+                      <p className="text-sm text-text-secondary mt-2">
+                        {video.title}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -409,25 +439,26 @@ const MentorCards: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
 
-  const filteredMentors = activeCategory === 'all'
-    ? MENTORS
-    : MENTORS.filter((m) => m.category === activeCategory);
+  const filteredMentors =
+    activeCategory === 'all'
+      ? MENTORS
+      : MENTORS.filter((m) => m.category === activeCategory);
 
   const handleClose = useCallback(() => setSelectedMentor(null), []);
 
   // Voice agent section control
-  useEffect(() =>
-  {
-    const handler = (e: Event) =>
-    {
+  useEffect(() => {
+    const handler = (e: Event) => {
       const { action, value } = (e as CustomEvent).detail;
       if (action === 'set_category_filter' && value) {
-        const validCategories = CATEGORIES.map(c => c.id);
+        const validCategories = CATEGORIES.map((c) => c.id);
         if (validCategories.includes(value)) {
           setActiveCategory(value);
         }
       } else if (action === 'open_mentor_modal' && value) {
-        const mentor = MENTORS.find(m => m.name.toLowerCase().includes(value.toLowerCase()));
+        const mentor = MENTORS.find((m) =>
+          m.name.toLowerCase().includes(value.toLowerCase()),
+        );
         if (mentor) setSelectedMentor(mentor);
       } else if (action === 'close_modal') {
         setSelectedMentor(null);
@@ -439,8 +470,12 @@ const MentorCards: React.FC = () => {
 
   /* Lookup map: FocusRailItem id → Mentor */
   const mentorMap = useMemo(
-    () => Object.fromEntries(MENTORS.map((m) => [m.id, m])) as Record<number, Mentor>,
-    []
+    () =>
+      Object.fromEntries(MENTORS.map((m) => [m.id, m])) as Record<
+        number,
+        Mentor
+      >,
+    [],
   );
 
   /* Convert filtered mentors → FocusRailItem[] */
@@ -456,13 +491,13 @@ const MentorCards: React.FC = () => {
   }));
 
   return (
-    <section className="relative py-24" id="reviews">
+    <section className="relative py-28" id="reviews">
       {/* Light mode subtle background layer */}
       <div className="absolute inset-0 dark:hidden bg-gradient-to-b from-transparent via-slate-100/50 to-transparent pointer-events-none" />
       <div className="page-container relative">
         {/* Section Header */}
-        <div className="mb-12 text-center">
-          <div className="flex justify-center mb-5">
+        <div className="mb-14 text-center">
+          <div className="flex justify-center mb-4">
             <span className="section-eyebrow">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75" />
@@ -484,7 +519,7 @@ const MentorCards: React.FC = () => {
         </div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10">
+        <div className="flex flex-wrap justify-center gap-2 mb-12">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.id}
@@ -501,53 +536,52 @@ const MentorCards: React.FC = () => {
         </div>
 
         {/* FocusRail Carousel */}
-        <div className="rounded-3xl shadow-2xl shadow-slate-300/60 dark:shadow-none">
-        <FocusRail
-          key={activeCategory}
-          items={railItems}
-          loop
-          autoPlay={false}
-          className="mx-auto max-w-6xl"
-          onItemDoubleClick={(activeItem) => {
-            const mentor = mentorMap[activeItem.id as number];
-            if (mentor) setSelectedMentor(mentor);
-          }}
-          renderActions={(activeItem) => {
-            const mentor = mentorMap[activeItem.id as number];
-            if (!mentor) return null;
-            return (
-              <div className="flex items-center gap-2 flex-wrap">
-                <a
-                  href={mentor.youtubeChannel}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors"
-                >
-                  <Youtube className="w-4 h-4" />
-                  YouTube
-                </a>
-                {mentor.skoolLink && (
+        <div key={activeCategory} className="rounded-3xl shadow-2xl shadow-slate-300/60 dark:shadow-none">
+          <FocusRail
+            items={railItems}
+            loop
+            autoPlay={false}
+            className="mx-auto max-w-[1400px]"
+            onItemDoubleClick={(activeItem) => {
+              const mentor = mentorMap[activeItem.id as number];
+              if (mentor) setSelectedMentor(mentor);
+            }}
+            renderActions={(activeItem) => {
+              const mentor = mentorMap[activeItem.id as number];
+              if (!mentor) return null;
+              return (
+                <div className="flex items-center gap-2 flex-wrap">
                   <a
-                    href={mentor.skoolLink}
+                    href={mentor.youtubeChannel}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border border-brand-primary/20 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors"
                   >
-                    <Users className="w-4 h-4" />
-                    Skool
+                    <Youtube className="w-4 h-4" />
+                    YouTube
                   </a>
-                )}
-                <button
-                  onClick={() => setSelectedMentor(mentor)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  Learn More
-                </button>
-              </div>
-            );
-          }}
-        />
+                  {mentor.skoolLink && (
+                    <a
+                      href={mentor.skoolLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border border-brand-primary/20 transition-colors"
+                    >
+                      <Users className="w-4 h-4" />
+                      Skool
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setSelectedMentor(mentor)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Learn More
+                  </button>
+                </div>
+              );
+            }}
+          />
         </div>
 
         {/* Bottom CTA */}
@@ -556,7 +590,7 @@ const MentorCards: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-16 text-center"
+          className="mt-20 text-center"
         >
           <div className="glass-card inline-flex flex-col sm:flex-row items-center gap-4 rounded-2xl px-8 py-6">
             <div className="text-left">
@@ -564,7 +598,8 @@ const MentorCards: React.FC = () => {
                 Want access to the same AI knowledge base?
               </p>
               <p className="text-sm text-text-secondary">
-                Connect with me on Skool and get direct access to proven AI strategies that drive real revenue.
+                Connect with me on Skool and get direct access to proven AI
+                strategies that drive real revenue.
               </p>
             </div>
             <a

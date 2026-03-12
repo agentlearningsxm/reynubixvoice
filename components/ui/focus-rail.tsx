@@ -1,7 +1,7 @@
-import * as React from "react";
-import { motion, AnimatePresence, PanInfo } from "framer-motion";
-import { ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { AnimatePresence, motion, type PanInfo } from 'framer-motion';
+import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 export type FocusRailItem = {
   id: string | number;
@@ -29,14 +29,14 @@ function wrap(min: number, max: number, v: number) {
 }
 
 const BASE_SPRING = {
-  type: "spring" as const,
+  type: 'spring' as const,
   stiffness: 300,
   damping: 30,
   mass: 1,
 };
 
 const TAP_SPRING = {
-  type: "spring" as const,
+  type: 'spring' as const,
   stiffness: 450,
   damping: 18,
   mass: 1,
@@ -101,7 +101,7 @@ export function FocusRail({
         lastWheelTime.current = now;
       }
     },
-    [handleNext, handlePrev]
+    [handleNext, handlePrev],
   );
 
   React.useEffect(() => {
@@ -111,14 +111,18 @@ export function FocusRail({
   }, [autoPlay, isHovering, handleNext, interval]);
 
   const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") handlePrev();
-    if (e.key === "ArrowRight") handleNext();
+    if (e.key === 'ArrowLeft') handlePrev();
+    if (e.key === 'ArrowRight') handleNext();
   };
 
   const swipeConfidenceThreshold = 10000;
-  const swipePower = (offset: number, velocity: number) => Math.abs(offset) * velocity;
+  const swipePower = (offset: number, velocity: number) =>
+    Math.abs(offset) * velocity;
 
-  const onDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, { offset, velocity }: PanInfo) => {
+  const onDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    { offset, velocity }: PanInfo,
+  ) => {
     const swipe = swipePower(offset.x, velocity.x);
 
     if (swipe < -swipeConfidenceThreshold) {
@@ -133,12 +137,11 @@ export function FocusRail({
   return (
     <div
       className={cn(
-        "group relative flex h-[480px] md:h-[560px] lg:h-[620px] w-full select-none flex-col overflow-hidden overflow-x-hidden rounded-3xl border border-border bg-bg-card text-text-primary outline-none",
-        className
+        'group relative flex h-[500px] md:h-[580px] lg:h-[650px] w-full select-none flex-col overflow-hidden overflow-x-hidden rounded-3xl border border-border bg-bg-card text-text-primary outline-none',
+        className,
       )}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
-      tabIndex={0}
       onKeyDown={onKeyDown}
       onWheel={onWheel}
     >
@@ -149,7 +152,7 @@ export function FocusRail({
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
             className="absolute inset-0"
           >
             <img
@@ -162,7 +165,7 @@ export function FocusRail({
         </AnimatePresence>
       </div>
 
-      <div className="relative z-10 flex flex-1 flex-col justify-center px-4 md:px-8">
+      <div className="relative z-10 flex flex-1 flex-col justify-center px-6 md:px-10">
         <motion.div
           ref={railRef}
           className="relative mx-auto flex h-[340px] w-full max-w-7xl cursor-grab items-center justify-center perspective-[1200px] active:cursor-grabbing md:h-[360px]"
@@ -194,8 +197,8 @@ export function FocusRail({
               <motion.div
                 key={absIndex}
                 className={cn(
-                  "absolute aspect-video w-[280px] rounded-2xl border border-border bg-bg-main shadow-2xl transition-shadow duration-300 sm:w-[360px] md:w-[500px]",
-                  isCenter ? "z-20" : "z-10"
+                  'absolute aspect-video w-[280px] rounded-2xl border border-border bg-bg-main shadow-2xl transition-shadow duration-300 sm:w-[360px] md:w-[500px]',
+                  isCenter ? 'z-20' : 'z-10',
                 )}
                 initial={false}
                 animate={{
@@ -208,7 +211,7 @@ export function FocusRail({
                 }}
                 transition={{ scale: TAP_SPRING, default: BASE_SPRING }}
                 style={{
-                  transformStyle: "preserve-3d",
+                  transformStyle: 'preserve-3d',
                 }}
                 onClick={() => {
                   if (offset !== 0) setActive((p) => p + offset);
@@ -230,14 +233,14 @@ export function FocusRail({
           })}
         </motion.div>
 
-        <div className="pointer-events-auto mx-auto mt-10 flex w-full max-w-5xl flex-col items-center justify-between gap-6 md:flex-row">
-          <div className="flex h-32 flex-1 flex-col items-center justify-center text-center md:items-start md:text-left">
+        <div className="pointer-events-auto mx-auto mt-12 flex w-full max-w-6xl flex-col items-center justify-between gap-6 md:flex-row">
+          <div className="flex min-h-32 flex-1 flex-col items-center justify-center text-center md:items-start md:text-left">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeItem.id}
-                initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
+                initial={{ opacity: 0, y: 10, filter: 'blur(4px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
                 transition={{ duration: 0.3 }}
                 className="space-y-2"
               >
@@ -250,7 +253,9 @@ export function FocusRail({
                   {activeItem.title}
                 </h2>
                 {activeItem.description && (
-                  <p className="max-w-xl text-sm text-text-secondary md:text-base">{activeItem.description}</p>
+                  <p className="max-w-xl text-sm text-text-secondary md:text-base">
+                    {activeItem.description}
+                  </p>
                 )}
               </motion.div>
             </AnimatePresence>
@@ -293,7 +298,6 @@ export function FocusRail({
           </div>
         </div>
       </div>
-
     </div>
   );
 }

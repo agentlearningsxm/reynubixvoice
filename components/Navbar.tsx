@@ -1,14 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, Globe, Palette, Moon, Sun, Check } from 'lucide-react';
-import Button from './ui/Button';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Check, Globe, Menu, Moon, Palette, Sun, X } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { trackEventFireAndForget } from '../lib/telemetry/browser';
+import { type Language, useLanguage } from '../contexts/LanguageContext';
+import { type ThemeAccent, useTheme } from '../contexts/ThemeContext';
 import Logo from './Logo';
-import { useLanguage, Language } from '../contexts/LanguageContext';
-import { useTheme, ThemeAccent } from '../contexts/ThemeContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import Button from './ui/Button';
 
-const Navbar: React.FC = () =>
-{
+const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
@@ -26,66 +27,122 @@ const Navbar: React.FC = () =>
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() =>
-  {
-    if (location.pathname === '/contact')
-    {
+  useEffect(() => {
+    if (location.pathname === '/contact') {
       setActiveNav('contact');
-    } else if (location.hash)
-    {
+    } else if (location.hash) {
       const id = location.hash.replace('#', '');
-      setTimeout(() =>
-      {
+      setTimeout(() => {
         const el = document.getElementById(id);
-        if (el)
-        {
+        if (el) {
           el.scrollIntoView({ behavior: 'smooth' });
           setActiveNav(id);
         }
       }, 100);
-    } else
-    {
+    } else {
       setActiveNav('receptionist');
     }
   }, [location.pathname, location.hash]);
 
-  useEffect(() =>
-  {
-    const handleScroll = () =>
-    {
+  useEffect(() => {
+    const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Update bubble position when active nav changes
-  useEffect(() =>
-  {
-    updateBubblePosition();
+  const updateBubblePosition = useCallback(() => {
+    const activeLink = linkRefs.current[activeNav];
+    const bubble = bubbleRef.current;
+    const nav = navRef.current;
+
+    if (activeLink && bubble && nav) {
+      const navRect = nav.getBoundingClientRect();
+      const linkRect = activeLink.getBoundingClientRect();
+
+      bubble.style.left = `${linkRect.left - navRect.left}px`;
+      bubble.style.width = `${linkRect.width}px`;
+    }
   }, [activeNav]);
 
-  // Update hover bubble position
-  useEffect(() =>
-  {
-    updateHoverBubblePosition();
+  const updateHoverBubblePosition = useCallback(() => {
+    const hoveredLink = hoveredNav ? linkRefs.current[hoveredNav] : null;
+    const hoverBubble = hoverBubbleRef.current;
+    const nav = navRef.current;
+
+    if (hoveredLink && hoverBubble && nav) {
+      const navRect = nav.getBoundingClientRect();
+      const linkRect = hoveredLink.getBoundingClientRect();
+
+      hoverBubble.style.left = `${linkRect.left - navRect.left}px`;
+      hoverBubble.style.width = `${linkRect.width}px`;
+      hoverBubble.style.opacity = '1';
+    } else if (hoverBubble) {
+      hoverBubble.style.opacity = '0';
+    }
   }, [hoveredNav]);
 
-  useEffect(() =>
-  {
-    (function (C: any, A: any, L: any) { let p = function (a: any, ar: any) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
-    (window as any).Cal("init", "let-s-talk", { origin: "https://app.cal.com" });
+  // Update bubble position when active nav changes
+  useEffect(() => {
+    updateBubblePosition();
+  }, [updateBubblePosition]);
 
-    (window as any).Cal.ns["let-s-talk"]("ui", { "hideEventTypeDetails": false, "layout": "month_view" });
+  // Update hover bubble position
+  useEffect(() => {
+    updateHoverBubblePosition();
+  }, [updateHoverBubblePosition]);
+
+  useEffect(() => {
+    ((C: any, A: any, L: any) => {
+      const p = (a: any, ar: any) => {
+        a.q.push(ar);
+      };
+      const d = C.document;
+      C.Cal =
+        C.Cal ||
+        function () {
+          const cal = C.Cal;
+          const ar = arguments;
+          if (!cal.loaded) {
+            cal.ns = {};
+            cal.q = cal.q || [];
+            d.head.appendChild(d.createElement('script')).src = A;
+            cal.loaded = true;
+          }
+          if (ar[0] === L) {
+            const api = function () {
+              p(api, arguments);
+            };
+            const namespace = ar[1];
+            api.q = api.q || [];
+            if (typeof namespace === 'string') {
+              cal.ns[namespace] = cal.ns[namespace] || api;
+              p(cal.ns[namespace], ar);
+              p(cal, ['initNamespace', namespace]);
+            } else p(cal, ar);
+            return;
+          }
+          p(cal, ar);
+        };
+    })(window, 'https://app.cal.com/embed/embed.js', 'init');
+    (window as any).Cal('init', 'let-s-talk', {
+      origin: 'https://app.cal.com',
+    });
+
+    (window as any).Cal.ns['let-s-talk']('ui', {
+      hideEventTypeDetails: false,
+      layout: 'month_view',
+    });
   }, []);
 
   // Close dropdowns on outside click
-  useEffect(() =>
-  {
-    const handleClickOutside = (e: MouseEvent) =>
-    {
-      if (controlsRef.current && !controlsRef.current.contains(e.target as Node))
-      {
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        controlsRef.current &&
+        !controlsRef.current.contains(e.target as Node)
+      ) {
         setIsLangMenuOpen(false);
         setIsThemeMenuOpen(false);
       }
@@ -93,42 +150,6 @@ const Navbar: React.FC = () =>
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const updateBubblePosition = () =>
-  {
-    const activeLink = linkRefs.current[activeNav];
-    const bubble = bubbleRef.current;
-    const nav = navRef.current;
-
-    if (activeLink && bubble && nav)
-    {
-      const navRect = nav.getBoundingClientRect();
-      const linkRect = activeLink.getBoundingClientRect();
-
-      bubble.style.left = `${linkRect.left - navRect.left}px`;
-      bubble.style.width = `${linkRect.width}px`;
-    }
-  };
-
-  const updateHoverBubblePosition = () =>
-  {
-    const hoveredLink = hoveredNav ? linkRefs.current[hoveredNav] : null;
-    const hoverBubble = hoverBubbleRef.current;
-    const nav = navRef.current;
-
-    if (hoveredLink && hoverBubble && nav)
-    {
-      const navRect = nav.getBoundingClientRect();
-      const linkRect = hoveredLink.getBoundingClientRect();
-
-      hoverBubble.style.left = `${linkRect.left - navRect.left}px`;
-      hoverBubble.style.width = `${linkRect.width}px`;
-      hoverBubble.style.opacity = '1';
-    } else if (hoverBubble)
-    {
-      hoverBubble.style.opacity = '0';
-    }
-  };
 
   const languages: { code: Language; label: string; flag: string }[] = [
     { code: 'en', label: 'English', flag: 'EN' },
@@ -154,13 +175,10 @@ const Navbar: React.FC = () =>
 
   const toggleMode = () => setMode(mode === 'dark' ? 'light' : 'dark');
 
-  const handleNavClick = (id: string) =>
-  {
-    if (location.pathname !== '/')
-    {
+  const handleNavClick = (id: string) => {
+    if (location.pathname !== '/') {
       navigate(`/#${id}`);
-    } else
-    {
+    } else {
       setActiveNav(id);
       document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     }
@@ -168,54 +186,47 @@ const Navbar: React.FC = () =>
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'py-3' : 'py-5'
-        }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled ? 'py-3' : 'py-5'
+      }`}
     >
-      <div className="max-w-7xl mx-auto pl-3 pr-4 sm:pl-4 sm:pr-6 lg:pl-6 lg:pr-8">
+      <div className="page-container">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-1.5 cursor-pointer">
             <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
               <Logo size={24} />
             </div>
-            <span className="text-xl font-bold font-display tracking-tight text-text-primary">ReynubixVoice</span>
+            <span className="text-xl font-bold font-display tracking-tight text-text-primary">
+              ReynubixVoice
+            </span>
           </Link>
 
           {/* Pill Navigation - Desktop */}
           <div className="hidden lg:flex items-center">
-            <div
-              ref={navRef}
-              className="nav-wrap relative"
-            >
+            <div ref={navRef} className="nav-wrap relative">
               {/* Active Bubble */}
-              <div
-                ref={bubbleRef}
-                className="nav-bubble active"
-              />
+              <div ref={bubbleRef} className="nav-bubble active" />
 
               {/* Hover Bubble */}
-              <div
-                ref={hoverBubbleRef}
-                className="nav-bubble hover"
-              />
+              <div ref={hoverBubbleRef} className="nav-bubble hover" />
 
               {/* Navigation Links */}
               <nav className="nav">
                 {navItems.map((item) => (
                   <a
                     key={item.id}
-                    ref={(el) => { linkRefs.current[item.id] = el; }}
+                    ref={(el) => {
+                      linkRefs.current[item.id] = el;
+                    }}
                     href={item.id === 'contact' ? '/contact' : `#${item.id}`}
                     className={`nav-link ${activeNav === item.id ? 'active' : ''}`}
-                    onClick={(e) =>
-                    {
+                    onClick={(e) => {
                       e.preventDefault();
-                      if (item.id === 'contact')
-                      {
+                      if (item.id === 'contact') {
                         navigate('/contact');
                         setActiveNav('contact');
-                      } else
-                      {
+                      } else {
                         handleNavClick(item.id);
                       }
                     }}
@@ -235,7 +246,10 @@ const Navbar: React.FC = () =>
               {/* Language Selector */}
               <div className="control-item">
                 <button
-                  onClick={() => { setIsLangMenuOpen(prev => !prev); setIsThemeMenuOpen(false); }}
+                  onClick={() => {
+                    setIsLangMenuOpen((prev) => !prev);
+                    setIsThemeMenuOpen(false);
+                  }}
                   className="control-btn"
                 >
                   <Globe size={16} />
@@ -253,14 +267,15 @@ const Navbar: React.FC = () =>
                       {languages.map((lang) => (
                         <button
                           key={lang.code}
-                          onClick={() =>
-                          {
+                          onClick={() => {
                             setLanguage(lang.code);
                             setIsLangMenuOpen(false);
                           }}
                           className={`dropdown-item ${language === lang.code ? 'active' : ''}`}
                         >
-                          <span className="text-sm font-medium">{lang.flag}</span>
+                          <span className="text-sm font-medium">
+                            {lang.flag}
+                          </span>
                           {lang.label}
                         </button>
                       ))}
@@ -272,7 +287,10 @@ const Navbar: React.FC = () =>
               {/* Theme Toggle */}
               <div className="control-item">
                 <button
-                  onClick={() => { setIsThemeMenuOpen(prev => !prev); setIsLangMenuOpen(false); }}
+                  onClick={() => {
+                    setIsThemeMenuOpen((prev) => !prev);
+                    setIsLangMenuOpen(false);
+                  }}
                   className="control-btn theme-btn"
                 >
                   <Palette size={16} />
@@ -291,29 +309,34 @@ const Navbar: React.FC = () =>
                         {themes.map((theme) => (
                           <button
                             key={theme.code}
-                            onClick={() =>
-                            {
+                            onClick={() => {
                               setAccent(theme.code);
                               setIsThemeMenuOpen(false);
                             }}
                             className={`dropdown-item ${accent === theme.code ? 'active' : ''}`}
                           >
                             <div className="flex items-center gap-2">
-                              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: theme.color }}></span>
+                              <span
+                                className="w-3 h-3 rounded-full"
+                                style={{ backgroundColor: theme.color }}
+                              ></span>
                               {theme.label}
                             </div>
-                            {accent === theme.code && <Check size={14} className="text-brand-primary" />}
+                            {accent === theme.code && (
+                              <Check size={14} className="text-brand-primary" />
+                            )}
                           </button>
                         ))}
 
                         <div className="divider"></div>
 
-                        <button
-                          onClick={toggleMode}
-                          className="dropdown-item"
-                        >
+                        <button onClick={toggleMode} className="dropdown-item">
                           <div className="flex items-center gap-2">
-                            {mode === 'dark' ? <Moon size={14} /> : <Sun size={14} />}
+                            {mode === 'dark' ? (
+                              <Moon size={14} />
+                            ) : (
+                              <Sun size={14} />
+                            )}
                             {mode === 'dark' ? 'Dark Mode' : 'Light Mode'}
                           </div>
                         </button>
@@ -330,6 +353,13 @@ const Navbar: React.FC = () =>
                   data-cal-link="reynubix-voice/let-s-talk"
                   data-cal-namespace="let-s-talk"
                   data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+                  onClick={() =>
+                    trackEventFireAndForget('cta_click', {
+                      location: 'navbar',
+                      target: 'cal.com',
+                      cta: 'book_demo',
+                    })
+                  }
                   className="demo-btn"
                 >
                   {t.nav.bookDemo}
@@ -363,15 +393,12 @@ const Navbar: React.FC = () =>
                 key={item.id}
                 href={item.id === 'contact' ? '/contact' : `#${item.id}`}
                 className={`mobile-nav-link ${activeNav === item.id ? 'active' : ''}`}
-                onClick={(e) =>
-                {
+                onClick={(e) => {
                   e.preventDefault();
-                  if (item.id === 'contact')
-                  {
+                  if (item.id === 'contact') {
                     navigate('/contact');
                     setActiveNav('contact');
-                  } else
-                  {
+                  } else {
                     setActiveNav(item.id);
                     handleNavClick(item.id);
                   }
@@ -403,7 +430,10 @@ const Navbar: React.FC = () =>
                   onClick={() => setAccent(theme.code)}
                   className={`mobile-theme-btn ${accent === theme.code ? 'active' : ''}`}
                 >
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: theme.color }}></span>
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: theme.color }}
+                  ></span>
                   {theme.label}
                 </button>
               ))}
@@ -411,7 +441,14 @@ const Navbar: React.FC = () =>
 
             <Button
               className="w-full"
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                trackEventFireAndForget('cta_click', {
+                  location: 'navbar_mobile',
+                  target: 'cal.com',
+                  cta: 'book_demo',
+                });
+              }}
               data-cal-link="reynubix-voice/let-s-talk"
               data-cal-namespace="let-s-talk"
               data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
