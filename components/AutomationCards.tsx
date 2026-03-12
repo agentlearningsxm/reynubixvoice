@@ -1,89 +1,97 @@
-import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ParticleSystem } from '../lib/three/ParticleSystem';
+import type React from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ParticleScanner } from '../lib/three/ParticleScanner';
-import { isLightMode } from '../lib/three/helpers';
+import { ParticleSystem } from '../lib/three/ParticleSystem';
 
 // Automation tools data with logos and descriptions
 const AUTOMATION_TOOLS = [
   {
     name: 'Claude Code',
-    description: 'Builds and updates your website, apps, and digital tools automatically — saving you thousands in developer costs every month.',
+    description:
+      'Builds and updates your website, apps, and digital tools automatically — saving you thousands in developer costs every month.',
     logo: '/claude-logo-light.png',
     logoDark: '/claude-logo-dark.png',
     color: '#D97706',
     gradient: 'from-orange-500 to-amber-600',
-    iconBg: 'bg-gradient-to-br from-orange-400 to-amber-500'
+    iconBg: 'bg-gradient-to-br from-orange-400 to-amber-500',
   },
   {
     name: 'n8n',
-    description: 'Connects all your business apps together so data flows automatically — no more copying and pasting between your CRM, email, calendar, and billing.',
+    description:
+      'Connects all your business apps together so data flows automatically — no more copying and pasting between your CRM, email, calendar, and billing.',
     logo: '/n8n-logo.webp',
     color: '#EA4B71',
     gradient: 'from-pink-500 to-rose-600',
-    iconBg: 'bg-gradient-to-br from-pink-400 to-rose-500'
+    iconBg: 'bg-gradient-to-br from-pink-400 to-rose-500',
   },
   {
     name: 'Antigravity',
-    description: 'Your 24/7 digital employee that handles research, planning, and complex tasks while you sleep — scaling your team without adding headcount.',
+    description:
+      'Your 24/7 digital employee that handles research, planning, and complex tasks while you sleep — scaling your team without adding headcount.',
     logo: '/Antigravity-logo.webp',
     color: '#8B5CF6',
     gradient: 'from-purple-500 to-violet-600',
-    iconBg: 'bg-gradient-to-br from-purple-400 to-violet-500'
+    iconBg: 'bg-gradient-to-br from-purple-400 to-violet-500',
   },
   {
     name: 'Airtable',
-    description: 'Replaces your messy spreadsheets with a smart database your whole team loves — track projects, clients, and inventory without hiring a developer.',
-    logo: '/airtable-logo.png',
+    description:
+      'Replaces your messy spreadsheets with a smart database your whole team loves — track projects, clients, and inventory without hiring a developer.',
+    logo: '/airtable-logo.webp',
     color: '#FCB400',
     gradient: 'from-yellow-400 to-amber-500',
-    iconBg: 'bg-gradient-to-br from-yellow-300 to-amber-400'
+    iconBg: 'bg-gradient-to-br from-yellow-300 to-amber-400',
   },
   {
     name: 'OpenAI',
-    description: 'Writes your marketing copy, analyzes customer feedback, and creates business strategies on demand — like having an expert consultant always on call.',
+    description:
+      'Writes your marketing copy, analyzes customer feedback, and creates business strategies on demand — like having an expert consultant always on call.',
     logo: '/chatgpt-logo.webp',
     color: '#00A67E',
     gradient: 'from-emerald-500 to-teal-600',
-    iconBg: 'bg-gradient-to-br from-emerald-400 to-teal-500'
+    iconBg: 'bg-gradient-to-br from-emerald-400 to-teal-500',
   },
   {
     name: 'Retell AI',
-    description: 'Answers every customer call instantly with a natural human voice, books appointments, and never misses a lead — your 24/7 AI receptionist.',
+    description:
+      'Answers every customer call instantly with a natural human voice, books appointments, and never misses a lead — your 24/7 AI receptionist.',
     logo: '/retell-logo-light.png',
     logoDark: '/retell-logo-dark.png',
     color: '#004CC6',
     gradient: 'from-blue-600 to-blue-800',
-    iconBg: 'bg-gradient-to-br from-blue-600 to-blue-800'
+    iconBg: 'bg-gradient-to-br from-blue-600 to-blue-800',
   },
   {
     name: 'LiveKit',
-    description: 'Powers real-time voice and video conversations with your customers — qualify leads and provide instant support right on your website.',
+    description:
+      'Powers real-time voice and video conversations with your customers — qualify leads and provide instant support right on your website.',
     logo: '/livekit-logo.webp',
     color: '#FF6B6B',
     gradient: 'from-red-500 to-orange-500',
-    iconBg: 'bg-gradient-to-br from-red-400 to-orange-500'
+    iconBg: 'bg-gradient-to-br from-red-400 to-orange-500',
   },
   {
     name: 'Perplexity',
-    description: 'Delivers instant market research and competitor analysis with verified sources — make confident business decisions in minutes, not weeks.',
+    description:
+      'Delivers instant market research and competitor analysis with verified sources — make confident business decisions in minutes, not weeks.',
     logo: '/Perplexity-logo.webp',
     color: '#20B2AA',
     gradient: 'from-teal-500 to-cyan-500',
-    iconBg: 'bg-gradient-to-br from-teal-400 to-cyan-500'
-  }
+    iconBg: 'bg-gradient-to-br from-teal-400 to-cyan-500',
+  },
 ];
 
-const CODE_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789(){}[]<>;:,._-+=!@#$%^&*|\\/\"'`~?";
+const _CODE_CHARS =
+  'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789(){}[]<>;:,._-+=!@#$%^&*|\\/"\'`~?';
 
-const AutomationCards: React.FC = () =>
-{
+const AutomationCards: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardLineRef = useRef<HTMLDivElement>(null);
   const scannerCanvasRef = useRef<HTMLCanvasElement>(null);
   const particleCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [velocity, setVelocity] = useState(120);
+  const velocityDisplayRef = useRef<HTMLSpanElement>(null);
   const positionRef = useRef(0);
   const velocityRef = useRef(120);
   const directionRef = useRef(-1);
@@ -91,94 +99,92 @@ const AutomationCards: React.FC = () =>
   const lastMouseXRef = useRef(0);
   const mouseVelocityRef = useRef(0);
   const animationRef = useRef<number | undefined>(undefined);
+  const cardWrappersRef = useRef<HTMLElement[]>([]);
   const lastTimeRef = useRef(0);
   const particleSystemRef = useRef<ParticleSystem | null>(null);
   const particleScannerRef = useRef<ParticleScanner | null>(null);
   const scanningActiveRef = useRef(false);
 
   // Generate code for ASCII effect
-  const generateCode = (width: number, height: number): string =>
-  {
-    const randInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+  const generateCode = (width: number, height: number): string => {
+    const randInt = (min: number, max: number) =>
+      Math.floor(Math.random() * (max - min + 1)) + min;
     const pick = (arr: string[]) => arr[randInt(0, arr.length - 1)];
 
     const header = [
-      "// automation workflow - ai powered",
-      "/* generated for visual effect */",
-      "const SCAN_WIDTH = 8;",
-      "const MAX_PARTICLES = 2500;",
-      "const TRANSITION = 0.05;",
+      '// automation workflow - ai powered',
+      '/* generated for visual effect */',
+      'const SCAN_WIDTH = 8;',
+      'const MAX_PARTICLES = 2500;',
+      'const TRANSITION = 0.05;',
     ];
 
     const helpers = [
-      "function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }",
-      "function lerp(a, b, t) { return a + (b - a) * t; }",
-      "const now = () => performance.now();",
-      "function rng(min, max) { return Math.random() * (max - min) + min; }",
+      'function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }',
+      'function lerp(a, b, t) { return a + (b - a) * t; }',
+      'const now = () => performance.now();',
+      'function rng(min, max) { return Math.random() * (max - min) + min; }',
     ];
 
     const automationBlock = (idx: number) => [
       `class Automation${idx} {`,
-      "  constructor(trigger, action, condition) {",
-      "    this.trigger = trigger;",
-      "    this.action = action;",
-      "    this.condition = condition;",
-      "  }",
-      "  async execute() { await this.action(); }",
-      "}",
+      '  constructor(trigger, action, condition) {',
+      '    this.trigger = trigger;',
+      '    this.action = action;',
+      '    this.condition = condition;',
+      '  }',
+      '  async execute() { await this.action(); }',
+      '}',
     ];
 
     const workflowBlock = [
-      "const workflow = {",
+      'const workflow = {',
       "  triggers: ['webhook', 'schedule', 'event'],",
       "  actions: ['api_call', 'transform', 'notify'],",
       "  status: 'active',",
-      "};",
+      '};',
     ];
 
     const library: string[] = [];
-    header.forEach(l => library.push(l));
-    helpers.forEach(l => library.push(l));
-    for (let b = 0; b < 3; b++) automationBlock(b).forEach(l => library.push(l));
-    workflowBlock.forEach(l => library.push(l));
+    header.forEach((l) => library.push(l));
+    helpers.forEach((l) => library.push(l));
+    for (let b = 0; b < 3; b++)
+      automationBlock(b).forEach((l) => library.push(l));
+    workflowBlock.forEach((l) => library.push(l));
 
-    for (let i = 0; i < 40; i++)
-    {
+    for (let i = 0; i < 40; i++) {
       const n1 = randInt(1, 9);
       const n2 = randInt(10, 99);
       library.push(`const v${i} = (${n1} + ${n2}) * 0.${randInt(1, 9)};`);
     }
 
-    let flow = library.join(" ");
-    flow = flow.replace(/\s+/g, " ").trim();
+    let flow = library.join(' ');
+    flow = flow.replace(/\s+/g, ' ').trim();
     const totalChars = width * height;
-    while (flow.length < totalChars + width)
-    {
-      const extra = pick(library).replace(/\s+/g, " ").trim();
-      flow += " " + extra;
+    while (flow.length < totalChars + width) {
+      const extra = pick(library).replace(/\s+/g, ' ').trim();
+      flow += ` ${extra}`;
     }
 
-    let out = "";
+    let out = '';
     let offset = 0;
-    for (let row = 0; row < height; row++)
-    {
+    for (let row = 0; row < height; row++) {
       let line = flow.slice(offset, offset + width);
-      if (line.length < width) line = line + " ".repeat(width - line.length);
-      out += line + (row < height - 1 ? "\n" : "");
+      if (line.length < width) line = line + ' '.repeat(width - line.length);
+      out += line + (row < height - 1 ? '\n' : '');
       offset += width;
     }
     return out;
   };
 
   // Create card wrapper
-  const createCardElement = (index: number): React.ReactElement =>
-  {
+  const createCardElement = (index: number): React.ReactElement => {
     const tool = AUTOMATION_TOOLS[index % AUTOMATION_TOOLS.length];
     // Calculate code dimensions based on 400x250 card size (from original)
-    const fontSize = 11;
+    const _fontSize = 11;
     const lineHeight = 13;
     const charWidth = 6;
-    const width = Math.floor(400 / charWidth);  // ~66 chars
+    const width = Math.floor(400 / charWidth); // ~66 chars
     const height = Math.floor(250 / lineHeight); // ~19 lines
     const codeContent = generateCode(width, height);
 
@@ -188,21 +194,37 @@ const AutomationCards: React.FC = () =>
     return (
       <div key={index} className="card-wrapper" data-index={index}>
         <div className="card card-normal">
-          <div className="card-gradient bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" style={{ '--brand-color': tool.color } as React.CSSProperties}>
+          <div
+            className="card-gradient bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900"
+            style={{ '--brand-color': tool.color } as React.CSSProperties}
+          >
             {/* Brand color accent bar at top */}
-            <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, transparent, ${tool.color}, transparent)` }}></div>
+            <div
+              className="absolute top-0 left-0 right-0 h-1"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${tool.color}, transparent)`,
+              }}
+            ></div>
             {/* Subtle brand color glow */}
-            <div className="absolute inset-0 opacity-10" style={{ background: `radial-gradient(circle at 50% 0%, ${tool.color}40, transparent 70%)` }}></div>
+            <div
+              className="absolute inset-0 opacity-10"
+              style={{
+                background: `radial-gradient(circle at 50% 0%, ${tool.color}40, transparent 70%)`,
+              }}
+            ></div>
             <div className="card-content relative z-10">
               <div className="card-logo-wrapper">
-                <div className="card-logo-glow" style={{ backgroundColor: tool.color }}></div>
+                <div
+                  className="card-logo-glow"
+                  style={{ backgroundColor: tool.color }}
+                ></div>
                 <div className="card-logo">
                   <img
                     src={logoSrc}
                     alt={tool.name}
-                    onError={(e) =>
-                    {
-                      (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${tool.name}&background=ffffff&color=${tool.color.slice(1)}&size=48`;
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        `https://ui-avatars.com/api/?name=${tool.name}&background=ffffff&color=${tool.color.slice(1)}&size=48`;
                     }}
                   />
                 </div>
@@ -210,8 +232,19 @@ const AutomationCards: React.FC = () =>
               <h3 className="card-title">{tool.name}</h3>
               <p className="card-description">{tool.description}</p>
               <div className="card-footer">
-                <span className="card-badge" style={{ backgroundColor: `${tool.color}20`, color: tool.color, border: `1px solid ${tool.color}40` }}>AI Automation</span>
-                <span className="card-status" style={{ color: tool.color }}>● Active</span>
+                <span
+                  className="card-badge"
+                  style={{
+                    backgroundColor: `${tool.color}20`,
+                    color: tool.color,
+                    border: `1px solid ${tool.color}40`,
+                  }}
+                >
+                  AI Automation
+                </span>
+                <span className="card-status" style={{ color: tool.color }}>
+                  ● Active
+                </span>
               </div>
             </div>
           </div>
@@ -224,10 +257,8 @@ const AutomationCards: React.FC = () =>
   };
 
   // Voice agent carousel navigation
-  useEffect(() =>
-  {
-    const handler = (e: Event) =>
-    {
+  useEffect(() => {
+    const handler = (e: Event) => {
       const { carousel, action } = (e as CustomEvent).detail;
       if (carousel !== 'automation') return;
       // Boost velocity in the requested direction
@@ -244,70 +275,119 @@ const AutomationCards: React.FC = () =>
   }, []);
 
   // Initialize Three.js particle system and scanner
-  useEffect(() =>
-  {
+  useEffect(() => {
     const particleCanvas = particleCanvasRef.current;
     const scannerCanvas = scannerCanvasRef.current;
 
-    if (particleCanvas)
-    {
+    if (particleCanvas) {
       particleSystemRef.current = new ParticleSystem(particleCanvas);
     }
 
-    if (scannerCanvas)
-    {
+    if (scannerCanvas) {
       particleScannerRef.current = new ParticleScanner(scannerCanvas);
     }
 
-    return () =>
-    {
-      if (particleSystemRef.current)
-      {
+    return () => {
+      if (particleSystemRef.current) {
         particleSystemRef.current.destroy();
       }
-      if (particleScannerRef.current)
-      {
+      if (particleScannerRef.current) {
         particleScannerRef.current.destroy();
       }
     };
   }, []);
 
+  const updateCardClipping = useCallback(() => {
+    const scannerX = window.innerWidth / 2;
+    const scannerWidth = 8;
+    const scannerLeft = scannerX - scannerWidth / 2;
+    const scannerRight = scannerX + scannerWidth / 2;
+
+    const wrappers = cardWrappersRef.current;
+    let anyScanningActive = false;
+
+    wrappers.forEach((wrapper) => {
+      const rect = (wrapper as HTMLElement).getBoundingClientRect();
+      const cardLeft = rect.left;
+      const cardRight = rect.right;
+      const cardWidth = rect.width;
+
+      const normalCard = wrapper.querySelector('.card-normal') as HTMLElement;
+      const asciiCard = wrapper.querySelector('.card-ascii') as HTMLElement;
+
+      if (cardLeft < scannerRight && cardRight > scannerLeft) {
+        anyScanningActive = true;
+        const scannerIntersectLeft = Math.max(scannerLeft - cardLeft, 0);
+        const scannerIntersectRight = Math.min(
+          scannerRight - cardLeft,
+          cardWidth,
+        );
+
+        const normalClipRight = (scannerIntersectLeft / cardWidth) * 100;
+        const asciiClipLeft = (scannerIntersectRight / cardWidth) * 100;
+
+        if (normalCard && asciiCard) {
+          normalCard.style.setProperty('--clip-right', `${normalClipRight}%`);
+          asciiCard.style.setProperty('--clip-left', `${asciiClipLeft}%`);
+        }
+      } else {
+        if (cardRight < scannerLeft) {
+          if (normalCard) normalCard.style.setProperty('--clip-right', '100%');
+          if (asciiCard) asciiCard.style.setProperty('--clip-left', '100%');
+        } else if (cardLeft > scannerRight) {
+          if (normalCard) normalCard.style.setProperty('--clip-right', '0%');
+          if (asciiCard) asciiCard.style.setProperty('--clip-left', '0%');
+        }
+      }
+    });
+
+    if (scanningActiveRef.current !== anyScanningActive) {
+      scanningActiveRef.current = anyScanningActive;
+      particleScannerRef.current?.setScanningActive(anyScanningActive);
+    }
+  }, []);
+
   // Card stream animation
-  useEffect(() =>
-  {
+  useEffect(() => {
     const cardLine = cardLineRef.current;
     if (!cardLine) return;
 
-    const animate = (currentTime: number) =>
-    {
+    // Cache card wrapper elements once instead of querySelectorAll every frame
+    cardWrappersRef.current = Array.from(
+      cardLine.querySelectorAll('.card-wrapper'),
+    ) as HTMLElement[];
+
+    const animate = (currentTime: number) => {
       const deltaTime = (currentTime - lastTimeRef.current) / 1000;
       lastTimeRef.current = currentTime;
 
-      if (!isDraggingRef.current)
-      {
+      if (!isDraggingRef.current) {
         const friction = 0.95;
         const minVelocity = 30;
 
-        if (velocityRef.current > minVelocity)
-        {
+        if (velocityRef.current > minVelocity) {
           velocityRef.current *= friction;
-        } else
-        {
+        } else {
           velocityRef.current = Math.max(minVelocity, velocityRef.current);
         }
 
-        positionRef.current += velocityRef.current * directionRef.current * deltaTime;
-        setVelocity(Math.round(velocityRef.current));
+        positionRef.current +=
+          velocityRef.current * directionRef.current * deltaTime;
+        // Update speed display via DOM directly — no React re-render
+        if (velocityDisplayRef.current) {
+          velocityDisplayRef.current.textContent = String(
+            Math.round(velocityRef.current),
+          );
+        }
 
         // Wrap position
-        const containerWidth = containerRef.current?.offsetWidth || window.innerWidth;
+        const containerWidth =
+          containerRef.current?.offsetWidth || window.innerWidth;
         const cardLineWidth = cardLine.scrollWidth;
 
-        if (positionRef.current < -cardLineWidth)
-        {
+        if (positionRef.current < -cardLineWidth) {
           positionRef.current = containerWidth;
-        } else if (positionRef.current > containerWidth)
-        {
+        } else if (positionRef.current > containerWidth) {
           positionRef.current = -cardLineWidth;
         }
 
@@ -321,84 +401,22 @@ const AutomationCards: React.FC = () =>
     lastTimeRef.current = performance.now();
     animationRef.current = requestAnimationFrame(animate);
 
-    return () =>
-    {
-      if (animationRef.current)
-      {
+    return () => {
+      if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, []);
-
-  const updateCardClipping = () =>
-  {
-    const scannerX = window.innerWidth / 2;
-    const scannerWidth = 8;
-    const scannerLeft = scannerX - scannerWidth / 2;
-    const scannerRight = scannerX + scannerWidth / 2;
-
-    const wrappers = document.querySelectorAll('.card-wrapper');
-    let anyScanningActive = false;
-
-    wrappers.forEach((wrapper) =>
-    {
-      const rect = (wrapper as HTMLElement).getBoundingClientRect();
-      const cardLeft = rect.left;
-      const cardRight = rect.right;
-      const cardWidth = rect.width;
-
-      const normalCard = wrapper.querySelector('.card-normal') as HTMLElement;
-      const asciiCard = wrapper.querySelector('.card-ascii') as HTMLElement;
-
-      if (cardLeft < scannerRight && cardRight > scannerLeft)
-      {
-        anyScanningActive = true;
-        const scannerIntersectLeft = Math.max(scannerLeft - cardLeft, 0);
-        const scannerIntersectRight = Math.min(scannerRight - cardLeft, cardWidth);
-
-        const normalClipRight = (scannerIntersectLeft / cardWidth) * 100;
-        const asciiClipLeft = (scannerIntersectRight / cardWidth) * 100;
-
-        if (normalCard && asciiCard)
-        {
-          // Use CSS variables like the original code
-          normalCard.style.setProperty('--clip-right', `${normalClipRight}%`);
-          asciiCard.style.setProperty('--clip-left', `${asciiClipLeft}%`);
-        }
-      } else
-      {
-        if (cardRight < scannerLeft)
-        {
-          // Card has passed through - show ASCII fully
-          if (normalCard) normalCard.style.setProperty('--clip-right', '100%');
-          if (asciiCard) asciiCard.style.setProperty('--clip-left', '100%');
-        } else if (cardLeft > scannerRight)
-        {
-          // Card hasn't reached scanner yet - show normal fully
-          if (normalCard) normalCard.style.setProperty('--clip-right', '0%');
-          if (asciiCard) asciiCard.style.setProperty('--clip-left', '0%');
-        }
-      }
-    });
-
-    if (scanningActiveRef.current !== anyScanningActive)
-    {
-      scanningActiveRef.current = anyScanningActive;
-      particleScannerRef.current?.setScanningActive(anyScanningActive);
-    }
-  };
+  }, [updateCardClipping]);
 
   // Mouse/touch handlers
-  const handleMouseDown = (e: React.MouseEvent) =>
-  {
+  const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;
     lastMouseXRef.current = e.clientX;
     mouseVelocityRef.current = 0;
     cardLineRef.current?.classList.add('dragging');
   };
 
-  const handleMouseMove = (e: React.MouseEvent) =>
-  {
+  const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDraggingRef.current) return;
 
     const deltaX = e.clientX - lastMouseXRef.current;
@@ -406,41 +424,47 @@ const AutomationCards: React.FC = () =>
     mouseVelocityRef.current = deltaX * 60;
     lastMouseXRef.current = e.clientX;
 
-    if (cardLineRef.current)
-    {
+    if (cardLineRef.current) {
       cardLineRef.current.style.transform = `translateX(${positionRef.current}px)`;
     }
     updateCardClipping();
   };
 
-  const handleMouseUp = () =>
-  {
+  const handleMouseUp = () => {
     if (!isDraggingRef.current) return;
 
     isDraggingRef.current = false;
     cardLineRef.current?.classList.remove('dragging');
 
-    if (Math.abs(mouseVelocityRef.current) > 30)
-    {
+    if (Math.abs(mouseVelocityRef.current) > 30) {
       velocityRef.current = Math.abs(mouseVelocityRef.current);
       directionRef.current = mouseVelocityRef.current > 0 ? 1 : -1;
-    } else
-    {
+    } else {
       velocityRef.current = 120;
     }
 
-    setVelocity(Math.round(velocityRef.current));
+    if (velocityDisplayRef.current) {
+      velocityDisplayRef.current.textContent = String(
+        Math.round(velocityRef.current),
+      );
+    }
   };
 
-  // Generate cards - 30 cards like original for consistent infinite loop
-  const cards = [];
-  for (let i = 0; i < 30; i++)
-  {
-    cards.push(createCardElement(i));
-  }
+  // Memoize cards — generateCode() is expensive, only run once on mount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const cards = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < 30; i++) {
+      result.push(createCardElement(i));
+    }
+    return result;
+  }, [createCardElement]);
 
   return (
-    <section className="py-24 relative overflow-hidden bg-bg-main" id="automations">
+    <section
+      className="py-28 relative overflow-hidden bg-bg-main"
+      id="automations"
+    >
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-purple-500/5 rounded-full blur-[120px]" />
@@ -452,9 +476,9 @@ const AutomationCards: React.FC = () =>
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
+          className="text-center mb-16"
         >
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-4">
             <span className="section-eyebrow">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75"></span>
@@ -465,18 +489,27 @@ const AutomationCards: React.FC = () =>
           </div>
 
           <h2 className="text-4xl lg:text-5xl font-bold font-display tracking-[-0.02em] mb-4 text-text-primary">
-            You Also Get <span className="text-gradient">Automations</span> to Speed Up Your Productivity
+            You Also Get <span className="text-gradient">Automations</span> to
+            Speed Up Your Productivity
           </h2>
 
           <p className="text-lg text-text-secondary max-w-2xl mx-auto">
-            Leverage pre-built automation templates and configure them to fit your unique workflow requirements
+            Leverage pre-built automation templates and configure them to fit
+            your unique workflow requirements
           </p>
         </motion.div>
 
         {/* Speed indicator */}
         <div className="absolute top-4 right-4 z-50">
           <div className="glass-card px-4 py-2 rounded-full text-sm text-text-secondary">
-            Speed: <span className="text-brand-primary font-mono">{velocity}</span> px/s
+            Speed:{' '}
+            <span
+              ref={velocityDisplayRef}
+              className="text-brand-primary font-mono"
+            >
+              120
+            </span>{' '}
+            px/s
           </div>
         </div>
       </div>
@@ -484,7 +517,7 @@ const AutomationCards: React.FC = () =>
       {/* Card stream container */}
       <div
         ref={containerRef}
-        className="relative w-full h-[300px] flex items-center overflow-hidden"
+        className="relative w-full h-[340px] flex items-center overflow-hidden"
         style={{ cursor: 'grab' }}
       >
         {/* Three.js particle canvas */}
@@ -500,7 +533,10 @@ const AutomationCards: React.FC = () =>
         />
 
         {/* Card stream */}
-        <div className="card-stream absolute w-full flex items-center overflow-visible" style={{ height: '180px' }}>
+        <div
+          className="card-stream absolute w-full flex items-center overflow-visible"
+          style={{ height: '180px' }}
+        >
           <div
             ref={cardLineRef}
             className="card-line flex items-center whitespace-nowrap select-none"
@@ -516,10 +552,43 @@ const AutomationCards: React.FC = () =>
       </div>
 
       {/* Instructions */}
-      <div className="text-center mt-8 relative z-20">
-        <p className="text-text-secondary text-sm">
-          Drag to explore - Cards reveal code when scanned
-        </p>
+      <div className="flex justify-center mt-10 relative z-20">
+        <div
+          className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border"
+          style={{
+            background: 'rgba(14, 165, 233, 0.06)',
+            borderColor: 'rgba(14, 165, 233, 0.25)',
+          }}
+        >
+          {/* Animated drag arrows */}
+          <span className="flex items-center gap-1 text-brand-primary" aria-hidden="true">
+            <svg
+              className="w-4 h-4 opacity-50 drag-hint-left"
+              viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"
+            >
+              <path d="M10 3L5 8l5 5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24" fill="currentColor"
+            >
+              <path d="M9 3a1 1 0 0 1 1 1v5.268l.724-.434A1 1 0 0 1 12 10v3a5 5 0 0 1-5 5H6a5 5 0 0 1-5-5v-2.5a1 1 0 0 1 1.5-.866L4 10.732V4a1 1 0 0 1 1-1zm6 0a1 1 0 0 1 1 1v6.732l1.5-.998A1 1 0 0 1 19 10.5V13a5 5 0 0 1-5 5h-1a5 5 0 0 1-.276-.008A6.001 6.001 0 0 0 14 13v-3a3 3 0 0 0-.684-1.898L13 7.732V4a1 1 0 0 1 1-1z" />
+            </svg>
+            <svg
+              className="w-4 h-4 opacity-50 drag-hint-right"
+              viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"
+            >
+              <path d="M6 3l5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <span className="text-sm font-medium text-text-primary">
+            Drag to explore
+          </span>
+          <span className="h-3.5 w-px bg-border/60" aria-hidden="true" />
+          <span className="text-xs text-text-secondary">
+            Cards reveal code when scanned
+          </span>
+        </div>
       </div>
     </section>
   );

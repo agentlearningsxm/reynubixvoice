@@ -221,27 +221,27 @@ const SECTION_COPY: Record<
   }
 > = {
   en: {
-    eyebrow: 'Direct Mentor Access',
-    title: 'AI Is Moving Fast. These Are the Experts',
-    highlight: 'I Learn From Directly.',
+    eyebrow: 'Battle-Tested AI Expertise',
+    title: 'The World-Class AI Experts',
+    highlight: 'Powering Every System We Build.',
     description:
-      'I stay connected with proven AI operators and turn their lessons into real results for your business  more calls answered, more leads booked, more revenue captured. You get enterprise-level AI quality at a fraction of the price.',
+      'We stay plugged into the top AI operators on the planet and turn their proven frameworks into real results for your business — more calls answered, more leads booked, more revenue captured. Enterprise-level AI at a fraction of the price.',
     cta: 'View My Skool Profile',
   },
   fr: {
-    eyebrow: 'Acc\u00e8s Direct Aux Mentors',
-    title: "L'IA Va Vite. Voici les Experts",
-    highlight: 'Avec Qui J\u2019Apprends en Direct.',
+    eyebrow: 'Expertise IA \u00c9prouv\u00e9e',
+    title: 'Les Experts IA de Classe Mondiale',
+    highlight: 'Qui Alimentent Chaque Syst\u00e8me Que Nous Construisons.',
     description:
-      'Je reste en contact avec des op\u00e9rateurs IA reconnus et je transforme leurs le\u00e7ons en r\u00e9sultats concrets pour votre entreprise \u2014 plus d\u2019appels r\u00e9pondus, plus de rendez-vous, plus de revenus.',
+      'Nous restons branch\u00e9s sur les meilleurs op\u00e9rateurs IA et transformons leurs m\u00e9thodes prouv\u00e9es en r\u00e9sultats concrets pour votre entreprise \u2014 plus d\u2019appels r\u00e9pondus, plus de rendez-vous, plus de revenus.',
     cta: 'Voir Mon Profil Skool',
   },
   nl: {
-    eyebrow: 'Directe Mentor Toegang',
-    title: 'AI Gaat Snel. Dit Zijn de Experts',
-    highlight: 'Van Wie Ik Rechtstreeks Leer.',
+    eyebrow: 'Bewezen AI-Expertise',
+    title: 'De Wereldklasse AI-Experts',
+    highlight: 'Die Elk Systeem Dat We Bouwen Aandrijven.',
     description:
-      'Ik sta in direct contact met bewezen AI-specialisten en vertaal hun inzichten naar echte resultaten voor jouw bedrijf \u2014 meer oproepen beantwoord, meer leads geboekt, meer omzet.',
+      'We blijven verbonden met de beste AI-specialisten ter wereld en vertalen hun bewezen methoden naar echte resultaten voor jouw bedrijf \u2014 meer oproepen beantwoord, meer leads geboekt, meer omzet.',
     cta: 'Bekijk Mijn Skool Profiel',
   },
 };

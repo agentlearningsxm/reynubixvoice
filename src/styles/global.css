@@ -1257,8 +1257,8 @@ main > section::after {
 }
 
 .scene {
-  width: clamp(240px, 30vw, 420px);
-  height: clamp(320px, 40vw, 520px);
+  width: clamp(240px, 30vw, 540px);
+  height: clamp(320px, 40vw, 640px);
   position: relative;
   transform-style: preserve-3d;
 }
@@ -1608,4 +1608,20 @@ main > section::after {
 
 .reyna-animate-shake {
   animation: reyna-shake 0.5s ease-in-out;
+}
+
+/* Automation drag hint arrows */
+@keyframes dragHintLeft {
+  0%, 100% { transform: translateX(0); opacity: 0.5; }
+  50% { transform: translateX(-3px); opacity: 1; }
+}
+@keyframes dragHintRight {
+  0%, 100% { transform: translateX(0); opacity: 0.5; }
+  50% { transform: translateX(3px); opacity: 1; }
+}
+.drag-hint-left {
+  animation: dragHintLeft 1.6s ease-in-out infinite;
+}
+.drag-hint-right {
+  animation: dragHintRight 1.6s ease-in-out infinite;
 }

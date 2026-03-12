@@ -88,6 +88,29 @@ const Footer: React.FC = () => {
         </div>
       </div>
 
+      {/* Trust Stats Bar */}
+      <div className="border-b border-border/50 py-6">
+        <div className="page-container">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x md:divide-border/50">
+            {[
+              { value: '1,200+', label: 'Calls handled' },
+              { value: '98%', label: 'Answer rate' },
+              { value: '24/7', label: 'Always on' },
+              { value: '< 1s', label: 'Response time' },
+            ].map(({ value, label }) => (
+              <div key={label} className="flex flex-col items-center gap-0.5 md:px-6">
+                <span className="text-2xl font-bold font-display tracking-tight text-text-primary">
+                  {value}
+                </span>
+                <span className="text-xs font-medium text-text-secondary uppercase tracking-widest">
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Main Footer */}
       <div className="py-14">
         <div className="page-container">
