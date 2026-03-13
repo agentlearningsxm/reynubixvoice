@@ -1,0 +1,18 @@
+{
+  "recommendations": [
+    "usernamehw.errorlens",
+    "aaron-bond.better-comments",
+    "vincaslt.highlight-matching-tag",
+    "aerokaido.three-js-snippets",
+    "degreat.three-js-editor",
+    "sleistner.vscode-shader",
+    "mhutchie.git-graph",
+    "christian-kohler.path-intellisense",
+    "dsznajder.es7-react-js-snippets",
+    "biomejs.biome",
+    "bradlc.vscode-tailwindcss",
+    "yoavbls.pretty-ts-errors",
+    "wallabyjs.console-ninja",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}

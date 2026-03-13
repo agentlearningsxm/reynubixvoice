@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import type React from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 export type ThemeAccent = 'blue' | 'green' | 'orange';
 export type ThemeMode = 'dark' | 'light';
@@ -12,7 +13,9 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [accent, setAccent] = useState<ThemeAccent>('blue');
   const [mode, setMode] = useState<ThemeMode>('dark');
 
@@ -35,8 +38,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
-      if (detail.mode && (detail.mode === 'dark' || detail.mode === 'light')) setMode(detail.mode);
-      if (detail.accent && ['blue', 'green', 'orange'].includes(detail.accent)) setAccent(detail.accent);
+      if (detail.mode && (detail.mode === 'dark' || detail.mode === 'light'))
+        setMode(detail.mode);
+      if (detail.accent && ['blue', 'green', 'orange'].includes(detail.accent))
+        setAccent(detail.accent);
     };
     window.addEventListener('toggleTheme', handler);
     return () => window.removeEventListener('toggleTheme', handler);
@@ -64,6 +69,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  if (!context) throw new Error("useTheme must be used within ThemeProvider");
+  if (!context) throw new Error('useTheme must be used within ThemeProvider');
   return context;
 };

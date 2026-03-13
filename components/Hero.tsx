@@ -111,7 +111,7 @@ const Hero: React.FC = () => {
   const handlePhoneButtonClick = () => {
     if (connected) {
       groq.disconnect();
-      gemini.disconnect('completed');
+      gemini.disconnect();
       return;
     }
 
@@ -124,11 +124,7 @@ const Hero: React.FC = () => {
     }
 
     setConsentError(null);
-    void gemini.connectToGemini({
-      accepted: true,
-      acceptedAt: new Date().toISOString(),
-      version: import.meta.env.VITE_VOICE_CONSENT_VERSION || '2026-03-08-audio-consent',
-    });
+    void gemini.connectToGemini();
   };
 
   return (

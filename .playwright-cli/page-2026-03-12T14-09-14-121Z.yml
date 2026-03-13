@@ -1,0 +1,716 @@
+- generic [active] [ref=e1]:
+  - img
+  - generic [ref=e4]:
+    - navigation [ref=e5]:
+      - generic [ref=e7]:
+        - link "ReynubixVoice" [ref=e8] [cursor=pointer]:
+          - /url: /
+          - img [ref=e10]:
+            - generic [ref=e11]: R
+          - generic [ref=e14]: ReynubixVoice
+        - navigation [ref=e17]:
+          - link "Receptionist" [ref=e18] [cursor=pointer]:
+            - /url: "#receptionist"
+          - link "Calculator" [ref=e19] [cursor=pointer]:
+            - /url: "#calculator"
+          - link "Solutions" [ref=e20] [cursor=pointer]:
+            - /url: "#solutions"
+          - link "Comparison" [ref=e21] [cursor=pointer]:
+            - /url: "#comparison"
+          - link "Automations" [ref=e22] [cursor=pointer]:
+            - /url: "#automations"
+          - link "Reviews" [ref=e23] [cursor=pointer]:
+            - /url: "#reviews"
+          - link "Contact" [ref=e24] [cursor=pointer]:
+            - /url: /contact
+        - generic [ref=e26]:
+          - button "en" [ref=e28] [cursor=pointer]:
+            - img [ref=e29]
+            - generic [ref=e32]: en
+          - button [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+          - button "Let's Talk" [ref=e43] [cursor=pointer]
+    - main [ref=e44]:
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e53]: AI Receptionist Live Demo
+          - heading "Stop Burning Revenue on Missed Calls." [level=1] [ref=e54]
+          - paragraph [ref=e55]:
+            - text: The 24/7 AI receptionist that books appointments, qualifies leads, and integrates with your calendar instantly.
+            - generic [ref=e56]: Pay for itself with just one saved client.
+          - generic [ref=e57]:
+            - button "Listen to Sample" [ref=e58] [cursor=pointer]:
+              - img [ref=e59]
+              - text: Listen to Sample
+            - button "Book a Demo" [ref=e61] [cursor=pointer]:
+              - text: Book a Demo
+              - img [ref=e62]
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - generic [ref=e67]: JR
+              - generic [ref=e69]: SM
+              - generic [ref=e71]: AK
+              - generic [ref=e73]: LP
+            - paragraph [ref=e74]: "Our goal: help you adapt AI, save time & make money"
+        - generic [ref=e75]:
+          - generic [ref=e77]:
+            - img [ref=e79]
+            - generic [ref=e81]:
+              - paragraph [ref=e82]: Appointment Booked
+              - paragraph [ref=e83]: Tomorrow, 2:00 PM
+          - generic [ref=e85]:
+            - generic [ref=e86]: $
+            - generic [ref=e87]:
+              - paragraph [ref=e88]: Revenue Saved
+              - paragraph [ref=e89]: $12,450
+          - paragraph [ref=e93]: 100% Answer Rate
+          - generic [ref=e96]:
+            - generic [ref=e99]: AI Receptionist Live Demo
+            - heading "Start Demo" [level=2] [ref=e116]
+            - paragraph [ref=e118]: Tap to connect
+            - generic [ref=e119]:
+              - generic [ref=e120]:
+                - checkbox "I agree that this voice demo may record audio, transcript, and errors for follow-up." [ref=e121]
+                - generic [ref=e122]: I agree that this voice demo may record audio, transcript, and errors for follow-up.
+              - paragraph [ref=e123]: Required before starting the recorded live demo.
+            - generic [ref=e124]:
+              - img [ref=e126]
+              - button "Start voice demo with Reyna" [ref=e130] [cursor=pointer]:
+                - img [ref=e131]
+              - img [ref=e134]
+      - generic [ref=e141]:
+        - generic [ref=e142]:
+          - generic [ref=e144]: Revenue Loss Calculator
+          - heading "The True Cost of Silence" [level=2] [ref=e145]
+          - paragraph [ref=e146]: Use the slider below to see how much revenue walks out the door when you don't answer.
+        - generic [ref=e152]:
+          - generic [ref=e153]:
+            - button "Dramatic On" [ref=e155] [cursor=pointer]:
+              - img [ref=e156]
+              - generic [ref=e159]: Dramatic On
+            - generic [ref=e160]:
+              - button "Contractor (5k)" [ref=e161] [cursor=pointer]
+              - button "HVAC (800)" [ref=e162] [cursor=pointer]
+              - button "Dental (2k)" [ref=e163] [cursor=pointer]
+            - generic [ref=e164]:
+              - generic [ref=e165]:
+                - generic [ref=e166]:
+                  - img [ref=e167]
+                  - text: Avg. Revenue per Customer
+                - generic [ref=e169]: $800
+              - slider [ref=e170] [cursor=pointer]: "800"
+            - generic [ref=e171]:
+              - generic [ref=e172]:
+                - generic [ref=e173]:
+                  - img [ref=e174]
+                  - text: Missed Calls Per Day
+                - generic [ref=e176]: "3"
+              - slider [ref=e177] [cursor=pointer]: "3"
+          - generic [ref=e178]:
+            - generic [ref=e179]:
+              - paragraph [ref=e180]: Monthly Loss
+              - heading "$18,000" [level=3] [ref=e181]
+              - paragraph [ref=e182]: Assuming 25% booking rate
+            - generic [ref=e183]:
+              - paragraph [ref=e184]: Yearly Loss
+              - heading "$216,000" [level=3] [ref=e185]
+            - generic [ref=e186]:
+              - generic [ref=e187]: AI
+              - paragraph [ref=e188]: Our AI agent works 24/7 for a fraction of this loss. Recover up to 90%.
+      - generic [ref=e189]:
+        - generic [ref=e190]:
+          - generic [ref=e191]:
+            - img "Plumbing & AC"
+            - generic:
+              - heading "Plumbing & AC" [level=3]
+              - paragraph: Emergency repairs happen 24/7 but your team clocks out at 5. Every missed call is a $500+ job walking straight to your competitor on Google. Our AI voice agent answers instantly, qualifies the emergency, books the dispatch, and sends a confirmation text all before the customer even thinks about calling someone else. During peak summer and winter surges, your AI scales infinitely while your techs focus on turning wrenches.
+          - generic [ref=e192]:
+            - img "Dental"
+            - generic:
+              - heading "Dental" [level=3]
+              - paragraph: "A single missed new-patient call costs you $2,000+ in lifetime value cleanings, fillings, crowns, referrals. Your front desk is already juggling check-ins, insurance, and walk-ins. Our AI voice agent handles every inbound call with warmth and precision: confirming insurance, booking the right time slot, and sending appointment reminders. No hold music. No voicemail. Just instant, professional patient care from the very first ring."
+          - generic [ref=e193]:
+            - img "Roofing"
+            - generic:
+              - heading "Roofing" [level=3]
+              - paragraph: "When a storm rolls through, your phone explodes 50, 100, 200 calls in a single day. Your crew can't answer them all, and every missed call is a $8K–$15K job gone. Our AI voice agent captures every single lead: collecting property details, qualifying urgency, scheduling inspections, and following up automatically. While your competitors let calls go to voicemail, you're booking jobs around the clock."
+          - generic [ref=e194]:
+            - img "Tree Service"
+            - generic:
+              - heading "Tree Service" [level=3]
+              - paragraph: "Spring storms and fall cleanups create massive call surges that overwhelm your office. Homeowners call once if nobody answers, they move on. Your AI voice agent handles unlimited concurrent calls: assessing the job scope, providing rough estimates, and booking on-site consultations. It even follows up with leads who didn't book right away. Capture every seasonal opportunity without hiring temporary office staff."
+          - generic [ref=e195]:
+            - img "Auto Repair"
+            - generic:
+              - heading "Auto Repair" [level=3]
+              - paragraph: Your best mechanics shouldn't be answering phones they should be under the hood. But when calls go to voicemail, customers drive to the next shop. Our AI voice agent books appointments, answers common questions about services and pricing, and sends text confirmations all while your team stays focused on repairs. It handles oil changes, brake jobs, diagnostics, and tire appointments without missing a beat. More booked bays, zero phone interruptions.
+          - generic [ref=e196]:
+            - img "Plumbing & AC"
+            - generic:
+              - heading "Plumbing & AC" [level=3]
+              - paragraph: Emergency repairs happen 24/7 but your team clocks out at 5. Every missed call is a $500+ job walking straight to your competitor on Google. Our AI voice agent answers instantly, qualifies the emergency, books the dispatch, and sends a confirmation text all before the customer even thinks about calling someone else. During peak summer and winter surges, your AI scales infinitely while your techs focus on turning wrenches.
+          - generic [ref=e197]:
+            - img "Dental"
+            - generic:
+              - heading "Dental" [level=3]
+              - paragraph: "A single missed new-patient call costs you $2,000+ in lifetime value cleanings, fillings, crowns, referrals. Your front desk is already juggling check-ins, insurance, and walk-ins. Our AI voice agent handles every inbound call with warmth and precision: confirming insurance, booking the right time slot, and sending appointment reminders. No hold music. No voicemail. Just instant, professional patient care from the very first ring."
+          - generic [ref=e198]:
+            - img "Roofing"
+            - generic:
+              - heading "Roofing" [level=3]
+              - paragraph: "When a storm rolls through, your phone explodes 50, 100, 200 calls in a single day. Your crew can't answer them all, and every missed call is a $8K–$15K job gone. Our AI voice agent captures every single lead: collecting property details, qualifying urgency, scheduling inspections, and following up automatically. While your competitors let calls go to voicemail, you're booking jobs around the clock."
+          - generic [ref=e199]:
+            - img "Tree Service"
+            - generic:
+              - heading "Tree Service" [level=3]
+              - paragraph: "Spring storms and fall cleanups create massive call surges that overwhelm your office. Homeowners call once if nobody answers, they move on. Your AI voice agent handles unlimited concurrent calls: assessing the job scope, providing rough estimates, and booking on-site consultations. It even follows up with leads who didn't book right away. Capture every seasonal opportunity without hiring temporary office staff."
+          - generic [ref=e200]:
+            - img "Auto Repair"
+            - generic:
+              - heading "Auto Repair" [level=3]
+              - paragraph: Your best mechanics shouldn't be answering phones they should be under the hood. But when calls go to voicemail, customers drive to the next shop. Our AI voice agent books appointments, answers common questions about services and pricing, and sends text confirmations all while your team stays focused on repairs. It handles oil changes, brake jobs, diagnostics, and tire appointments without missing a beat. More booked bays, zero phone interruptions.
+          - generic [ref=e201]:
+            - img "Plumbing & AC"
+            - generic:
+              - heading "Plumbing & AC" [level=3]
+              - paragraph: Emergency repairs happen 24/7 but your team clocks out at 5. Every missed call is a $500+ job walking straight to your competitor on Google. Our AI voice agent answers instantly, qualifies the emergency, books the dispatch, and sends a confirmation text all before the customer even thinks about calling someone else. During peak summer and winter surges, your AI scales infinitely while your techs focus on turning wrenches.
+          - generic [ref=e202]:
+            - img "Dental"
+            - generic:
+              - heading "Dental" [level=3]
+              - paragraph: "A single missed new-patient call costs you $2,000+ in lifetime value cleanings, fillings, crowns, referrals. Your front desk is already juggling check-ins, insurance, and walk-ins. Our AI voice agent handles every inbound call with warmth and precision: confirming insurance, booking the right time slot, and sending appointment reminders. No hold music. No voicemail. Just instant, professional patient care from the very first ring."
+          - generic [ref=e203]:
+            - img "Roofing"
+            - generic:
+              - heading "Roofing" [level=3]
+              - paragraph: "When a storm rolls through, your phone explodes 50, 100, 200 calls in a single day. Your crew can't answer them all, and every missed call is a $8K–$15K job gone. Our AI voice agent captures every single lead: collecting property details, qualifying urgency, scheduling inspections, and following up automatically. While your competitors let calls go to voicemail, you're booking jobs around the clock."
+          - generic [ref=e204]:
+            - img "Tree Service"
+            - generic:
+              - heading "Tree Service" [level=3]
+              - paragraph: "Spring storms and fall cleanups create massive call surges that overwhelm your office. Homeowners call once if nobody answers, they move on. Your AI voice agent handles unlimited concurrent calls: assessing the job scope, providing rough estimates, and booking on-site consultations. It even follows up with leads who didn't book right away. Capture every seasonal opportunity without hiring temporary office staff."
+          - generic [ref=e205]:
+            - img "Auto Repair"
+            - generic:
+              - heading "Auto Repair" [level=3]
+              - paragraph: Your best mechanics shouldn't be answering phones they should be under the hood. But when calls go to voicemail, customers drive to the next shop. Our AI voice agent books appointments, answers common questions about services and pricing, and sends text confirmations all while your team stays focused on repairs. It handles oil changes, brake jobs, diagnostics, and tire appointments without missing a beat. More booked bays, zero phone interruptions.
+          - generic [ref=e206]:
+            - img "Plumbing & AC"
+            - generic:
+              - heading "Plumbing & AC" [level=3]
+              - paragraph: Emergency repairs happen 24/7 but your team clocks out at 5. Every missed call is a $500+ job walking straight to your competitor on Google. Our AI voice agent answers instantly, qualifies the emergency, books the dispatch, and sends a confirmation text all before the customer even thinks about calling someone else. During peak summer and winter surges, your AI scales infinitely while your techs focus on turning wrenches.
+          - generic [ref=e207]:
+            - img "Dental"
+            - generic:
+              - heading "Dental" [level=3]
+              - paragraph: "A single missed new-patient call costs you $2,000+ in lifetime value cleanings, fillings, crowns, referrals. Your front desk is already juggling check-ins, insurance, and walk-ins. Our AI voice agent handles every inbound call with warmth and precision: confirming insurance, booking the right time slot, and sending appointment reminders. No hold music. No voicemail. Just instant, professional patient care from the very first ring."
+          - generic [ref=e208]:
+            - img "Roofing"
+            - generic:
+              - heading "Roofing" [level=3]
+              - paragraph: "When a storm rolls through, your phone explodes 50, 100, 200 calls in a single day. Your crew can't answer them all, and every missed call is a $8K–$15K job gone. Our AI voice agent captures every single lead: collecting property details, qualifying urgency, scheduling inspections, and following up automatically. While your competitors let calls go to voicemail, you're booking jobs around the clock."
+          - generic [ref=e209]:
+            - img "Tree Service"
+            - generic:
+              - heading "Tree Service" [level=3]
+              - paragraph: "Spring storms and fall cleanups create massive call surges that overwhelm your office. Homeowners call once if nobody answers, they move on. Your AI voice agent handles unlimited concurrent calls: assessing the job scope, providing rough estimates, and booking on-site consultations. It even follows up with leads who didn't book right away. Capture every seasonal opportunity without hiring temporary office staff."
+          - generic [ref=e210]:
+            - img "Auto Repair"
+            - generic:
+              - heading "Auto Repair" [level=3]
+              - paragraph: Your best mechanics shouldn't be answering phones they should be under the hood. But when calls go to voicemail, customers drive to the next shop. Our AI voice agent books appointments, answers common questions about services and pricing, and sends text confirmations all while your team stays focused on repairs. It handles oil changes, brake jobs, diagnostics, and tire appointments without missing a beat. More booked bays, zero phone interruptions.
+        - generic:
+          - generic:
+            - generic: Industries We Serve
+          - heading "Built for High-Value Industries" [level=2]:
+            - generic: Built for
+            - text: High-Value
+            - generic: Industries
+          - paragraph: Click your niche to see the impact.
+      - generic [ref=e212]:
+        - generic [ref=e213]:
+          - generic [ref=e215]: Interactive Showcase
+          - heading "The 100% Answer Rate" [level=1] [ref=e216]
+        - generic [ref=e219]:
+          - generic [ref=e222] [cursor=pointer]:
+            - generic [ref=e223]: 01 / 06
+            - generic [ref=e224]: The Roadmap to Success
+            - generic [ref=e225]: Old Way vs. The AI Way
+            - paragraph [ref=e226]: Experience the shift from missed calls to instant engagement. See how AI transforms your customer's journey from frustration to satisfaction.
+          - generic [ref=e229] [cursor=pointer]:
+            - generic [ref=e230]: 02 / 06
+            - generic [ref=e231]: Discovery Call
+            - generic [ref=e232]: "Step 1: Understanding You"
+            - paragraph [ref=e233]: We don't just sell software; we build solutions. our first conversation is a deep dive into your business bottlenecks and call flows.
+          - generic [ref=e236] [cursor=pointer]:
+            - generic [ref=e237]: 03 / 06
+            - generic [ref=e238]: The Strategy
+            - generic [ref=e239]: "Step 2: Implementation"
+            - paragraph [ref=e240]: We design a custom voice architecture. From script nuances to integration logic, we tailor the perfect voice solution for your specific workflow.
+          - generic [ref=e243] [cursor=pointer]:
+            - generic [ref=e244]: 04 / 06
+            - generic [ref=e245]: The Solution
+            - generic [ref=e246]: "Step 3: Growth & Results"
+            - paragraph [ref=e247]: Harvesting low-hanging fruits immediately. We deploy the agent and you start capturing every missed opportunity, scaling your revenue on autopilot.
+          - generic [ref=e250] [cursor=pointer]:
+            - generic [ref=e251]: 05 / 06
+            - generic [ref=e252]: The Old Way
+            - generic [ref=e253]: Frustration & Voicemail
+            - paragraph [ref=e254]: Rings 5 times -> Goes to Voicemail. Customers hang up. You lose the lead, and they call your competitor within seconds.
+          - generic [ref=e257] [cursor=pointer]:
+            - generic [ref=e258]: 06 / 06
+            - generic [ref=e259]: Lost Opportunity
+            - generic [ref=e260]: Phone Tag & Ghosting
+            - paragraph [ref=e261]: 60% of callers don't leave messages. You play phone tag for days, wasting hours of admin time only to find they've already hired someone else.
+        - generic:
+          - button [ref=e262] [cursor=pointer]:
+            - img [ref=e263]
+          - generic:
+            - generic: ← Prev
+        - generic:
+          - button [ref=e265] [cursor=pointer]:
+            - img [ref=e266]
+          - generic:
+            - generic: → Next
+        - generic [ref=e268]:
+          - generic [ref=e269]:
+            - button [ref=e270] [cursor=pointer]
+            - button [ref=e271] [cursor=pointer]
+            - button [ref=e272] [cursor=pointer]
+            - button [ref=e273] [cursor=pointer]
+            - button [ref=e274] [cursor=pointer]
+            - button [ref=e275] [cursor=pointer]
+          - button "Auto Play" [ref=e276] [cursor=pointer]:
+            - generic [ref=e277]:
+              - img [ref=e278]
+              - text: Auto Play
+      - generic [ref=e280]:
+        - generic [ref=e281]:
+          - generic [ref=e282]:
+            - generic [ref=e284]: And we're not done yet...
+            - heading "You Also Get Automations to Speed Up Your Productivity" [level=2] [ref=e288]
+            - paragraph [ref=e289]: Leverage pre-built automation templates and configure them to fit your unique workflow requirements
+          - generic [ref=e291]: "Speed: 114 px/s"
+        - generic [ref=e294]:
+          - generic [ref=e295]:
+            - generic [ref=e300]:
+              - img "Claude Code" [ref=e304]
+              - heading "Claude Code" [level=3] [ref=e305]
+              - paragraph [ref=e306]: Builds and updates your website, apps, and digital tools automatically — saving you thousands in developer costs every month.
+              - generic [ref=e307]:
+                - generic [ref=e308]: AI Automation
+                - generic [ref=e309]: ● Active
+            - generic [ref=e311]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (6 + 2 6) * 0.8; const v1 = (5 + 64) * 0.9; const v2 = (4 + 53) * 0.6; co nst v3 = (9 + 61) * 0.9; const v4 = (3 + 39) * 0.4; const v5 = (7 + 86) * 0.6; const v6 = (4 + 53) * 0.1; const v7 = (6 + 15) * 0.1;"
+          - generic [ref=e312]:
+            - generic [ref=e317]:
+              - img "n8n" [ref=e321]
+              - heading "n8n" [level=3] [ref=e322]
+              - paragraph [ref=e323]: Connects all your business apps together so data flows automatically — no more copying and pasting between your CRM, email, calendar, and billing.
+              - generic [ref=e324]:
+                - generic [ref=e325]: AI Automation
+                - generic [ref=e326]: ● Active
+            - generic [ref=e328]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (1 + 6 8) * 0.4; const v1 = (7 + 72) * 0.6; const v2 = (9 + 97) * 0.8; co nst v3 = (1 + 75) * 0.5; const v4 = (4 + 54) * 0.5; const v5 = (4 + 74) * 0.2; const v6 = (5 + 43) * 0.4; const v7 = (9 + 30) * 0.5;"
+          - generic [ref=e329]:
+            - generic [ref=e334]:
+              - img "Antigravity" [ref=e338]
+              - heading "Antigravity" [level=3] [ref=e339]
+              - paragraph [ref=e340]: Your 24/7 digital employee that handles research, planning, and complex tasks while you sleep — scaling your team without adding headcount.
+              - generic [ref=e341]:
+                - generic [ref=e342]: AI Automation
+                - generic [ref=e343]: ● Active
+            - generic [ref=e345]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (6 + 3 6) * 0.9; const v1 = (7 + 35) * 0.2; const v2 = (6 + 26) * 0.3; co nst v3 = (8 + 40) * 0.4; const v4 = (2 + 45) * 0.8; const v5 = (2 + 29) * 0.3; const v6 = (4 + 76) * 0.6; const v7 = (2 + 64) * 0.4;"
+          - generic [ref=e346]:
+            - generic [ref=e351]:
+              - img "Airtable" [ref=e355]
+              - heading "Airtable" [level=3] [ref=e356]
+              - paragraph [ref=e357]: Replaces your messy spreadsheets with a smart database your whole team loves — track projects, clients, and inventory without hiring a developer.
+              - generic [ref=e358]:
+                - generic [ref=e359]: AI Automation
+                - generic [ref=e360]: ● Active
+            - generic [ref=e362]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (5 + 7 3) * 0.4; const v1 = (7 + 11) * 0.4; const v2 = (8 + 87) * 0.7; co nst v3 = (3 + 16) * 0.8; const v4 = (2 + 53) * 0.8; const v5 = (4 + 54) * 0.2; const v6 = (8 + 58) * 0.1; const v7 = (3 + 47) * 0.4;"
+          - generic [ref=e363]:
+            - generic [ref=e368]:
+              - img "OpenAI" [ref=e372]
+              - heading "OpenAI" [level=3] [ref=e373]
+              - paragraph [ref=e374]: Writes your marketing copy, analyzes customer feedback, and creates business strategies on demand — like having an expert consultant always on call.
+              - generic [ref=e375]:
+                - generic [ref=e376]: AI Automation
+                - generic [ref=e377]: ● Active
+            - generic [ref=e379]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (9 + 2 1) * 0.7; const v1 = (1 + 52) * 0.5; const v2 = (5 + 78) * 0.2; co nst v3 = (5 + 80) * 0.6; const v4 = (4 + 17) * 0.7; const v5 = (2 + 40) * 0.8; const v6 = (9 + 81) * 0.5; const v7 = (1 + 68) * 0.6;"
+          - generic [ref=e380]:
+            - generic [ref=e385]:
+              - img "Retell AI" [ref=e389]
+              - heading "Retell AI" [level=3] [ref=e390]
+              - paragraph [ref=e391]: Answers every customer call instantly with a natural human voice, books appointments, and never misses a lead — your 24/7 AI receptionist.
+              - generic [ref=e392]:
+                - generic [ref=e393]: AI Automation
+                - generic [ref=e394]: ● Active
+            - generic [ref=e396]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (6 + 1 3) * 0.3; const v1 = (9 + 83) * 0.1; const v2 = (9 + 89) * 0.1; co nst v3 = (2 + 78) * 0.5; const v4 = (1 + 62) * 0.2; const v5 = (7 + 73) * 0.7; const v6 = (2 + 32) * 0.3; const v7 = (4 + 27) * 0.1;"
+          - generic [ref=e397]:
+            - generic [ref=e402]:
+              - img "LiveKit" [ref=e406]
+              - heading "LiveKit" [level=3] [ref=e407]
+              - paragraph [ref=e408]: Powers real-time voice and video conversations with your customers — qualify leads and provide instant support right on your website.
+              - generic [ref=e409]:
+                - generic [ref=e410]: AI Automation
+                - generic [ref=e411]: ● Active
+            - generic [ref=e413]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (4 + 5 5) * 0.5; const v1 = (5 + 50) * 0.5; const v2 = (8 + 83) * 0.3; co nst v3 = (1 + 81) * 0.9; const v4 = (6 + 28) * 0.3; const v5 = (9 + 67) * 0.9; const v6 = (7 + 74) * 0.4; const v7 = (5 + 50) * 0.5;"
+          - generic [ref=e414]:
+            - generic [ref=e419]:
+              - img "Perplexity" [ref=e423]
+              - heading "Perplexity" [level=3] [ref=e424]
+              - paragraph [ref=e425]: Delivers instant market research and competitor analysis with verified sources — make confident business decisions in minutes, not weeks.
+              - generic [ref=e426]:
+                - generic [ref=e427]: AI Automation
+                - generic [ref=e428]: ● Active
+            - generic [ref=e430]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (7 + 2 2) * 0.7; const v1 = (7 + 95) * 0.2; const v2 = (3 + 53) * 0.1; co nst v3 = (7 + 55) * 0.6; const v4 = (7 + 76) * 0.2; const v5 = (7 + 66) * 0.8; const v6 = (3 + 39) * 0.3; const v7 = (6 + 86) * 0.4;"
+          - generic [ref=e431]:
+            - generic [ref=e436]:
+              - img "Claude Code" [ref=e440]
+              - heading "Claude Code" [level=3] [ref=e441]
+              - paragraph [ref=e442]: Builds and updates your website, apps, and digital tools automatically — saving you thousands in developer costs every month.
+              - generic [ref=e443]:
+                - generic [ref=e444]: AI Automation
+                - generic [ref=e445]: ● Active
+            - generic [ref=e447]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (3 + 9 5) * 0.3; const v1 = (7 + 75) * 0.4; const v2 = (2 + 86) * 0.2; co nst v3 = (5 + 91) * 0.2; const v4 = (1 + 13) * 0.5; const v5 = (3 + 22) * 0.6; const v6 = (7 + 46) * 0.1; const v7 = (9 + 53) * 0.6;"
+          - generic [ref=e448]:
+            - generic [ref=e453]:
+              - img "n8n" [ref=e457]
+              - heading "n8n" [level=3] [ref=e458]
+              - paragraph [ref=e459]: Connects all your business apps together so data flows automatically — no more copying and pasting between your CRM, email, calendar, and billing.
+              - generic [ref=e460]:
+                - generic [ref=e461]: AI Automation
+                - generic [ref=e462]: ● Active
+            - generic [ref=e464]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (2 + 1 9) * 0.5; const v1 = (6 + 91) * 0.6; const v2 = (7 + 16) * 0.7; co nst v3 = (1 + 77) * 0.9; const v4 = (9 + 98) * 0.8; const v5 = (7 + 91) * 0.2; const v6 = (2 + 93) * 0.4; const v7 = (6 + 56) * 0.5;"
+          - generic [ref=e465]:
+            - generic [ref=e470]:
+              - img "Antigravity" [ref=e474]
+              - heading "Antigravity" [level=3] [ref=e475]
+              - paragraph [ref=e476]: Your 24/7 digital employee that handles research, planning, and complex tasks while you sleep — scaling your team without adding headcount.
+              - generic [ref=e477]:
+                - generic [ref=e478]: AI Automation
+                - generic [ref=e479]: ● Active
+            - generic [ref=e481]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (5 + 7 5) * 0.7; const v1 = (6 + 60) * 0.6; const v2 = (8 + 59) * 0.8; co nst v3 = (2 + 17) * 0.2; const v4 = (7 + 53) * 0.7; const v5 = (2 + 86) * 0.6; const v6 = (1 + 59) * 0.5; const v7 = (3 + 89) * 0.3;"
+          - generic [ref=e482]:
+            - generic [ref=e487]:
+              - img "Airtable" [ref=e491]
+              - heading "Airtable" [level=3] [ref=e492]
+              - paragraph [ref=e493]: Replaces your messy spreadsheets with a smart database your whole team loves — track projects, clients, and inventory without hiring a developer.
+              - generic [ref=e494]:
+                - generic [ref=e495]: AI Automation
+                - generic [ref=e496]: ● Active
+            - generic [ref=e498]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (5 + 3 6) * 0.3; const v1 = (2 + 38) * 0.9; const v2 = (6 + 11) * 0.4; co nst v3 = (3 + 95) * 0.4; const v4 = (9 + 10) * 0.5; const v5 = (7 + 35) * 0.6; const v6 = (8 + 23) * 0.6; const v7 = (7 + 66) * 0.6;"
+          - generic [ref=e499]:
+            - generic [ref=e504]:
+              - img "OpenAI" [ref=e508]
+              - heading "OpenAI" [level=3] [ref=e509]
+              - paragraph [ref=e510]: Writes your marketing copy, analyzes customer feedback, and creates business strategies on demand — like having an expert consultant always on call.
+              - generic [ref=e511]:
+                - generic [ref=e512]: AI Automation
+                - generic [ref=e513]: ● Active
+            - generic [ref=e515]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (2 + 4 2) * 0.3; const v1 = (1 + 16) * 0.7; const v2 = (6 + 41) * 0.2; co nst v3 = (6 + 98) * 0.6; const v4 = (5 + 59) * 0.7; const v5 = (1 + 19) * 0.3; const v6 = (5 + 38) * 0.3; const v7 = (1 + 16) * 0.6;"
+          - generic [ref=e516]:
+            - generic [ref=e521]:
+              - img "Retell AI" [ref=e525]
+              - heading "Retell AI" [level=3] [ref=e526]
+              - paragraph [ref=e527]: Answers every customer call instantly with a natural human voice, books appointments, and never misses a lead — your 24/7 AI receptionist.
+              - generic [ref=e528]:
+                - generic [ref=e529]: AI Automation
+                - generic [ref=e530]: ● Active
+            - generic [ref=e532]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (4 + 2 9) * 0.8; const v1 = (4 + 35) * 0.2; const v2 = (1 + 47) * 0.6; co nst v3 = (6 + 50) * 0.2; const v4 = (8 + 88) * 0.2; const v5 = (1 + 25) * 0.6; const v6 = (8 + 71) * 0.8; const v7 = (8 + 45) * 0.1;"
+          - generic [ref=e533]:
+            - generic [ref=e538]:
+              - img "LiveKit" [ref=e542]
+              - heading "LiveKit" [level=3] [ref=e543]
+              - paragraph [ref=e544]: Powers real-time voice and video conversations with your customers — qualify leads and provide instant support right on your website.
+              - generic [ref=e545]:
+                - generic [ref=e546]: AI Automation
+                - generic [ref=e547]: ● Active
+            - generic [ref=e549]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (5 + 5 6) * 0.6; const v1 = (7 + 35) * 0.2; const v2 = (9 + 90) * 0.6; co nst v3 = (3 + 78) * 0.2; const v4 = (9 + 70) * 0.6; const v5 = (6 + 69) * 0.7; const v6 = (7 + 47) * 0.6; const v7 = (5 + 27) * 0.1;"
+          - generic [ref=e550]:
+            - generic [ref=e555]:
+              - img "Perplexity" [ref=e559]
+              - heading "Perplexity" [level=3] [ref=e560]
+              - paragraph [ref=e561]: Delivers instant market research and competitor analysis with verified sources — make confident business decisions in minutes, not weeks.
+              - generic [ref=e562]:
+                - generic [ref=e563]: AI Automation
+                - generic [ref=e564]: ● Active
+            - generic [ref=e566]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (7 + 6 3) * 0.4; const v1 = (2 + 59) * 0.8; const v2 = (5 + 42) * 0.9; co nst v3 = (3 + 49) * 0.1; const v4 = (9 + 36) * 0.1; const v5 = (6 + 23) * 0.4; const v6 = (5 + 10) * 0.1; const v7 = (8 + 61) * 0.4;"
+          - generic [ref=e567]:
+            - generic [ref=e572]:
+              - img "Claude Code" [ref=e576]
+              - heading "Claude Code" [level=3] [ref=e577]
+              - paragraph [ref=e578]: Builds and updates your website, apps, and digital tools automatically — saving you thousands in developer costs every month.
+              - generic [ref=e579]:
+                - generic [ref=e580]: AI Automation
+                - generic [ref=e581]: ● Active
+            - generic [ref=e583]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (2 + 4 5) * 0.7; const v1 = (6 + 92) * 0.2; const v2 = (9 + 81) * 0.7; co nst v3 = (8 + 97) * 0.2; const v4 = (5 + 58) * 0.7; const v5 = (1 + 64) * 0.2; const v6 = (5 + 93) * 0.8; const v7 = (7 + 60) * 0.3;"
+          - generic [ref=e584]:
+            - generic [ref=e589]:
+              - img "n8n" [ref=e593]
+              - heading "n8n" [level=3] [ref=e594]
+              - paragraph [ref=e595]: Connects all your business apps together so data flows automatically — no more copying and pasting between your CRM, email, calendar, and billing.
+              - generic [ref=e596]:
+                - generic [ref=e597]: AI Automation
+                - generic [ref=e598]: ● Active
+            - generic [ref=e600]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (1 + 3 2) * 0.6; const v1 = (5 + 97) * 0.1; const v2 = (5 + 92) * 0.4; co nst v3 = (1 + 78) * 0.4; const v4 = (7 + 94) * 0.3; const v5 = (7 + 72) * 0.3; const v6 = (5 + 98) * 0.7; const v7 = (4 + 42) * 0.3;"
+          - generic [ref=e601]:
+            - generic [ref=e606]:
+              - img "Antigravity" [ref=e610]
+              - heading "Antigravity" [level=3] [ref=e611]
+              - paragraph [ref=e612]: Your 24/7 digital employee that handles research, planning, and complex tasks while you sleep — scaling your team without adding headcount.
+              - generic [ref=e613]:
+                - generic [ref=e614]: AI Automation
+                - generic [ref=e615]: ● Active
+            - generic [ref=e617]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (8 + 1 8) * 0.8; const v1 = (5 + 75) * 0.3; const v2 = (2 + 52) * 0.9; co nst v3 = (9 + 92) * 0.1; const v4 = (2 + 65) * 0.6; const v5 = (7 + 86) * 0.4; const v6 = (2 + 29) * 0.1; const v7 = (8 + 84) * 0.8;"
+          - generic [ref=e618]:
+            - generic [ref=e623]:
+              - img "Airtable" [ref=e627]
+              - heading "Airtable" [level=3] [ref=e628]
+              - paragraph [ref=e629]: Replaces your messy spreadsheets with a smart database your whole team loves — track projects, clients, and inventory without hiring a developer.
+              - generic [ref=e630]:
+                - generic [ref=e631]: AI Automation
+                - generic [ref=e632]: ● Active
+            - generic [ref=e634]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (5 + 2 3) * 0.9; const v1 = (7 + 20) * 0.6; const v2 = (9 + 96) * 0.9; co nst v3 = (3 + 97) * 0.2; const v4 = (5 + 45) * 0.4; const v5 = (6 + 18) * 0.8; const v6 = (7 + 92) * 0.4; const v7 = (2 + 70) * 0.4;"
+          - generic [ref=e635]:
+            - generic [ref=e640]:
+              - img "OpenAI" [ref=e644]
+              - heading "OpenAI" [level=3] [ref=e645]
+              - paragraph [ref=e646]: Writes your marketing copy, analyzes customer feedback, and creates business strategies on demand — like having an expert consultant always on call.
+              - generic [ref=e647]:
+                - generic [ref=e648]: AI Automation
+                - generic [ref=e649]: ● Active
+            - generic [ref=e651]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (7 + 5 9) * 0.1; const v1 = (5 + 94) * 0.7; const v2 = (1 + 75) * 0.1; co nst v3 = (2 + 22) * 0.4; const v4 = (6 + 27) * 0.9; const v5 = (8 + 29) * 0.6; const v6 = (3 + 10) * 0.3; const v7 = (7 + 17) * 0.7;"
+          - generic [ref=e652]:
+            - generic [ref=e657]:
+              - img "Retell AI" [ref=e661]
+              - heading "Retell AI" [level=3] [ref=e662]
+              - paragraph [ref=e663]: Answers every customer call instantly with a natural human voice, books appointments, and never misses a lead — your 24/7 AI receptionist.
+              - generic [ref=e664]:
+                - generic [ref=e665]: AI Automation
+                - generic [ref=e666]: ● Active
+            - generic [ref=e668]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (3 + 5 2) * 0.5; const v1 = (7 + 76) * 0.1; const v2 = (3 + 67) * 0.1; co nst v3 = (1 + 94) * 0.1; const v4 = (4 + 98) * 0.2; const v5 = (3 + 41) * 0.4; const v6 = (4 + 41) * 0.1; const v7 = (9 + 92) * 0.3;"
+          - generic [ref=e669]:
+            - generic [ref=e674]:
+              - img "LiveKit" [ref=e678]
+              - heading "LiveKit" [level=3] [ref=e679]
+              - paragraph [ref=e680]: Powers real-time voice and video conversations with your customers — qualify leads and provide instant support right on your website.
+              - generic [ref=e681]:
+                - generic [ref=e682]: AI Automation
+                - generic [ref=e683]: ● Active
+            - generic [ref=e685]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (5 + 9 5) * 0.8; const v1 = (3 + 42) * 0.9; const v2 = (3 + 69) * 0.9; co nst v3 = (7 + 17) * 0.8; const v4 = (1 + 12) * 0.9; const v5 = (9 + 13) * 0.8; const v6 = (9 + 98) * 0.7; const v7 = (6 + 28) * 0.7;"
+          - generic [ref=e686]:
+            - generic [ref=e691]:
+              - img "Perplexity" [ref=e695]
+              - heading "Perplexity" [level=3] [ref=e696]
+              - paragraph [ref=e697]: Delivers instant market research and competitor analysis with verified sources — make confident business decisions in minutes, not weeks.
+              - generic [ref=e698]:
+                - generic [ref=e699]: AI Automation
+                - generic [ref=e700]: ● Active
+            - generic [ref=e702]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (3 + 1 6) * 0.9; const v1 = (3 + 24) * 0.8; const v2 = (7 + 53) * 0.9; co nst v3 = (8 + 45) * 0.6; const v4 = (4 + 35) * 0.7; const v5 = (1 + 89) * 0.6; const v6 = (7 + 73) * 0.1; const v7 = (7 + 73) * 0.1;"
+          - generic [ref=e703]:
+            - generic [ref=e708]:
+              - img "Claude Code" [ref=e712]
+              - heading "Claude Code" [level=3] [ref=e713]
+              - paragraph [ref=e714]: Builds and updates your website, apps, and digital tools automatically — saving you thousands in developer costs every month.
+              - generic [ref=e715]:
+                - generic [ref=e716]: AI Automation
+                - generic [ref=e717]: ● Active
+            - generic [ref=e719]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (8 + 7 7) * 0.6; const v1 = (2 + 50) * 0.9; const v2 = (5 + 29) * 0.8; co nst v3 = (8 + 22) * 0.9; const v4 = (9 + 93) * 0.6; const v5 = (8 + 10) * 0.7; const v6 = (4 + 62) * 0.6; const v7 = (3 + 30) * 0.3;"
+          - generic [ref=e720]:
+            - generic [ref=e725]:
+              - img "n8n" [ref=e729]
+              - heading "n8n" [level=3] [ref=e730]
+              - paragraph [ref=e731]: Connects all your business apps together so data flows automatically — no more copying and pasting between your CRM, email, calendar, and billing.
+              - generic [ref=e732]:
+                - generic [ref=e733]: AI Automation
+                - generic [ref=e734]: ● Active
+            - generic [ref=e736]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (1 + 1 2) * 0.5; const v1 = (9 + 36) * 0.1; const v2 = (8 + 43) * 0.3; co nst v3 = (5 + 43) * 0.7; const v4 = (6 + 14) * 0.3; const v5 = (1 + 55) * 0.7; const v6 = (1 + 49) * 0.9; const v7 = (3 + 33) * 0.7;"
+          - generic [ref=e737]:
+            - generic [ref=e742]:
+              - img "Antigravity" [ref=e746]
+              - heading "Antigravity" [level=3] [ref=e747]
+              - paragraph [ref=e748]: Your 24/7 digital employee that handles research, planning, and complex tasks while you sleep — scaling your team without adding headcount.
+              - generic [ref=e749]:
+                - generic [ref=e750]: AI Automation
+                - generic [ref=e751]: ● Active
+            - generic [ref=e753]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (3 + 8 5) * 0.5; const v1 = (3 + 64) * 0.7; const v2 = (5 + 14) * 0.2; co nst v3 = (8 + 57) * 0.3; const v4 = (7 + 78) * 0.9; const v5 = (3 + 68) * 0.2; const v6 = (5 + 25) * 0.3; const v7 = (1 + 93) * 0.4;"
+          - generic [ref=e754]:
+            - generic [ref=e759]:
+              - img "Airtable" [ref=e763]
+              - heading "Airtable" [level=3] [ref=e764]
+              - paragraph [ref=e765]: Replaces your messy spreadsheets with a smart database your whole team loves — track projects, clients, and inventory without hiring a developer.
+              - generic [ref=e766]:
+                - generic [ref=e767]: AI Automation
+                - generic [ref=e768]: ● Active
+            - generic [ref=e770]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (4 + 3 9) * 0.9; const v1 = (8 + 84) * 0.4; const v2 = (9 + 84) * 0.5; co nst v3 = (7 + 74) * 0.4; const v4 = (8 + 40) * 0.9; const v5 = (7 + 68) * 0.8; const v6 = (4 + 96) * 0.5; const v7 = (8 + 39) * 0.5;"
+          - generic [ref=e771]:
+            - generic [ref=e776]:
+              - img "OpenAI" [ref=e780]
+              - heading "OpenAI" [level=3] [ref=e781]
+              - paragraph [ref=e782]: Writes your marketing copy, analyzes customer feedback, and creates business strategies on demand — like having an expert consultant always on call.
+              - generic [ref=e783]:
+                - generic [ref=e784]: AI Automation
+                - generic [ref=e785]: ● Active
+            - generic [ref=e787]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (2 + 2 2) * 0.9; const v1 = (4 + 62) * 0.3; const v2 = (2 + 62) * 0.1; co nst v3 = (2 + 24) * 0.9; const v4 = (9 + 17) * 0.2; const v5 = (9 + 24) * 0.2; const v6 = (7 + 33) * 0.1; const v7 = (9 + 51) * 0.1;"
+          - generic [ref=e788]:
+            - generic [ref=e793]:
+              - img "Retell AI" [ref=e797]
+              - heading "Retell AI" [level=3] [ref=e798]
+              - paragraph [ref=e799]: Answers every customer call instantly with a natural human voice, books appointments, and never misses a lead — your 24/7 AI receptionist.
+              - generic [ref=e800]:
+                - generic [ref=e801]: AI Automation
+                - generic [ref=e802]: ● Active
+            - generic [ref=e804]: "// automation workflow - ai powered /* generated for visual effect */ const SCAN_WIDTH = 8; const MAX_PARTICLES = 2500; const TRANSI TION = 0.05; function clamp(n, a, b) { return Math.max(a, Math.min (b, n)); } function lerp(a, b, t) { return a + (b - a) * t; } cons t now = () => performance.now(); function rng(min, max) { return M ath.random() * (max - min) + min; } class Automation0 { constructo r(trigger, action, condition) { this.trigger = trigger; this.actio n = action; this.condition = condition; } async execute() { await this.action(); } } class Automation1 { constructor(trigger, action , condition) { this.trigger = trigger; this.action = action; this. condition = condition; } async execute() { await this.action(); } } class Automation2 { constructor(trigger, action, condition) { th is.trigger = trigger; this.action = action; this.condition = condi tion; } async execute() { await this.action(); } } const workflow = { triggers: ['webhook', 'schedule', 'event'], actions: ['api_cal l', 'transform', 'notify'], status: 'active', }; const v0 = (1 + 6 6) * 0.6; const v1 = (2 + 81) * 0.7; const v2 = (9 + 40) * 0.8; co nst v3 = (8 + 33) * 0.8; const v4 = (4 + 55) * 0.3; const v5 = (2 + 25) * 0.9; const v6 = (1 + 96) * 0.6; const v7 = (5 + 94) * 0.6;"
+        - paragraph [ref=e806]: Drag to explore - Cards reveal code when scanned
+      - generic [ref=e808]:
+        - generic [ref=e809]:
+          - generic [ref=e811]: Direct Mentor Access
+          - heading "AI Is Moving Fast. These Are the Experts I Learn From Directly." [level=2] [ref=e815]:
+            - text: AI Is Moving Fast. These Are the Experts
+            - text: I Learn From Directly.
+          - paragraph [ref=e816]: I stay connected with proven AI operators and turn their lessons into real results for your business more calls answered, more leads booked, more revenue captured. You get enterprise-level AI quality at a fraction of the price.
+        - generic [ref=e817]:
+          - button "All" [ref=e818] [cursor=pointer]
+          - button "n8n Automations" [ref=e819] [cursor=pointer]
+          - button "Voice AI" [ref=e820] [cursor=pointer]
+          - button "Web Design" [ref=e821] [cursor=pointer]
+          - button "Claude Code" [ref=e822] [cursor=pointer]
+          - button "AI & Business" [ref=e823] [cursor=pointer]
+        - generic [ref=e826]:
+          - generic [ref=e827]:
+            - generic [ref=e828]:
+              - img "Alex Hormozi"
+            - generic [ref=e829]:
+              - img "Nick Saraev"
+            - generic [ref=e830]:
+              - img "Nate Herk"
+            - generic [ref=e831]:
+              - img "Michele Torti"
+            - generic [ref=e832]:
+              - img "Sixflow Automations"
+          - generic [ref=e833]:
+            - generic [ref=e835]:
+              - text: n8n Automations
+              - heading "Nate Herk" [level=2] [ref=e836]
+              - paragraph [ref=e837]: n8n Automation Expert & Agency Builder
+            - generic [ref=e838]:
+              - generic [ref=e839]:
+                - button "Previous" [ref=e840] [cursor=pointer]:
+                  - img [ref=e841]
+                - generic [ref=e843]: 1 / 11
+                - button "Next" [ref=e844] [cursor=pointer]:
+                  - img [ref=e845]
+              - generic [ref=e847]:
+                - link "YouTube" [ref=e848] [cursor=pointer]:
+                  - /url: https://www.youtube.com/@nateherk
+                  - img [ref=e849]
+                  - text: YouTube
+                - link "Skool" [ref=e852] [cursor=pointer]:
+                  - /url: https://www.skool.com/ai-automation-society-plus
+                  - img [ref=e853]
+                  - text: Skool
+                - button "Learn More" [ref=e858] [cursor=pointer]:
+                  - img [ref=e859]
+                  - text: Learn More
+        - generic [ref=e864]:
+          - generic [ref=e865]:
+            - paragraph [ref=e866]: Want access to the same AI knowledge base?
+            - paragraph [ref=e867]: Connect with me on Skool and get direct access to proven AI strategies that drive real revenue.
+          - link "View My Skool Profile" [ref=e868] [cursor=pointer]:
+            - /url: https://www.skool.com/@reynoso-anubis-8987
+            - img [ref=e869]
+            - text: View My Skool Profile
+      - generic [ref=e875]:
+        - generic [ref=e876]:
+          - generic [ref=e878]: Social Proof
+          - heading "Join the Family" [level=2] [ref=e879]
+          - paragraph [ref=e880]:
+            - text: Every great partnership starts with one 'yes'.
+            - text: Will you be next?
+        - generic [ref=e882]:
+          - generic [ref=e884]:
+            - generic [ref=e887]:
+              - img "Hair to Dreads Salon" [ref=e892]
+              - img "Hair to Dreads" [ref=e895]
+              - generic [ref=e897]: 🏆 Founding Partner
+              - generic [ref=e898]:
+                - generic [ref=e899]: Hair to Dreads
+                - generic [ref=e900]: Since 2010, Hair to Dreads has been Rotterdam's go-to for premium loc maintenance. Now with 24/7 AI reception, they never miss a booking.
+            - generic [ref=e903] [cursor=pointer]:
+              - img "Your Success Story Starts Here" [ref=e905]
+              - generic [ref=e907]: ✨ Your Spot Awaits
+              - generic [ref=e908]:
+                - generic [ref=e909]: Your Success Story Starts Here
+                - generic [ref=e910]: Imagine never missing another opportunity. Every call answered. Every client captured. Your business deserves this.
+            - generic [ref=e913] [cursor=pointer]:
+              - img "Ready to Join the Family?" [ref=e915]
+              - generic [ref=e917]: 💡 Take the Leap
+              - generic [ref=e918]:
+                - generic [ref=e919]: Ready to Join the Family?
+                - generic [ref=e920]: One conversation could change everything. Let us show you how 24/7 AI reception transforms your business just like it did for Hair to Dreads.
+            - generic [ref=e923] [cursor=pointer]:
+              - img "Be the Next Success" [ref=e925]
+              - generic [ref=e927]: 🚀 Your Turn
+              - generic [ref=e928]:
+                - generic [ref=e929]: Be the Next Success
+                - generic [ref=e930]: Every great partnership starts with one 'yes'. Your clients are calling let's make sure you're always there to answer.
+            - generic [ref=e933] [cursor=pointer]:
+              - img "Write Your Chapter" [ref=e935]
+              - generic [ref=e937]: 📖 Your Story
+              - generic [ref=e938]:
+                - generic [ref=e939]: Write Your Chapter
+                - generic [ref=e940]: Hair to Dreads was our first. You could be next. Real results. Real referrals. Real partnership.
+            - generic [ref=e943] [cursor=pointer]:
+              - img "Let's Make This Happen" [ref=e945]
+              - generic [ref=e947]: 💬 Book Now
+              - generic [ref=e948]:
+                - generic [ref=e949]: Let's Make This Happen
+                - generic [ref=e950]: Book your demo today. See how we capture every missed call, every opportunity, every success. Join the family.
+          - generic [ref=e952]:
+            - button "Go to Hair to Dreads" [ref=e953] [cursor=pointer]
+            - button "Go to Your Success Story Starts Here" [ref=e954] [cursor=pointer]
+            - button "Go to Ready to Join the Family?" [ref=e955] [cursor=pointer]
+            - button "Go to Be the Next Success" [ref=e956] [cursor=pointer]
+            - button "Go to Write Your Chapter" [ref=e957] [cursor=pointer]
+            - button "Go to Let's Make This Happen" [ref=e958] [cursor=pointer]
+        - link "Start Your Success Story" [ref=e960] [cursor=pointer]:
+          - /url: /contact
+          - text: Start Your Success Story
+          - img [ref=e961]
+    - contentinfo [ref=e963]:
+      - generic [ref=e965]:
+        - generic [ref=e967]: Taking Bookings Now
+        - heading "Every missed call is a missed opportunity." [level=2] [ref=e971]:
+          - text: Every missed call is a
+          - text: missed opportunity.
+        - paragraph [ref=e972]: Your AI receptionist answers 24/7 before your competitor does.
+        - generic [ref=e973] [cursor=pointer]:
+          - text: Book a Free Demo
+          - img [ref=e974]
+        - paragraph [ref=e976]: No commitment · 15-min call · See ROI live
+      - generic [ref=e979]:
+        - generic [ref=e980]:
+          - generic [ref=e981]:
+            - img [ref=e983]:
+              - generic [ref=e984]: R
+            - generic [ref=e987]: ReynubixVoice
+          - paragraph [ref=e988]: AI voice receptionists that answer every call, 24/7. Stop losing revenue to missed calls.
+        - generic [ref=e989]:
+          - paragraph [ref=e990]: Quick Links
+          - generic [ref=e991]:
+            - link "Contact" [ref=e992] [cursor=pointer]:
+              - /url: /contact
+            - link "Privacy Policy" [ref=e993] [cursor=pointer]:
+              - /url: /privacy
+            - link "Terms of Service" [ref=e994] [cursor=pointer]:
+              - /url: /terms
+        - generic [ref=e995]:
+          - generic [ref=e996]:
+            - link "LinkedIn" [ref=e997] [cursor=pointer]:
+              - /url: https://www.linkedin.com/company/reynubix
+              - img [ref=e998]
+            - link "YouTube" [ref=e1000] [cursor=pointer]:
+              - /url: https://www.youtube.com/@reynubix
+              - img [ref=e1001]
+          - paragraph [ref=e1003]: © 2026 ReynubixVoice. All rights reserved.

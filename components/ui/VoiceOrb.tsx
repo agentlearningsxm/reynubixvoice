@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
-interface VoiceOrbProps
-{
+interface VoiceOrbProps {
   isActive: boolean;
   isSpeaking: boolean;
   isUserSpeaking?: boolean;
@@ -9,7 +9,7 @@ interface VoiceOrbProps
 
 /**
  * Perplexity-style Voice Orb
- * 
+ *
  * States:
  * - Dormant (!isActive): Dim, slow breathing, muted colors
  * - Startup (isActive transitions true): Particles gather inward, orb forms
@@ -18,17 +18,20 @@ interface VoiceOrbProps
  * - User Speaking (isUserSpeaking): Subtle reactive glow, slight contraction ("listening")
  * - Shutdown (isActive transitions false): Orb dissolves outward
  */
-const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeaking = false }) =>
-{
+const VoiceOrb: React.FC<VoiceOrbProps> = ({
+  isActive,
+  isSpeaking,
+  isUserSpeaking = false,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animFrameRef = useRef<number>(0);
   const stateRef = useRef({
     // Animated values (lerped smoothly)
-    currentScale: 0.3,       // Orb scale (0 = nothing, 1 = full)
-    currentGlow: 0,          // Glow intensity (0-1)
+    currentScale: 0.3, // Orb scale (0 = nothing, 1 = full)
+    currentGlow: 0, // Glow intensity (0-1)
     currentRotationSpeed: 0, // Rotation speed multiplier
-    currentBrightness: 0.3,  // Particle brightness
-    currentPulse: 0,         // Pulse amount for speaking
+    currentBrightness: 0.3, // Particle brightness
+    currentPulse: 0, // Pulse amount for speaking
     // Targets (set by state)
     targetScale: 0.3,
     targetGlow: 0,
@@ -43,17 +46,21 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
   });
 
   // Particle data (created once)
-  const particlesRef = useRef<{
-    theta: number; phi: number; baseR: number; speed: number; offset: number;
-  }[]>([]);
+  const particlesRef = useRef<
+    {
+      theta: number;
+      phi: number;
+      baseR: number;
+      speed: number;
+      offset: number;
+    }[]
+  >([]);
 
   // Initialize particles
-  useEffect(() =>
-  {
+  useEffect(() => {
     const count = 200;
     const particles = [];
-    for (let i = 0; i < count; i++)
-    {
+    for (let i = 0; i < count; i++) {
       particles.push({
         theta: Math.random() * Math.PI * 2,
         phi: Math.acos(2 * Math.random() - 1),
@@ -66,33 +73,27 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
   }, []);
 
   // Handle state transitions
-  useEffect(() =>
-  {
+  useEffect(() => {
     const s = stateRef.current;
-    if (isActive)
-    {
-      if (s.phase === 'dormant' || s.phase === 'stopping')
-      {
+    if (isActive) {
+      if (s.phase === 'dormant' || s.phase === 'stopping') {
         s.phase = 'starting';
         s.startTime = s.time;
       }
       // Set targets based on sub-state
-      if (isSpeaking)
-      {
+      if (isSpeaking) {
         s.targetScale = 1.05;
         s.targetGlow = 1.0;
         s.targetRotationSpeed = 2.0;
         s.targetBrightness = 1.0;
         s.targetPulse = 0.2; // Strong rhythmic pulse — very visible
-      } else if (isUserSpeaking)
-      {
+      } else if (isUserSpeaking) {
         s.targetScale = 0.85;
         s.targetGlow = 0.65;
         s.targetRotationSpeed = 0.7;
         s.targetBrightness = 0.85;
         s.targetPulse = 0.08; // Moderate reactivity
-      } else
-      {
+      } else {
         // Idle / listening
         s.targetScale = 0.9;
         s.targetGlow = 0.35;
@@ -100,10 +101,8 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
         s.targetBrightness = 0.65;
         s.targetPulse = 0.03; // Gentle breathing
       }
-    } else
-    {
-      if (s.phase === 'starting' || s.phase === 'active')
-      {
+    } else {
+      if (s.phase === 'starting' || s.phase === 'active') {
         s.phase = 'stopping';
         s.startTime = s.time;
       }
@@ -116,14 +115,14 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
   }, [isActive, isSpeaking, isUserSpeaking]);
 
   // Get theme color from CSS variable
-  const getAccentColor = useCallback((): [number, number, number] =>
-  {
+  const getAccentColor = useCallback((): [number, number, number] => {
     if (typeof window === 'undefined') return [59, 130, 246]; // Default blue
     const root = document.documentElement;
-    const accent = getComputedStyle(root).getPropertyValue('--accent-primary').trim();
+    const accent = getComputedStyle(root)
+      .getPropertyValue('--accent-primary')
+      .trim();
     // Parse hex or rgb
-    if (accent.startsWith('#'))
-    {
+    if (accent.startsWith('#')) {
       const hex = accent.replace('#', '');
       return [
         parseInt(hex.substring(0, 2), 16),
@@ -136,8 +135,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
   }, []);
 
   // Main render loop
-  useEffect(() =>
-  {
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
@@ -149,8 +147,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
     const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
     const accentColor = getAccentColor();
 
-    const render = () =>
-    {
+    const render = () => {
       const s = stateRef.current;
       s.time += 0.016; // ~60fps
 
@@ -158,17 +155,23 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
       const lerpSpeed = 0.15; // Snappy transitions (~6 frames to 90%)
       s.currentScale = lerp(s.currentScale, s.targetScale, lerpSpeed);
       s.currentGlow = lerp(s.currentGlow, s.targetGlow, lerpSpeed);
-      s.currentRotationSpeed = lerp(s.currentRotationSpeed, s.targetRotationSpeed, lerpSpeed);
-      s.currentBrightness = lerp(s.currentBrightness, s.targetBrightness, lerpSpeed);
+      s.currentRotationSpeed = lerp(
+        s.currentRotationSpeed,
+        s.targetRotationSpeed,
+        lerpSpeed,
+      );
+      s.currentBrightness = lerp(
+        s.currentBrightness,
+        s.targetBrightness,
+        lerpSpeed,
+      );
       s.currentPulse = lerp(s.currentPulse, s.targetPulse, lerpSpeed * 1.5); // Even faster for pulse
 
       // Phase transitions
-      if (s.phase === 'starting' && s.time - s.startTime > 1.0)
-      {
+      if (s.phase === 'starting' && s.time - s.startTime > 1.0) {
         s.phase = 'active';
       }
-      if (s.phase === 'stopping' && s.currentScale < 0.35)
-      {
+      if (s.phase === 'stopping' && s.currentScale < 0.35) {
         s.phase = 'dormant';
       }
 
@@ -187,13 +190,28 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
       const cy = 140;
 
       // --- Draw Glow (behind particles) ---
-      if (s.currentGlow > 0.01)
-      {
+      if (s.currentGlow > 0.01) {
         const glowRadius = 70 * effectiveScale;
-        const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowRadius * 1.8);
-        gradient.addColorStop(0, `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${0.3 * s.currentGlow})`);
-        gradient.addColorStop(0.5, `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${0.1 * s.currentGlow})`);
-        gradient.addColorStop(1, `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, 0)`);
+        const gradient = ctx.createRadialGradient(
+          cx,
+          cy,
+          0,
+          cx,
+          cy,
+          glowRadius * 1.8,
+        );
+        gradient.addColorStop(
+          0,
+          `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${0.3 * s.currentGlow})`,
+        );
+        gradient.addColorStop(
+          0.5,
+          `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${0.1 * s.currentGlow})`,
+        );
+        gradient.addColorStop(
+          1,
+          `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, 0)`,
+        );
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(cx, cy, glowRadius * 1.8, 0, Math.PI * 2);
@@ -203,14 +221,20 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
       // --- Draw Particles ---
       const particles = particlesRef.current;
       // Sort by z for depth (back-to-front)
-      const projected: { x: number; y: number; z: number; alpha: number; size: number }[] = [];
+      const projected: {
+        x: number;
+        y: number;
+        z: number;
+        alpha: number;
+        size: number;
+      }[] = [];
 
-      for (const p of particles)
-      {
+      for (const p of particles) {
         const r = p.baseR * effectiveScale;
         // Spherical to cartesian
         let x = r * Math.sin(p.phi) * Math.cos(p.theta + s.rotation * p.speed);
-        let y = r * Math.sin(p.phi) * Math.sin(p.theta + s.rotation * p.speed);
+        const y =
+          r * Math.sin(p.phi) * Math.sin(p.theta + s.rotation * p.speed);
         let z = r * Math.cos(p.phi);
 
         // Y-axis rotation
@@ -238,8 +262,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
       // Sort back-to-front
       projected.sort((a, b) => a.z - b.z);
 
-      for (const pt of projected)
-      {
+      for (const pt of projected) {
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${pt.alpha})`;
@@ -247,11 +270,23 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
       }
 
       // --- Inner Core Glow (Perplexity-style bright center) ---
-      if (s.currentGlow > 0.05)
-      {
-        const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 25 * effectiveScale);
-        coreGrad.addColorStop(0, `rgba(255, 255, 255, ${0.15 * s.currentGlow})`);
-        coreGrad.addColorStop(0.5, `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${0.08 * s.currentGlow})`);
+      if (s.currentGlow > 0.05) {
+        const coreGrad = ctx.createRadialGradient(
+          cx,
+          cy,
+          0,
+          cx,
+          cy,
+          25 * effectiveScale,
+        );
+        coreGrad.addColorStop(
+          0,
+          `rgba(255, 255, 255, ${0.15 * s.currentGlow})`,
+        );
+        coreGrad.addColorStop(
+          0.5,
+          `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${0.08 * s.currentGlow})`,
+        );
         coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
         ctx.fillStyle = coreGrad;
         ctx.beginPath();
@@ -264,8 +299,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({ isActive, isSpeaking, isUserSpeakin
 
     render();
 
-    return () =>
-    {
+    return () => {
       cancelAnimationFrame(animFrameRef.current);
     };
   }, [getAccentColor]);

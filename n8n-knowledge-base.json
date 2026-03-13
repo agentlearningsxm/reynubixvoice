@@ -10,21 +10,12 @@
         },
         "httpMethod": {
           "type": "options",
-          "options": [
-            "GET",
-            "POST",
-            "PUT",
-            "DELETE",
-            "PATCH"
-          ],
+          "options": ["GET", "POST", "PUT", "DELETE", "PATCH"],
           "description": "HTTP method to accept"
         },
         "responseMode": {
           "type": "options",
-          "options": [
-            "onReceived",
-            "responseNode"
-          ],
+          "options": ["onReceived", "responseNode"],
           "description": "How to respond to the webhook"
         }
       },
@@ -57,13 +48,7 @@
         },
         "method": {
           "type": "options",
-          "options": [
-            "GET",
-            "POST",
-            "PUT",
-            "DELETE",
-            "PATCH"
-          ],
+          "options": ["GET", "POST", "PUT", "DELETE", "PATCH"],
           "description": "HTTP method"
         },
         "headers": {
@@ -88,10 +73,7 @@
         },
         "combineOperation": {
           "type": "options",
-          "options": [
-            "any",
-            "all"
-          ],
+          "options": ["any", "all"],
           "description": "How to combine multiple conditions"
         }
       },

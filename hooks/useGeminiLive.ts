@@ -145,6 +145,7 @@ export interface TranscriptEntry {
 export function useGeminiLive() {
   // Connection State
   const [connected, setConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -331,9 +332,11 @@ export function useGeminiLive() {
     try {
       setError(null);
       setTranscript([]);
+      setIsConnecting(true);
 
       if (!import.meta.env.VITE_GEMINI_API_KEY) {
         setError("API Key is missing.");
+        setIsConnecting(false);
         return;
       }
 
@@ -368,6 +371,7 @@ export function useGeminiLive() {
         callbacks: {
           onopen: () => {
             try {
+              setIsConnecting(false);
               setConnected(true);
 
               // Short hum to wake the model
@@ -552,16 +556,24 @@ export function useGeminiLive() {
             setConnected(false);
             setIsAgentSpeaking(false);
           },
-          onerror: () => {
-            setError("Connection failed. Please try again.");
+          onerror: (e: ErrorEvent | Event) => {
+            const msg = (e as ErrorEvent).message || 'Unknown WebSocket error';
+            console.error('[Reyna] Live API error:', msg, e);
+            setIsConnecting(false);
+            setError(`Connection failed: ${msg}`);
             disconnect();
           }
         }
       });
       sessionRef.current = sessionPromise;
 
-    } catch (e) {
-      setError("Failed to initialize audio.");
+    } catch (e: any) {
+      const msg = e?.message || String(e);
+      console.error('[Reyna] Connect error:', msg, e);
+      setIsConnecting(false);
+      setError(msg.includes('API') || msg.includes('key') || msg.includes('401') || msg.includes('403')
+        ? `API error: ${msg}`
+        : `Connection error: ${msg}`);
     }
   };
 
@@ -580,6 +592,7 @@ export function useGeminiLive() {
       sessionRef.current = null;
     }
     setConnected(false);
+    setIsConnecting(false);
     setIsAgentSpeaking(false);
     setIsUserSpeaking(false);
     setTranscript([]);
@@ -587,11 +600,15 @@ export function useGeminiLive() {
 
   return {
     connected,
+    isConnecting,
     isAgentSpeaking,
     isUserSpeaking,
     error,
     transcript,
     connectToGemini,
     disconnect,
+    // Stubs for Hero.tsx compatibility
+    fallbackMode: false as const,
+    isReconnecting: false as const,
   };
 }

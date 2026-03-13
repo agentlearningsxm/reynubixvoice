@@ -1,62 +1,61 @@
-import React, { useState, useEffect, useMemo } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { AlertTriangle, DollarSign, Euro, Sparkles, X } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const Calculator: React.FC = () =>
-{
+const Calculator: React.FC = () => {
   const { t } = useLanguage();
   const [revenuePerCustomer, setRevenuePerCustomer] = useState(800);
   const [missedCalls, setMissedCalls] = useState(3);
   const [dramaticBorderEnabled, setDramaticBorderEnabled] = useState(true);
 
   // Logic: Missed Calls * 30 Days * 25% Booking Rate * Avg Ticket Price
-  const monthlyLoss = useMemo(() =>
-  {
+  const monthlyLoss = useMemo(() => {
     return Math.floor(missedCalls * 30 * 0.25 * revenuePerCustomer);
   }, [revenuePerCustomer, missedCalls]);
 
-  const yearlyLoss = useMemo(() =>
-  {
+  const yearlyLoss = useMemo(() => {
     return monthlyLoss * 12;
   }, [monthlyLoss]);
 
   const controls = useAnimation();
 
-  useEffect(() =>
-  {
+  useEffect(() => {
     controls.start({
       scale: [1, 1.02, 1],
-      transition: { duration: 0.3 }
+      transition: { duration: 0.3 },
     });
-  }, [monthlyLoss, controls]);
+  }, [controls]);
 
   // Listen for AI Agent events
-  useEffect(() =>
-  {
-    const handleAIUpdate = (event: CustomEvent) =>
-    {
+  useEffect(() => {
+    const handleAIUpdate = (event: CustomEvent) => {
       if (event.detail.revenue) setRevenuePerCustomer(event.detail.revenue);
       if (event.detail.missedCalls) setMissedCalls(event.detail.missedCalls);
     };
 
-    window.addEventListener('updateCalculator', handleAIUpdate as EventListener);
-    return () => window.removeEventListener('updateCalculator', handleAIUpdate as EventListener);
+    window.addEventListener(
+      'updateCalculator',
+      handleAIUpdate as EventListener,
+    );
+    return () =>
+      window.removeEventListener(
+        'updateCalculator',
+        handleAIUpdate as EventListener,
+      );
   }, []);
 
   // Load dramatic border preference
-  useEffect(() =>
-  {
+  useEffect(() => {
     const savedPreference = localStorage.getItem('dramatic-border-enabled');
-    if (savedPreference !== null)
-    {
+    if (savedPreference !== null) {
       setDramaticBorderEnabled(savedPreference === 'true');
     }
   }, []);
 
   // Save dramatic border preference
-  const toggleDramaticBorder = () =>
-  {
+  const toggleDramaticBorder = () => {
     const newValue = !dramaticBorderEnabled;
     setDramaticBorderEnabled(newValue);
     localStorage.setItem('dramatic-border-enabled', String(newValue));
@@ -70,7 +69,7 @@ const Calculator: React.FC = () =>
 
   // Inner content component
   const CalculatorContent = () => (
-    <div className="grid lg:grid-cols-2 gap-12 relative z-10">
+    <div className="grid lg:grid-cols-2 gap-14 relative z-10">
       {/* Controls */}
       <div className="space-y-10">
         {/* Dramatic Border Toggle */}
@@ -78,7 +77,11 @@ const Calculator: React.FC = () =>
           <button
             onClick={toggleDramaticBorder}
             className={`dramatic-toggle-btn ${dramaticBorderEnabled ? 'active' : ''}`}
-            title={dramaticBorderEnabled ? 'Disable dramatic border effect' : 'Enable dramatic border effect'}
+            title={
+              dramaticBorderEnabled
+                ? 'Disable dramatic border effect'
+                : 'Enable dramatic border effect'
+            }
           >
             {dramaticBorderEnabled ? (
               <>
@@ -99,11 +102,15 @@ const Calculator: React.FC = () =>
           {scenarios.map((s, i) => (
             <button
               key={i}
-              onClick={() => { setRevenuePerCustomer(s.val); setMissedCalls(s.calls); }}
-              className={`px-4 py-2 rounded-full text-xs font-semibold border transition-all cursor-pointer ${revenuePerCustomer === s.val && missedCalls === s.calls
-                ? 'bg-text-primary text-bg-main border-text-primary'
-                : 'bg-transparent text-text-secondary border-border hover:border-text-secondary'
-                }`}
+              onClick={() => {
+                setRevenuePerCustomer(s.val);
+                setMissedCalls(s.calls);
+              }}
+              className={`px-4 py-2 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+                revenuePerCustomer === s.val && missedCalls === s.calls
+                  ? 'bg-text-primary text-bg-main border-text-primary'
+                  : 'bg-transparent text-text-secondary border-border hover:border-text-secondary'
+              }`}
             >
               {s.label}
             </button>
@@ -114,11 +121,16 @@ const Calculator: React.FC = () =>
         <div id="input-revenue">
           <div className="flex justify-between mb-4">
             <label className="text-text-secondary font-medium flex items-center gap-2">
-              {t.currency === '$' ? <DollarSign className="w-4 h-4 text-brand-primary" /> : <Euro className="w-4 h-4 text-brand-primary" />}
+              {t.currency === '$' ? (
+                <DollarSign className="w-4 h-4 text-brand-primary" />
+              ) : (
+                <Euro className="w-4 h-4 text-brand-primary" />
+              )}
               {t.calculator.revenueLabel}
             </label>
             <span className="text-text-primary font-bold bg-bg-card px-3 py-1 rounded-lg border border-border">
-              {t.currency}{revenuePerCustomer.toLocaleString()}
+              {t.currency}
+              {revenuePerCustomer.toLocaleString()}
             </span>
           </div>
           <input
@@ -136,7 +148,8 @@ const Calculator: React.FC = () =>
         <div id="input-calls">
           <div className="flex justify-between mb-4">
             <label className="text-text-secondary font-medium flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-money-loss" /> {t.calculator.missedLabel}
+              <AlertTriangle className="w-4 h-4 text-money-loss" />{' '}
+              {t.calculator.missedLabel}
             </label>
             <span className="text-text-primary font-bold bg-bg-card px-3 py-1 rounded-lg border border-border">
               {missedCalls}
@@ -155,32 +168,46 @@ const Calculator: React.FC = () =>
       </div>
 
       {/* Results */}
-      <div className="flex flex-col justify-center gap-6" id="result-box">
+      <div className="flex flex-col justify-center gap-7" id="result-box">
         <motion.div
           animate={controls}
           className="glass-card rounded-2xl p-7 text-center relative overflow-hidden"
           style={{
             background: 'rgba(239,68,68,0.06)',
             borderColor: 'rgba(239,68,68,0.25)',
-            boxShadow: '0 0 40px rgba(239,68,68,0.08) inset, 0 4px 24px rgba(0,0,0,0.3)'
+            boxShadow:
+              '0 0 40px rgba(239,68,68,0.08) inset, 0 4px 24px rgba(0,0,0,0.3)',
           }}
         >
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 100%, rgba(239,68,68,0.08), transparent)' }} />
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-red-400 mb-2 relative z-10">{t.calculator.monthlyLoss}</p>
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(ellipse 80% 60% at 50% 100%, rgba(239,68,68,0.08), transparent)',
+            }}
+          />
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-red-400 mb-2 relative z-10">
+            {t.calculator.monthlyLoss}
+          </p>
           <h3 className="text-[3.5rem] lg:text-[4rem] font-bold font-display tracking-[-0.04em] text-text-primary mb-2 relative z-10 leading-none">
-            {t.currency}{monthlyLoss.toLocaleString()}
+            {t.currency}
+            {monthlyLoss.toLocaleString()}
           </h3>
-          <p className="text-xs text-text-secondary relative z-10">{t.calculator.disclaimer}</p>
+          <p className="text-xs text-text-secondary relative z-10">
+            {t.calculator.disclaimer}
+          </p>
         </motion.div>
 
         <motion.div
           animate={controls}
           className="glass-card rounded-2xl p-6 text-center"
         >
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-secondary mb-2">{t.calculator.yearlyLoss}</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-secondary mb-2">
+            {t.calculator.yearlyLoss}
+          </p>
           <h3 className="text-[2.75rem] font-bold font-display tracking-[-0.04em] text-text-primary leading-none">
-            {t.currency}{yearlyLoss.toLocaleString()}
+            {t.currency}
+            {yearlyLoss.toLocaleString()}
           </h3>
         </motion.div>
 
@@ -189,7 +216,11 @@ const Calculator: React.FC = () =>
             AI
           </div>
           <p className="text-sm text-text-primary font-medium">
-            {t.calculator.cta} <span className="underline decoration-2 decoration-money-gain text-money-gain">{t.calculator.ctaHighlight}</span>.
+            {t.calculator.cta}{' '}
+            <span className="underline decoration-2 decoration-money-gain text-money-gain">
+              {t.calculator.ctaHighlight}
+            </span>
+            .
           </p>
         </div>
       </div>
@@ -197,17 +228,21 @@ const Calculator: React.FC = () =>
   );
 
   return (
-    <section className="py-20 relative" id="calculator">
-      <div className="page-container max-w-5xl">
-
+    <section className="py-24 relative" id="calculator">
+      <div className="page-container">
         <div className="text-center mb-16">
-          <div className="flex justify-center mb-3">
+          <div className="flex justify-center mb-4">
             <span className="section-eyebrow">Revenue Loss Calculator</span>
           </div>
           <h2 className="text-4xl lg:text-5xl font-display font-bold mb-4 tracking-[-0.02em] text-text-primary">
-            {t.calculator.title} <span className="text-gradient-danger">{t.calculator.titleHighlight}</span>
+            {t.calculator.title}{' '}
+            <span className="text-gradient-danger">
+              {t.calculator.titleHighlight}
+            </span>
           </h2>
-          <p className="text-text-secondary text-base max-w-xl mx-auto">{t.calculator.subtitle}</p>
+          <p className="text-text-secondary text-base max-w-xl mx-auto">
+            {t.calculator.subtitle}
+          </p>
         </div>
 
         {dramaticBorderEnabled ? (
@@ -220,7 +255,7 @@ const Calculator: React.FC = () =>
                   <div className="dramatic-border-animation"></div>
 
                   {/* Content Layer - Clearly visible */}
-                  <div className="relative z-10 p-8 lg:p-12">
+                  <div className="relative z-10 p-8 lg:p-14">
                     {/* Background Ambient Light */}
                     <div className="absolute top-0 right-0 w-96 h-96 bg-money-loss/10 rounded-full blur-[100px] pointer-events-none" />
                     <CalculatorContent />
@@ -237,7 +272,7 @@ const Calculator: React.FC = () =>
           </div>
         ) : (
           /* Standard Glass Card (no dramatic border) */
-          <div className="glass-card rounded-3xl p-8 lg:p-12 shadow-2xl relative overflow-hidden bg-white/80 dark:bg-bg-card">
+          <div className="glass-card rounded-3xl p-8 lg:p-14 shadow-2xl relative overflow-hidden bg-white/80 dark:bg-bg-card">
             {/* Background Ambient Light */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-money-loss/10 rounded-full blur-[100px] pointer-events-none" />
 

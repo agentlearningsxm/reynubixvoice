@@ -1,9 +1,8 @@
 import * as THREE from 'three';
-import { getAccentColor } from './helpers';
+import { getAccentColor, hexToRgb } from './helpers';
 
 // Three.js Particle System Class
-class ParticleSystem
-{
+class ParticleSystem {
   private scene: THREE.Scene;
   private camera: THREE.OrthographicCamera;
   private renderer: THREE.WebGLRenderer;
@@ -14,9 +13,10 @@ class ParticleSystem
   private alphas: Float32Array;
   private animationId: number | null = null;
   private currentTexture: THREE.CanvasTexture | null = null;
+  private resizeHandler: () => void;
+  private themeObserver: MutationObserver | null = null;
 
-  constructor(canvas: HTMLCanvasElement)
-  {
+  constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.velocities = new Float32Array(this.particleCount);
     this.alphas = new Float32Array(this.particleCount);
@@ -29,7 +29,7 @@ class ParticleSystem
       125,
       -125,
       1,
-      1000
+      1000,
     );
     this.camera.position.z = 100;
 
@@ -44,26 +44,20 @@ class ParticleSystem
     this.createParticles();
     this.animate();
 
-    window.addEventListener('resize', () => this.onWindowResize());
+    this.resizeHandler = () => this.onWindowResize();
+    window.addEventListener('resize', this.resizeHandler);
 
     // Listen for theme changes
-    this.observeThemeChanges();
-  }
-
-  private observeThemeChanges()
-  {
-    const observer = new MutationObserver(() =>
-    {
-      this.updateParticleColors();
-    });
-    observer.observe(document.documentElement, {
+    this.themeObserver = new MutationObserver(() =>
+      this.updateParticleColors(),
+    );
+    this.themeObserver.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class', 'data-accent']
+      attributeFilter: ['class', 'data-accent'],
     });
   }
 
-  private updateParticleColors()
-  {
+  private updateParticleColors() {
     if (!this.particles) return;
 
     // Create new texture with updated colors
@@ -75,39 +69,36 @@ class ParticleSystem
 
     const lightMode = document.documentElement.classList.contains('light');
     const accentColor = getAccentColor();
-
-    const hexToRgb = (hex: string) =>
-    {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      } : { r: 59, g: 130, b: 246 };
-    };
-
     const primaryRgb = hexToRgb(accentColor.primary);
     const secondaryRgb = hexToRgb(accentColor.secondary);
 
     const gradient = ctx.createRadialGradient(half, half, 0, half, half, half);
 
-    if (lightMode)
-    {
-      // Light mode: Use darker accent color for visibility
+    if (lightMode) {
       const darkerR = Math.floor(primaryRgb.r * 0.6);
       const darkerG = Math.floor(primaryRgb.g * 0.6);
       const darkerB = Math.floor(primaryRgb.b * 0.6);
       gradient.addColorStop(0.025, accentColor.primary);
-      gradient.addColorStop(0.1, `rgba(${darkerR}, ${darkerG}, ${darkerB}, 0.9)`);
-      gradient.addColorStop(0.25, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.5)`);
-      gradient.addColorStop(1, "transparent");
-    } else
-    {
-      // Dark mode: Use white with accent tint
-      gradient.addColorStop(0.025, "#fff");
-      gradient.addColorStop(0.1, `rgba(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}, 0.8)`);
-      gradient.addColorStop(0.25, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.3)`);
-      gradient.addColorStop(1, "transparent");
+      gradient.addColorStop(
+        0.1,
+        `rgba(${darkerR}, ${darkerG}, ${darkerB}, 0.9)`,
+      );
+      gradient.addColorStop(
+        0.25,
+        `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.5)`,
+      );
+      gradient.addColorStop(1, 'transparent');
+    } else {
+      gradient.addColorStop(0.025, '#fff');
+      gradient.addColorStop(
+        0.1,
+        `rgba(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}, 0.8)`,
+      );
+      gradient.addColorStop(
+        0.25,
+        `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.3)`,
+      );
+      gradient.addColorStop(1, 'transparent');
     }
 
     ctx.fillStyle = gradient;
@@ -117,72 +108,63 @@ class ParticleSystem
 
     const newTexture = new THREE.CanvasTexture(canvas);
 
-    // Update the material texture
     const material = this.particles.material as THREE.ShaderMaterial;
-    if (material.uniforms && material.uniforms.pointTexture)
-    {
+    if (material.uniforms?.pointTexture) {
       material.uniforms.pointTexture.value = newTexture;
     }
 
-    // Dispose old texture
-    if (this.currentTexture)
-    {
+    if (this.currentTexture) {
       this.currentTexture.dispose();
     }
     this.currentTexture = newTexture;
   }
 
-  private createParticles()
-  {
+  private createParticles() {
     const geometry = new THREE.BufferGeometry();
     const positions = new Float32Array(this.particleCount * 3);
     const colors = new Float32Array(this.particleCount * 3);
     const sizes = new Float32Array(this.particleCount);
 
-    // Create particle texture - adapt to theme and accent color
     const canvas = document.createElement('canvas');
     canvas.width = 100;
     canvas.height = 100;
     const ctx = canvas.getContext('2d')!;
     const half = canvas.width / 2;
 
-    // Detect light mode and accent color for particle colors
     const lightMode = document.documentElement.classList.contains('light');
     const accentColor = getAccentColor();
-
-    // Parse the accent color to get RGB values
-    const hexToRgb = (hex: string) =>
-    {
-      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-      return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-      } : { r: 59, g: 130, b: 246 };
-    };
-
     const primaryRgb = hexToRgb(accentColor.primary);
     const secondaryRgb = hexToRgb(accentColor.secondary);
 
     const gradient = ctx.createRadialGradient(half, half, 0, half, half, half);
 
-    if (lightMode)
-    {
+    if (lightMode) {
       // Light mode: Use darker accent color for visibility
       const darkerR = Math.floor(primaryRgb.r * 0.6);
       const darkerG = Math.floor(primaryRgb.g * 0.6);
       const darkerB = Math.floor(primaryRgb.b * 0.6);
       gradient.addColorStop(0.025, accentColor.primary);
-      gradient.addColorStop(0.1, `rgba(${darkerR}, ${darkerG}, ${darkerB}, 0.9)`);
-      gradient.addColorStop(0.25, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.5)`);
-      gradient.addColorStop(1, "transparent");
-    } else
-    {
+      gradient.addColorStop(
+        0.1,
+        `rgba(${darkerR}, ${darkerG}, ${darkerB}, 0.9)`,
+      );
+      gradient.addColorStop(
+        0.25,
+        `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.5)`,
+      );
+      gradient.addColorStop(1, 'transparent');
+    } else {
       // Dark mode: Use white with accent tint
-      gradient.addColorStop(0.025, "#fff");
-      gradient.addColorStop(0.1, `rgba(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}, 0.8)`);
-      gradient.addColorStop(0.25, `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.3)`);
-      gradient.addColorStop(1, "transparent");
+      gradient.addColorStop(0.025, '#fff');
+      gradient.addColorStop(
+        0.1,
+        `rgba(${secondaryRgb.r}, ${secondaryRgb.g}, ${secondaryRgb.b}, 0.8)`,
+      );
+      gradient.addColorStop(
+        0.25,
+        `rgba(${primaryRgb.r}, ${primaryRgb.g}, ${primaryRgb.b}, 0.3)`,
+      );
+      gradient.addColorStop(1, 'transparent');
     }
 
     ctx.fillStyle = gradient;
@@ -193,8 +175,7 @@ class ParticleSystem
     const texture = new THREE.CanvasTexture(canvas);
     this.currentTexture = texture;
 
-    for (let i = 0; i < this.particleCount; i++)
-    {
+    for (let i = 0; i < this.particleCount; i++) {
       positions[i * 3] = (Math.random() - 0.5) * window.innerWidth * 2;
       positions[i * 3 + 1] = (Math.random() - 0.5) * 250;
       positions[i * 3 + 2] = 0;
@@ -213,8 +194,7 @@ class ParticleSystem
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
     geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-    for (let i = 0; i < this.particleCount; i++)
-    {
+    for (let i = 0; i < this.particleCount; i++) {
       this.alphas[i] = (Math.random() * 8 + 2) / 10;
     }
     geometry.setAttribute('alpha', new THREE.BufferAttribute(this.alphas, 1));
@@ -257,22 +237,20 @@ class ParticleSystem
     this.scene.add(this.particles);
   }
 
-  private animate()
-  {
+  private animate() {
     this.animationId = requestAnimationFrame(() => this.animate());
 
-    if (this.particles)
-    {
-      const positions = this.particles.geometry.attributes.position.array as Float32Array;
-      const alphas = this.particles.geometry.attributes.alpha.array as Float32Array;
+    if (this.particles) {
+      const positions = this.particles.geometry.attributes.position
+        .array as Float32Array;
+      const alphas = this.particles.geometry.attributes.alpha
+        .array as Float32Array;
       const time = Date.now() * 0.001;
 
-      for (let i = 0; i < this.particleCount; i++)
-      {
+      for (let i = 0; i < this.particleCount; i++) {
         positions[i * 3] += this.velocities[i] * 0.016;
 
-        if (positions[i * 3] > window.innerWidth / 2 + 100)
-        {
+        if (positions[i * 3] > window.innerWidth / 2 + 100) {
           positions[i * 3] = -window.innerWidth / 2 - 100;
           positions[i * 3 + 1] = (Math.random() - 0.5) * 250;
         }
@@ -280,11 +258,9 @@ class ParticleSystem
         positions[i * 3 + 1] += Math.sin(time + i * 0.1) * 0.5;
 
         const twinkle = Math.floor(Math.random() * 10);
-        if (twinkle === 1 && alphas[i] > 0)
-        {
+        if (twinkle === 1 && alphas[i] > 0) {
           alphas[i] -= 0.05;
-        } else if (twinkle === 2 && alphas[i] < 1)
-        {
+        } else if (twinkle === 2 && alphas[i] < 1) {
           alphas[i] += 0.05;
         }
 
@@ -298,32 +274,29 @@ class ParticleSystem
     this.renderer.render(this.scene, this.camera);
   }
 
-  private onWindowResize()
-  {
+  private onWindowResize() {
     this.camera.left = -window.innerWidth / 2;
     this.camera.right = window.innerWidth / 2;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, 250);
   }
 
-  destroy()
-  {
-    if (this.animationId)
-    {
+  destroy() {
+    if (this.animationId) {
       cancelAnimationFrame(this.animationId);
     }
-    if (this.renderer)
-    {
+    window.removeEventListener('resize', this.resizeHandler);
+    this.themeObserver?.disconnect();
+    this.themeObserver = null;
+    if (this.renderer) {
       this.renderer.dispose();
     }
-    if (this.particles)
-    {
+    if (this.particles) {
       this.scene.remove(this.particles);
       this.particles.geometry.dispose();
       (this.particles.material as THREE.Material).dispose();
     }
-    if (this.currentTexture)
-    {
+    if (this.currentTexture) {
       this.currentTexture.dispose();
     }
   }

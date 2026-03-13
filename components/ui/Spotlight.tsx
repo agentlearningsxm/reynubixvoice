@@ -1,8 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 
 const Spotlight: React.FC = () => {
-  const [targetRect, setTargetRect] = useState<{ top: number; left: number; width: number; height: number } | null>(null);
+  const [targetRect, setTargetRect] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  } | null>(null);
   const [active, setActive] = useState(false);
 
   useEffect(() => {
@@ -11,22 +17,25 @@ const Spotlight: React.FC = () => {
       const element = document.getElementById(elementId);
 
       if (element) {
-        // Scroll to element if needed
+        // Scroll to element first
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        // Calculate position
+        // Calculate position AFTER scroll settles (smooth scroll takes ~400-600ms)
         const updateRect = () => {
           const rect = element.getBoundingClientRect();
           setTargetRect({
             top: rect.top + window.scrollY,
             left: rect.left + window.scrollX,
             width: rect.width,
-            height: rect.height
+            height: rect.height,
           });
         };
 
-        updateRect();
-        setActive(true);
+        // Wait for scroll to finish, then measure + activate
+        setTimeout(() => {
+          updateRect();
+          setActive(true);
+        }, 500);
 
         // Auto-hide after 4 seconds if no new highlight comes in
         const timer = setTimeout(() => {
@@ -37,8 +46,15 @@ const Spotlight: React.FC = () => {
       }
     };
 
-    window.addEventListener('highlightElement', handleHighlight as EventListener);
-    return () => window.removeEventListener('highlightElement', handleHighlight as EventListener);
+    window.addEventListener(
+      'highlightElement',
+      handleHighlight as EventListener,
+    );
+    return () =>
+      window.removeEventListener(
+        'highlightElement',
+        handleHighlight as EventListener,
+      );
   }, []);
 
   return (
@@ -48,7 +64,7 @@ const Spotlight: React.FC = () => {
           initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.1 }}
-          transition={{ duration: 0.5, ease: "circOut" }}
+          transition={{ duration: 0.5, ease: 'circOut' }}
           style={{
             position: 'absolute',
             top: targetRect.top,
@@ -62,7 +78,7 @@ const Spotlight: React.FC = () => {
         >
           {/* The Glowing Border */}
           <div className="absolute -inset-4 border-2 border-brand-primary/50 rounded-xl shadow-[0_0_50px_rgba(99,102,241,0.3)] animate-pulse" />
-          
+
           {/* The Corner Brackets */}
           <div className="absolute top-[-10px] left-[-10px] w-6 h-6 border-t-2 border-l-2 border-brand-primary" />
           <div className="absolute top-[-10px] right-[-10px] w-6 h-6 border-t-2 border-r-2 border-brand-primary" />

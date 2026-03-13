@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import type React from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
-const IndustrySlider: React.FC = () =>
-{
+const IndustrySlider: React.FC = () => {
   const { t } = useLanguage();
 
   // State for drag interaction
@@ -18,53 +18,51 @@ const IndustrySlider: React.FC = () =>
   // Mapping of industry IDs to high-quality specific images
   const industryImages: Record<string, string> = {
     hvac: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop',
-    dental: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=800&auto=format&fit=crop',
-    roofing: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?q=80&w=800&auto=format&fit=crop',
+    dental:
+      'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=800&auto=format&fit=crop',
+    roofing:
+      'https://images.unsplash.com/photo-1632759145351-1d592919f522?q=80&w=800&auto=format&fit=crop',
     tree: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=800&auto=format&fit=crop',
     auto: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=800&auto=format&fit=crop',
   };
 
   // Prepare industry data with overriding title for HVAC
-  const industries = Object.entries(t.industries.items).map(([key, item]) =>
-  {
+  const industries = Object.entries(t.industries.items).map(([key, item]) => {
     const data = item as any;
     return {
       id: key,
       title: key === 'hvac' ? 'Plumbing & AC' : data.name,
       description: data.desc,
-      image: industryImages[key] || 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop',
+      image:
+        industryImages[key] ||
+        'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop',
     };
   });
 
   const totalCards = 20;
-  const displayCards = Array.from({ length: totalCards }).map((_, i) =>
-  {
+  const displayCards = Array.from({ length: totalCards }).map((_, i) => {
     return industries[i % industries.length];
   });
 
   // Momentum animation after release
-  const animateMomentum = useCallback(() =>
-  {
+  const animateMomentum = useCallback(() => {
     const friction = 0.95;
     const minVelocity = 0.00001;
 
-    const step = () =>
-    {
+    const step = () => {
       velocityRef.current *= friction;
-      if (Math.abs(velocityRef.current) < minVelocity)
-      {
+      if (Math.abs(velocityRef.current) < minVelocity) {
         velocityRef.current = 0;
         return;
       }
-      setRotate(prev => prev + velocityRef.current);
+      setRotate((prev) => prev + velocityRef.current);
       animFrameRef.current = requestAnimationFrame(step);
     };
     animFrameRef.current = requestAnimationFrame(step);
   }, []);
 
   // Drag Handlers
-  const handlePointerDown = (e: React.PointerEvent) =>
-  {
+  const handlePointerDown = (e: React.PointerEvent) => {
     // Cancel any ongoing momentum
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     velocityRef.current = 0;
@@ -73,50 +71,57 @@ const IndustrySlider: React.FC = () =>
     setStartX(e.clientX);
     lastXRef.current = e.clientX;
     lastTimeRef.current = Date.now();
-    if (containerRef.current)
-    {
+    if (containerRef.current) {
       containerRef.current.setPointerCapture(e.pointerId);
     }
   };
 
-  const handlePointerMove = (e: React.PointerEvent) =>
-  {
+  const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
     const delta = e.clientX - startX;
     const now = Date.now();
     const dt = now - lastTimeRef.current;
-    if (dt > 0)
-    {
+    if (dt > 0) {
       velocityRef.current = (e.clientX - lastXRef.current) / (dt * 50);
     }
     lastXRef.current = e.clientX;
     lastTimeRef.current = now;
-    setRotate(prev => prev + delta / 3000);
+    setRotate((prev) => prev + delta / 3000);
     setStartX(e.clientX);
   };
 
-  const handlePointerUp = (e: React.PointerEvent) =>
-  {
+  const handlePointerUp = (e: React.PointerEvent) => {
     setIsDragging(false);
-    if (containerRef.current)
-    {
+    if (containerRef.current) {
       containerRef.current.releasePointerCapture(e.pointerId);
     }
     // Trigger momentum
     animateMomentum();
   };
 
-  // Keyboard navigation (arrow keys)
-  useEffect(() =>
-  {
-    const handleKeyDown = (e: KeyboardEvent) =>
-    {
-      if (e.key === 'ArrowLeft')
-      {
-        setRotate(prev => prev - 0.05);
-      } else if (e.key === 'ArrowRight')
-      {
-        setRotate(prev => prev + 0.05);
+  // Keyboard navigation — only when section is in viewport
+  const sectionVisibleRef = useRef(false);
+
+  useEffect(() => {
+    const section = containerRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        sectionVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.3 },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!sectionVisibleRef.current) return;
+      if (e.key === 'ArrowLeft') {
+        setRotate((prev) => prev - 0.05);
+      } else if (e.key === 'ArrowRight') {
+        setRotate((prev) => prev + 0.05);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -124,40 +129,36 @@ const IndustrySlider: React.FC = () =>
   }, []);
 
   // Cleanup animation frame on unmount
-  useEffect(() =>
-  {
-    return () =>
-    {
+  useEffect(() => {
+    return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
   }, []);
 
   // Voice agent carousel navigation
-  useEffect(() =>
-  {
-    const handler = (e: Event) =>
-    {
+  useEffect(() => {
+    const handler = (e: Event) => {
       const { carousel, action } = (e as CustomEvent).detail;
       if (carousel !== 'industry') return;
       const step = 1 / totalCards; // 0.05
       if (action === 'next') {
-        setRotate(prev => prev + step);
+        setRotate((prev) => prev + step);
       } else if (action === 'prev') {
-        setRotate(prev => prev - step);
+        setRotate((prev) => prev - step);
       } else {
         const index = parseInt(action, 10);
-        if (!isNaN(index)) {
+        if (!Number.isNaN(index)) {
           setRotate(-(index / totalCards));
         }
       }
     };
     window.addEventListener('navigateCarousel', handler);
     return () => window.removeEventListener('navigateCarousel', handler);
-  }, [totalCards]);
+  }, []);
 
   return (
     <section
-      className="relative w-full h-[650px] md:h-[800px] lg:h-[950px] overflow-hidden bg-[var(--bg-main)] text-[var(--text-primary)]"
+      className="relative w-full h-[700px] md:h-[850px] lg:h-[1000px] overflow-hidden bg-[var(--bg-main)] text-[var(--text-primary)]"
       id="solutions"
       ref={containerRef}
       onPointerDown={handlePointerDown}
@@ -165,17 +166,21 @@ const IndustrySlider: React.FC = () =>
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
       onContextMenu={(e) => e.preventDefault()}
-      style={{ cursor: isDragging ? 'grabbing' : 'grab', userSelect: 'none', WebkitUserSelect: 'none' }}
+      style={{
+        cursor: isDragging ? 'grabbing' : 'grab',
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+      }}
     >
-
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @import url('https://fonts.bunny.net/css?family=just-me-again-down-here:400');
 
         /* ALL classes scoped under #solutions to prevent collision with AutomationCards */
         #solutions .industry-wrapper {
           --card-border-radius: 16px;
-          --card-width: 18rem;
+          --card-width: 20rem;
           --card-height: calc(var(--card-width) * 1.4);
           --radius: calc(var(--card-width) * var(--cards) / (2 * 3.1416));
 
@@ -255,7 +260,13 @@ const IndustrySlider: React.FC = () =>
           color: white;
           z-index: 2;
           pointer-events: none;
-          overflow: hidden;
+          overflow-y: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+
+        #solutions .industry-card-overlay::-webkit-scrollbar {
+          display: none;
         }
 
         #solutions .industry-card:hover .industry-card-overlay {
@@ -264,9 +275,10 @@ const IndustrySlider: React.FC = () =>
 
         #solutions .industry-card-title {
           font-family: var(--font-display, sans-serif);
-          font-size: clamp(0.85rem, 5cqi, 1.5rem);
+          font-size: clamp(1.3rem, 8cqi, 2rem);
           font-weight: 700;
-          margin-bottom: 0.5rem;
+          margin-bottom: 0.6rem;
+          letter-spacing: -0.01em;
           text-shadow: 0 2px 4px rgba(0,0,0,0.8);
           transform: translateY(10px);
           transition: transform 0.4s ease;
@@ -274,15 +286,11 @@ const IndustrySlider: React.FC = () =>
         }
 
         #solutions .industry-card-desc {
-          font-size: clamp(0.65rem, 3.2cqi, 0.95rem);
-          line-height: 1.4;
-          opacity: 0.9;
+          font-size: clamp(0.95rem, 5.5cqi, 1.25rem);
+          line-height: 1.5;
+          opacity: 0.92;
           transform: translateY(20px);
           transition: transform 0.4s ease 0.1s;
-          overflow: hidden;
-          display: -webkit-box;
-          -webkit-line-clamp: 8;
-          -webkit-box-orient: vertical;
         }
 
         #solutions .industry-card:hover .industry-card-title,
@@ -295,14 +303,18 @@ const IndustrySlider: React.FC = () =>
           inherits: true;
           initial-value: 0;
         }
-      `}} />
+      `,
+        }}
+      />
 
       <div
         className="industry-wrapper"
-        style={{
-          '--cards': totalCards,
-          '--rotate': rotate,
-        } as React.CSSProperties}
+        style={
+          {
+            '--cards': totalCards,
+            '--rotate': rotate,
+          } as React.CSSProperties
+        }
       >
         {displayCards.map((card, index) => (
           <div
@@ -323,20 +335,21 @@ const IndustrySlider: React.FC = () =>
       </div>
 
       {/* Hero text below the cards */}
-      <div className="absolute bottom-8 left-0 right-0 z-[1] pointer-events-none text-center px-4">
+      <div className="absolute bottom-10 left-0 right-0 z-[1] pointer-events-none text-center px-6">
         <div className="flex justify-center mb-4">
           <span className="section-eyebrow">Industries We Serve</span>
         </div>
         <h2 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-[-0.02em] mb-3">
           <span className="text-text-primary">{t.industries.title} </span>
-          <span className="text-brand-primary">{t.industries.titleHighlight}</span>
+          <span className="text-brand-primary">
+            {t.industries.titleHighlight}
+          </span>
           <span className="text-text-primary"> {t.industries.titleSuffix}</span>
         </h2>
         <p className="text-text-secondary text-lg opacity-70">
           {t.industries.subtitle}
         </p>
       </div>
-
     </section>
   );
 };
