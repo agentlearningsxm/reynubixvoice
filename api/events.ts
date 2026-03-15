@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { EventIngestPayload } from '../lib/telemetry/shared';
-import { recordEvent } from './_lib/telemetry';
 import { readJsonBody, rejectMethod } from './_lib/http';
+import { recordEvent } from './_lib/telemetry';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (rejectMethod(req, res)) {

@@ -218,7 +218,7 @@ export const translations = {
         consentLabel:
           "J'accepte que cette démo vocale enregistre l'audio, la transcription et les erreurs pour le suivi.",
         consentHelp:
-          "Obligatoire avant de démarrer la démo vocale enregistrée.",
+          'Obligatoire avant de démarrer la démo vocale enregistrée.',
         consentRequired:
           "Veuillez accepter l'enregistrement avant de démarrer.",
       },
@@ -394,10 +394,8 @@ export const translations = {
         sessionLabel: 'Livesessie',
         consentLabel:
           'Ik ga ermee akkoord dat deze stemdemo audio, transcriptie en fouten mag opslaan voor opvolging.',
-        consentHelp:
-          'Verplicht voordat de opgenomen live demo kan starten.',
-        consentRequired:
-          'Accepteer eerst de opname-toestemming om te starten.',
+        consentHelp: 'Verplicht voordat de opgenomen live demo kan starten.',
+        consentRequired: 'Accepteer eerst de opname-toestemming om te starten.',
       },
       widget: {
         incoming: 'Inkomende Oproep...',

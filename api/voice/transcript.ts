@@ -1,7 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { VoiceTranscriptPayload } from '../../lib/telemetry/shared';
 import { readJsonBody, rejectMethod } from '../_lib/http';
-import { recordEvent, updateVoiceSession, upsertTranscriptTurns } from '../_lib/telemetry';
+import {
+  recordEvent,
+  updateVoiceSession,
+  upsertTranscriptTurns,
+} from '../_lib/telemetry';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (rejectMethod(req, res)) {
@@ -12,7 +16,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const payload = readJsonBody<VoiceTranscriptPayload>(req);
 
     if (!payload.voiceSessionId || !payload.turns?.length) {
-      return res.status(400).json({ error: 'voiceSessionId and turns are required' });
+      return res
+        .status(400)
+        .json({ error: 'voiceSessionId and turns are required' });
     }
 
     await upsertTranscriptTurns(payload.voiceSessionId, payload.turns);

@@ -2,13 +2,13 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
 import type { ContactSubmitPayload } from '../lib/telemetry/shared';
 import { normalizeEmail } from '../lib/telemetry/shared';
+import { readJsonBody, rejectMethod } from './_lib/http';
 import {
   attachLeadToSession,
   ensureTrackingEntities,
   recordEvent,
   upsertLead,
 } from './_lib/telemetry';
-import { readJsonBody, rejectMethod } from './_lib/http';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (rejectMethod(req, res)) {
@@ -35,19 +35,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   });
   await attachLeadToSession(leadId, sessionDbId);
 
-  const { error: submissionError } = await supabase.from('contact_submissions').insert({
-    lead_id: leadId,
-    session_id: sessionDbId,
-    name: name.trim(),
-    email: safeEmail,
-    company: company?.trim() || null,
-    message: message.trim(),
-    status: 'received',
-    delivery_status: 'pending',
-    metadata: {
-      context,
-    },
-  });
+  const { error: submissionError } = await supabase
+    .from('contact_submissions')
+    .insert({
+      lead_id: leadId,
+      session_id: sessionDbId,
+      name: name.trim(),
+      email: safeEmail,
+      company: company?.trim() || null,
+      message: message.trim(),
+      status: 'received',
+      delivery_status: 'pending',
+      metadata: {
+        context,
+      },
+    });
 
   if (submissionError) {
     console.error('Failed to persist contact submission', submissionError);

@@ -223,7 +223,10 @@ export async function attachLeadToSession(leadId: string, sessionId: string) {
   const supabase = getSupabaseAdmin();
   const now = new Date().toISOString();
 
-  await supabase.from('sessions').update({ lead_id: leadId, updated_at: now }).eq('id', sessionId);
+  await supabase
+    .from('sessions')
+    .update({ lead_id: leadId, updated_at: now })
+    .eq('id', sessionId);
 
   const { data: existingLink } = await supabase
     .from('lead_sessions')
@@ -270,7 +273,9 @@ export async function recordEvent(input: {
     visitorDbId = ensured.visitorDbId;
     sessionDbId = ensured.sessionDbId;
     if (input.voiceSessionId) {
-      const voiceSession = await getVoiceSessionByPublicId(input.voiceSessionId);
+      const voiceSession = await getVoiceSessionByPublicId(
+        input.voiceSessionId,
+      );
       voiceSessionDbId = voiceSession.id as string;
       leadId = (voiceSession.lead_id as string | null) ?? leadId;
     }
@@ -450,7 +455,8 @@ export async function recordError(input: {
     await supabase
       .from('voice_sessions')
       .update({
-        error_count: (input.metadata?.errorCount as number | undefined) ?? undefined,
+        error_count:
+          (input.metadata?.errorCount as number | undefined) ?? undefined,
         last_error: sanitizeText(input.message, 2000),
         updated_at: new Date().toISOString(),
       })

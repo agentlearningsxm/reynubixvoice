@@ -1,9 +1,14 @@
 import {
-  type TranscriptTurnPayload,
-  type VoiceConsentPayload,
-  type VoiceErrorPayload,
+  blobToDataUrl,
+  getTrackingContext,
+  postJsonWithContext,
+  trackEventFireAndForget,
+} from './browser';
+import type {
+  TranscriptTurnPayload,
+  VoiceConsentPayload,
+  VoiceErrorPayload,
 } from './shared';
-import { blobToDataUrl, getTrackingContext, postJsonWithContext, trackEventFireAndForget } from './browser';
 
 export async function startVoiceSession(consent: VoiceConsentPayload) {
   let voiceSessionId = `vs_mock_${Date.now()}`;
@@ -20,7 +25,10 @@ export async function startVoiceSession(consent: VoiceConsentPayload) {
     );
     voiceSessionId = session.voiceSessionId;
   } catch (error) {
-    console.warn('Backend session start failed, using mock session ID for demo', error);
+    console.warn(
+      'Backend session start failed, using mock session ID for demo',
+      error,
+    );
     // If we're local, we can continue with a mock ID
   }
 
@@ -97,7 +105,9 @@ export function recordVoiceToolCall(input: {
 }
 
 export function recordVoiceError(
-  payload: Omit<VoiceErrorPayload, 'context'> & { context?: VoiceErrorPayload['context'] },
+  payload: Omit<VoiceErrorPayload, 'context'> & {
+    context?: VoiceErrorPayload['context'];
+  },
 ) {
   return fetch('/api/voice/error', {
     method: 'POST',

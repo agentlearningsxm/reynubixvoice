@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { normalizeEmail } from '../../lib/telemetry/shared';
 import { readJsonBody, rejectMethod } from '../_lib/http';
 import { getSupabaseAdmin } from '../_lib/supabaseAdmin';
-import { normalizeEmail } from '../../lib/telemetry/shared';
 
 function resolveBookingMetadata(payload: Record<string, any>) {
   const bookingId =
@@ -59,7 +59,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       lead_id: leadId,
       provider: 'cal',
       provider_booking_id: bookingMeta.bookingId,
-      status: bookingMeta.eventType === 'BOOKING_CANCELLED' ? 'cancelled' : 'booked',
+      status:
+        bookingMeta.eventType === 'BOOKING_CANCELLED' ? 'cancelled' : 'booked',
       event_type: bookingMeta.eventType,
       payload,
     });

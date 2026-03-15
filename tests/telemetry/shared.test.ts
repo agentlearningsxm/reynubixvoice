@@ -18,7 +18,9 @@ describe('telemetry shared helpers', () => {
   });
 
   it('extracts utm params from url', () => {
-    const url = new URL('https://reynubixvoice.com/?utm_source=google&utm_campaign=spring');
+    const url = new URL(
+      'https://reynubixvoice.com/?utm_source=google&utm_campaign=spring',
+    );
     expect(readUtmParams(url)).toEqual({
       utm_source: 'google',
       utm_campaign: 'spring',

@@ -11,7 +11,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const payload = readJsonBody<VoiceToolCallPayload>(req);
     if (!payload.voiceSessionId || !payload.toolName || !payload.callId) {
-      return res.status(400).json({ error: 'voiceSessionId, callId and toolName are required' });
+      return res
+        .status(400)
+        .json({ error: 'voiceSessionId, callId and toolName are required' });
     }
 
     await recordVoiceToolCall(payload);

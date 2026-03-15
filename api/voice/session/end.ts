@@ -12,7 +12,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const payload = readJsonBody<VoiceSessionEndPayload>(req);
 
     if (!payload.voiceSessionId || !payload.status || !payload.endedAt) {
-      return res.status(400).json({ error: 'voiceSessionId, status and endedAt are required' });
+      return res
+        .status(400)
+        .json({ error: 'voiceSessionId, status and endedAt are required' });
     }
 
     await updateVoiceSession(payload.voiceSessionId, {

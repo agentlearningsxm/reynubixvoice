@@ -561,24 +561,38 @@ const AutomationCards: React.FC = () => {
           }}
         >
           {/* Animated drag arrows */}
-          <span className="flex items-center gap-1 text-brand-primary" aria-hidden="true">
+          <span
+            className="flex items-center gap-1 text-brand-primary"
+            aria-hidden="true"
+          >
             <svg
               className="w-4 h-4 opacity-50 drag-hint-left"
-              viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
             >
-              <path d="M10 3L5 8l5 5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M10 3L5 8l5 5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
-            <svg
-              className="w-5 h-5"
-              viewBox="0 0 24 24" fill="currentColor"
-            >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M9 3a1 1 0 0 1 1 1v5.268l.724-.434A1 1 0 0 1 12 10v3a5 5 0 0 1-5 5H6a5 5 0 0 1-5-5v-2.5a1 1 0 0 1 1.5-.866L4 10.732V4a1 1 0 0 1 1-1zm6 0a1 1 0 0 1 1 1v6.732l1.5-.998A1 1 0 0 1 19 10.5V13a5 5 0 0 1-5 5h-1a5 5 0 0 1-.276-.008A6.001 6.001 0 0 0 14 13v-3a3 3 0 0 0-.684-1.898L13 7.732V4a1 1 0 0 1 1-1z" />
             </svg>
             <svg
               className="w-4 h-4 opacity-50 drag-hint-right"
-              viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
             >
-              <path d="M6 3l5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M6 3l5 5-5 5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </span>
           <span className="text-sm font-medium text-text-primary">

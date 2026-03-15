@@ -1,5 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { VoiceTokenPayload, VoiceTokenResponse } from '../../lib/telemetry/shared';
+import type {
+  VoiceTokenPayload,
+  VoiceTokenResponse,
+} from '../../lib/telemetry/shared';
 import { getGeminiAdminClient } from '../_lib/gemini';
 import { readJsonBody, rejectMethod } from '../_lib/http';
 import { recordEvent, updateVoiceSession } from '../_lib/telemetry';

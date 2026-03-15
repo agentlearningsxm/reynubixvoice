@@ -29,12 +29,15 @@ export function useGroqFallback() {
   const isAgentSpeakingRef = useRef(false); // ref for use inside callbacks
   const isConnectedRef = useRef(false); // ref for use inside recognition.onend
 
-  const appendTranscript = useCallback((speaker: 'ai' | 'human', text: string) => {
-    setTranscript((prev) => [
-      ...prev,
-      { speaker, text, id: Date.now() + Math.random(), isFinal: true },
-    ]);
-  }, []);
+  const appendTranscript = useCallback(
+    (speaker: 'ai' | 'human', text: string) => {
+      setTranscript((prev) => [
+        ...prev,
+        { speaker, text, id: Date.now() + Math.random(), isFinal: true },
+      ]);
+    },
+    [],
+  );
 
   const speak = useCallback((text: string): Promise<void> => {
     return new Promise((resolve) => {
@@ -49,7 +52,9 @@ export function useGroqFallback() {
         const voices = window.speechSynthesis.getVoices();
         if (voices.length > 0) {
           const preferred =
-            voices.find((v) => v.lang === 'en-US' && /neural|natural/i.test(v.name)) ||
+            voices.find(
+              (v) => v.lang === 'en-US' && /neural|natural/i.test(v.name),
+            ) ||
             voices.find((v) => v.lang === 'en-US') ||
             voices[0];
           if (preferred) utterance.voice = preferred;
@@ -58,7 +63,9 @@ export function useGroqFallback() {
 
       loadVoice();
       if (window.speechSynthesis.getVoices().length === 0) {
-        window.speechSynthesis.addEventListener('voiceschanged', loadVoice, { once: true });
+        window.speechSynthesis.addEventListener('voiceschanged', loadVoice, {
+          once: true,
+        });
       }
 
       isAgentSpeakingRef.current = true;
@@ -78,37 +85,43 @@ export function useGroqFallback() {
     });
   }, []);
 
-  const sendToGroq = useCallback(async (userText: string) => {
-    if (!groqClientRef.current || isProcessingRef.current) return;
-    isProcessingRef.current = true;
+  const sendToGroq = useCallback(
+    async (userText: string) => {
+      if (!groqClientRef.current || isProcessingRef.current) return;
+      isProcessingRef.current = true;
 
-    conversationHistoryRef.current.push({ role: 'user', content: userText });
-    appendTranscript('human', userText);
+      conversationHistoryRef.current.push({ role: 'user', content: userText });
+      appendTranscript('human', userText);
 
-    try {
-      const response = await groqClientRef.current.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
-        messages: conversationHistoryRef.current,
-        max_tokens: 200,
-        temperature: 0.7,
-      });
+      try {
+        const response = await groqClientRef.current.chat.completions.create({
+          model: 'llama-3.3-70b-versatile',
+          messages: conversationHistoryRef.current,
+          max_tokens: 200,
+          temperature: 0.7,
+        });
 
-      const aiText =
-        response.choices[0]?.message?.content ??
-        "Sorry, I had a hiccup. Could you repeat that?";
+        const aiText =
+          response.choices[0]?.message?.content ??
+          'Sorry, I had a hiccup. Could you repeat that?';
 
-      conversationHistoryRef.current.push({ role: 'assistant', content: aiText });
-      appendTranscript('ai', aiText);
-      await speak(aiText);
-    } catch (err) {
-      console.error('[Reyna Groq] API error:', err);
-      const fallbackMsg = "I'm having a moment — please try again.";
-      appendTranscript('ai', fallbackMsg);
-      await speak(fallbackMsg);
-    } finally {
-      isProcessingRef.current = false;
-    }
-  }, [appendTranscript, speak]);
+        conversationHistoryRef.current.push({
+          role: 'assistant',
+          content: aiText,
+        });
+        appendTranscript('ai', aiText);
+        await speak(aiText);
+      } catch (err) {
+        console.error('[Reyna Groq] API error:', err);
+        const fallbackMsg = "I'm having a moment — please try again.";
+        appendTranscript('ai', fallbackMsg);
+        await speak(fallbackMsg);
+      } finally {
+        isProcessingRef.current = false;
+      }
+    },
+    [appendTranscript, speak],
+  );
 
   const connect = useCallback(async () => {
     if (isConnectedRef.current || isConnecting) return;
@@ -124,7 +137,8 @@ export function useGroqFallback() {
 
     // Firefox guard
     const SpeechRecognitionAPI =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition;
     if (!SpeechRecognitionAPI) {
       setError('Backup voice mode requires Chrome or Edge.');
       setIsConnecting(false);
@@ -148,10 +162,13 @@ export function useGroqFallback() {
     // Build system prompt — KNOWLEDGE_BASE will be injected by SYSTEM_INSTRUCTION after Agent A's changes
     const silenceMode = localStorage.getItem('reyna-silence-mode') || 'checkin';
     const silenceContext =
-      SILENCE_MODES[silenceMode as keyof typeof SILENCE_MODES] ?? SILENCE_MODES.checkin;
+      SILENCE_MODES[silenceMode as keyof typeof SILENCE_MODES] ??
+      SILENCE_MODES.checkin;
     const systemPrompt = `${SYSTEM_INSTRUCTION}\n\n${silenceContext}\n\nIMPORTANT: You are in backup voice mode (browser speech synthesis). Keep responses under 2 sentences. No bullet points or lists. Speak naturally.`;
 
-    conversationHistoryRef.current = [{ role: 'system', content: systemPrompt }];
+    conversationHistoryRef.current = [
+      { role: 'system', content: systemPrompt },
+    ];
 
     // Set up Speech Recognition
     const recognition = new SpeechRecognitionAPI() as SpeechRecognition;
@@ -184,7 +201,9 @@ export function useGroqFallback() {
     recognition.onend = () => {
       // Auto-restart unless disconnected
       if (isConnectedRef.current && recognitionRef.current) {
-        try { recognitionRef.current.start(); } catch (_e) {}
+        try {
+          recognitionRef.current.start();
+        } catch (_e) {}
       }
     };
 
@@ -200,8 +219,12 @@ export function useGroqFallback() {
       // Greeting after short delay
       setTimeout(async () => {
         if (!isConnectedRef.current) return;
-        const greeting = "Hey! I'm Reyna, running in backup mode. How can I help you?";
-        conversationHistoryRef.current.push({ role: 'assistant', content: greeting });
+        const greeting =
+          "Hey! I'm Reyna, running in backup mode. How can I help you?";
+        conversationHistoryRef.current.push({
+          role: 'assistant',
+          content: greeting,
+        });
         appendTranscript('ai', greeting);
         await speak(greeting);
       }, 600);
@@ -220,7 +243,9 @@ export function useGroqFallback() {
     if (recognitionRef.current) {
       recognitionRef.current.onend = null; // prevent auto-restart
       recognitionRef.current.onresult = null;
-      try { recognitionRef.current.stop(); } catch (_e) {}
+      try {
+        recognitionRef.current.stop();
+      } catch (_e) {}
       recognitionRef.current = null;
     }
 

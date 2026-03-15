@@ -118,10 +118,16 @@ export function createPublicId(prefix: string) {
 }
 
 export function sanitizeEventName(eventName: string) {
-  return eventName.trim().toLowerCase().replace(/[^a-z0-9:_-]+/g, '_');
+  return eventName
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9:_-]+/g, '_');
 }
 
-export function sanitizeText(value: string | null | undefined, maxLength = 3000) {
+export function sanitizeText(
+  value: string | null | undefined,
+  maxLength = 3000,
+) {
   if (!value) return '';
   return value.trim().slice(0, maxLength);
 }
@@ -131,7 +137,13 @@ export function normalizeEmail(email: string) {
 }
 
 export function readUtmParams(url: URL) {
-  const params = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+  const params = [
+    'utm_source',
+    'utm_medium',
+    'utm_campaign',
+    'utm_term',
+    'utm_content',
+  ];
   return params.reduce<Record<string, string>>((acc, key) => {
     const value = url.searchParams.get(key);
     if (value) {

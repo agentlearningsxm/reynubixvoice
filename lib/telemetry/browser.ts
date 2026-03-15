@@ -22,12 +22,20 @@ function getStoredId(storage: Storage, key: string) {
     return existing;
   }
 
-  const id = createPublicId(key.includes('visitor') ? 'visitor' : key.includes('lead') ? 'lead' : 'session');
+  const id = createPublicId(
+    key.includes('visitor')
+      ? 'visitor'
+      : key.includes('lead')
+        ? 'lead'
+        : 'session',
+  );
   storage.setItem(key, id);
   return id;
 }
 
-export function getTrackingContext(overrides: Partial<TrackingContextInput> = {}): TrackingContextInput {
+export function getTrackingContext(
+  overrides: Partial<TrackingContextInput> = {},
+): TrackingContextInput {
   if (!canUseDom()) {
     return overrides;
   }
@@ -96,6 +104,9 @@ export async function trackEvent(
     return;
   }
 
+  const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  if (isDev) return;
+
   const payload: EventIngestPayload = {
     eventName,
     properties,
@@ -132,7 +143,8 @@ export function postJsonWithContext<TResponse>(
 export function blobToDataUrl(blob: Blob) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(reader.error ?? new Error('Failed to read blob'));
+    reader.onerror = () =>
+      reject(reader.error ?? new Error('Failed to read blob'));
     reader.onloadend = () => resolve(String(reader.result));
     reader.readAsDataURL(blob);
   });

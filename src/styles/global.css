@@ -1,3 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Syne', sans-serif;
+  --color-bg-main: var(--bg-main);
+  --color-bg-card: var(--bg-card);
+  --color-bg-glass: var(--bg-glass);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border: var(--border);
+  --color-brand-primary: var(--accent-primary);
+  --color-brand-secondary: var(--accent-secondary);
+  --color-brand-glow: var(--accent-glow);
+  --color-brand-subtle: var(--accent-subtle);
+  --color-brand-accent: var(--accent-secondary);
+  --color-money-loss: #ef4444;
+  --color-money-gain: #10b981;
+  --color-background: var(--bg-main);
+  --color-foreground: var(--text-primary);
+  --color-secondary: var(--bg-card);
+  --color-muted-foreground: var(--text-secondary);
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
@@ -65,27 +96,96 @@
   --accent-subtle: rgba(249, 115, 22, 0.08);
 }
 
-/* Hero floating cards — glass morphism that works in both modes */
+/* Hero floating cards — premium liquid glass */
 .hero-float-card {
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  border-radius: 1rem;
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  backdrop-filter: blur(32px) saturate(180%);
+  border-radius: 1.1rem;
   background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.15),
-    rgba(255, 255, 255, 0.05)
+    145deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.04) 100%
   );
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 .light .hero-float-card {
   background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.85),
-    rgba(255, 255, 255, 0.6)
+    145deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.72) 100%
   );
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.10),
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Enhanced variant with gradient border shimmer */
+.hero-float-card--enhanced {
+  position: relative;
+}
+.hero-float-card--enhanced::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    rgba(14, 165, 233, 0.15) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.light .hero-float-card--enhanced::before {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.10) 0%,
+    transparent 50%,
+    rgba(14, 165, 233, 0.12) 100%
+  );
+}
+
+/* Icon containers inside float cards */
+.hero-float-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-float-icon--blue {
+  background: rgba(14, 165, 233, 0.14);
+  color: #38bdf8;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.2);
+}
+.hero-float-icon--green {
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+}
+
+/* Phone-related static styles */
+.hero-phone-bg {
+  background: linear-gradient(155deg, #1c1c2a 0%, #0b0b12 48%, #13131f 100%);
+}
+.hero-phone-screen-bg {
+  background: linear-gradient(180deg, #0e0e1b 0%, #070710 42%, #0b0b18 100%);
 }
 
 body {
@@ -822,22 +922,16 @@ main > section::after {
   top: 100%;
   left: 0;
   right: 0;
-  background: linear-gradient(
-    0deg,
-    rgba(20, 20, 20, 0.98),
-    rgba(36, 36, 36, 0.98)
-  );
+  background: linear-gradient(0deg, #141414, #242424);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border-top: 1px solid rgba(63, 63, 63, 0.5);
   padding: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .light .mobile-menu {
-  background: linear-gradient(
-    0deg,
-    rgba(241, 245, 249, 0.98),
-    rgba(255, 255, 255, 0.98)
-  );
+  background: linear-gradient(0deg, #f1f5f9, #ffffff);
   border-top-color: rgba(0, 0, 0, 0.1);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
@@ -871,6 +965,7 @@ main > section::after {
 
 .mobile-theme-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 12px 0;
   overflow-x: auto;
@@ -880,15 +975,16 @@ main > section::after {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 14px;
+  padding: 6px 10px;
   border-radius: 500px;
   border: 1px solid rgba(63, 63, 63, 0.5);
   background: transparent;
   color: rgba(255, 255, 255, 0.75);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0;
   transition: all 0.15s ease;
 }
 
@@ -1612,12 +1708,26 @@ main > section::after {
 
 /* Automation drag hint arrows */
 @keyframes dragHintLeft {
-  0%, 100% { transform: translateX(0); opacity: 0.5; }
-  50% { transform: translateX(-3px); opacity: 1; }
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateX(-3px);
+    opacity: 1;
+  }
 }
 @keyframes dragHintRight {
-  0%, 100% { transform: translateX(0); opacity: 0.5; }
-  50% { transform: translateX(3px); opacity: 1; }
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateX(3px);
+    opacity: 1;
+  }
 }
 .drag-hint-left {
   animation: dragHintLeft 1.6s ease-in-out infinite;

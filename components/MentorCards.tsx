@@ -536,7 +536,10 @@ const MentorCards: React.FC = () => {
         </div>
 
         {/* FocusRail Carousel */}
-        <div key={activeCategory} className="rounded-3xl shadow-2xl shadow-slate-300/60 dark:shadow-none">
+        <div
+          key={activeCategory}
+          className="rounded-3xl shadow-2xl shadow-slate-300/60 dark:shadow-none"
+        >
           <FocusRail
             items={railItems}
             loop

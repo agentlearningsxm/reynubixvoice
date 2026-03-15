@@ -6,6 +6,7 @@ const supabaseUrl =
   'https://placeholder.supabase.co';
 const supabaseKey =
   (import.meta as any).env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  (import.meta as any).env.VITE_SUPABASE_ANON_KEY || 'placeholder';
+  (import.meta as any).env.VITE_SUPABASE_ANON_KEY ||
+  'placeholder';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);

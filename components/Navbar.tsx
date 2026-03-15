@@ -3,9 +3,9 @@ import { Check, Globe, Menu, Moon, Palette, Sun, X } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { trackEventFireAndForget } from '../lib/telemetry/browser';
 import { type Language, useLanguage } from '../contexts/LanguageContext';
 import { type ThemeAccent, useTheme } from '../contexts/ThemeContext';
+import { trackEventFireAndForget } from '../lib/telemetry/browser';
 import Logo from './Logo';
 import Button from './ui/Button';
 
@@ -282,6 +282,17 @@ const Navbar: React.FC = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
+              </div>
+
+              {/* Dark/Light Mode Toggle */}
+              <div className="control-item">
+                <button
+                  onClick={toggleMode}
+                  className="control-btn"
+                  aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                >
+                  {mode === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+                </button>
               </div>
 
               {/* Theme Toggle */}

@@ -29,79 +29,12 @@
 
   <link rel="icon" type="image/svg+xml"
     href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230EA5E9'/%3E%3Cstop offset='100%25' stop-color='%2338BDF8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='%230f172a'/%3E%3Ctext x='6' y='24' font-family='Arial,sans-serif' font-size='22' font-weight='bold' fill='url(%23g)'%3ER%3C/text%3E%3Cpath d='M20 10 Q24 10 24 14 Q24 16 22 17' stroke='%230EA5E9' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M20 7 Q28 7 28 14 Q28 18 24 20' stroke='%2338BDF8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&family=Syne:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            display: ['Syne', 'sans-serif'],
-          },
-          colors: {
-            bg: {
-              main: 'var(--bg-main)',
-              card: 'var(--bg-card)',
-              glass: 'var(--bg-glass)',
-            },
-            text: {
-              primary: 'var(--text-primary)',
-              secondary: 'var(--text-secondary)',
-            },
-            border: {
-              DEFAULT: 'var(--border)',
-            },
-            brand: {
-              primary: 'var(--accent-primary)',
-              secondary: 'var(--accent-secondary)',
-              glow: 'var(--accent-glow)',
-              subtle: 'var(--accent-subtle)',
-              accent: 'var(--accent-secondary)', // Mapping for backwards compatibility if needed
-            },
-            money: {
-              loss: '#ef4444',
-              gain: '#10b981',
-            },
-            background: "var(--bg-main)",
-            foreground: "var(--text-primary)",
-            secondary: "var(--bg-card)",
-            "muted-foreground": "var(--text-secondary)",
-          },
-          animation: {
-            'float': 'float 6s ease-in-out infinite',
-            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-          },
-          keyframes: {
-            float: {
-              '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-20px)' },
-            }
-          }
-        }
-      }
-    }
-  </script>
   <link rel="stylesheet" href="/src/styles/global.css">
-  <script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "framer-motion": "https://esm.sh/framer-motion@^12.34.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "react": "https://esm.sh/react@^19.2.4",
-    "tailwind-merge": "https://esm.sh/tailwind-merge@^3.4.0",
-    "clsx": "https://esm.sh/clsx@^2.1.1",
-    "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
-  }
-}
-</script>
 
   <!-- SVG Filters for Dramatic Animated Border -->
   <svg class="svg-container" style="position: absolute; width: 0; height: 0; overflow: hidden;">

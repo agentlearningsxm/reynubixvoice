@@ -1,7 +1,7 @@
 import { motion, useAnimation } from 'framer-motion';
 import { AlertTriangle, DollarSign, Euro, Sparkles, X } from 'lucide-react';
 import type React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Calculator: React.FC = () => {
@@ -9,6 +9,12 @@ const Calculator: React.FC = () => {
   const [revenuePerCustomer, setRevenuePerCustomer] = useState(800);
   const [missedCalls, setMissedCalls] = useState(3);
   const [dramaticBorderEnabled, setDramaticBorderEnabled] = useState(true);
+  const [presentationMode, setPresentationMode] = useState(false);
+  const [presentationStage, setPresentationStage] = useState(0);
+  const [displayedMonthlyLoss, setDisplayedMonthlyLoss] = useState(0);
+  const [yearlyVisible, setYearlyVisible] = useState(true);
+  const presentationTimeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const animationFrames = useRef<number[]>([]);
 
   // Logic: Missed Calls * 30 Days * 25% Booking Rate * Avg Ticket Price
   const monthlyLoss = useMemo(() => {
@@ -20,6 +26,7 @@ const Calculator: React.FC = () => {
   }, [monthlyLoss]);
 
   const controls = useAnimation();
+  const yearlyControls = useAnimation();
 
   useEffect(() => {
     controls.start({
@@ -28,11 +35,129 @@ const Calculator: React.FC = () => {
     });
   }, [controls]);
 
+  // Animate a numeric value from `from` to `to` over `duration` ms with ease-out
+  const animateValue = useCallback(
+    (
+      from: number,
+      to: number,
+      duration: number,
+      setter: (v: number) => void,
+      onComplete?: () => void,
+    ) => {
+      const startTime = performance.now();
+      const animate = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out cubic
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(from + (to - from) * eased);
+        setter(current);
+        if (progress < 1) {
+          const id = requestAnimationFrame(animate);
+          animationFrames.current.push(id);
+        } else {
+          setter(to);
+          onComplete?.();
+        }
+      };
+      const id = requestAnimationFrame(animate);
+      animationFrames.current.push(id);
+    },
+    [],
+  );
+
+  // Cancel any running presentation and clean up
+  const cancelPresentation = useCallback(() => {
+    presentationTimeouts.current.forEach(clearTimeout);
+    presentationTimeouts.current = [];
+    animationFrames.current.forEach(cancelAnimationFrame);
+    animationFrames.current = [];
+    setPresentationMode(false);
+    setPresentationStage(0);
+    setYearlyVisible(true);
+  }, []);
+
+  // Staged presentation sequence
+  const runPresentation = useCallback(
+    (targetRevenue: number, targetCalls: number) => {
+      // Cancel any previous presentation
+      cancelPresentation();
+
+      setPresentationMode(true);
+      setPresentationStage(0);
+      setYearlyVisible(false);
+      setDisplayedMonthlyLoss(0);
+
+      const timeouts = presentationTimeouts.current;
+
+      // Stage 0: Scroll into view
+      document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+
+      // Stage 1: Revenue slider (1500ms delay)
+      timeouts.push(
+        setTimeout(() => {
+          setPresentationStage(1);
+          animateValue(revenuePerCustomer, targetRevenue, 800, setRevenuePerCustomer);
+        }, 1500),
+      );
+
+      // Stage 2: Missed calls slider (3000ms delay)
+      timeouts.push(
+        setTimeout(() => {
+          setPresentationStage(2);
+          animateValue(missedCalls, targetCalls, 800, setMissedCalls);
+        }, 3000),
+      );
+
+      // Stage 3: Monthly loss count-up (4500ms delay)
+      timeouts.push(
+        setTimeout(() => {
+          setPresentationStage(3);
+          const targetMonthly = Math.floor(targetCalls * 30 * 0.25 * targetRevenue);
+          animateValue(0, targetMonthly, 1500, setDisplayedMonthlyLoss, () => {
+            // Trigger pulse animation on monthly loss card
+            controls.start({
+              scale: [1, 1.05, 1],
+              transition: { duration: 0.4 },
+            });
+          });
+        }, 4500),
+      );
+
+      // Stage 4: Yearly fade-in (7000ms delay)
+      timeouts.push(
+        setTimeout(() => {
+          setPresentationStage(4);
+          setYearlyVisible(true);
+        }, 7000),
+      );
+
+      // End presentation mode (8000ms)
+      timeouts.push(
+        setTimeout(() => {
+          setPresentationMode(false);
+          setPresentationStage(0);
+        }, 8000),
+      );
+    },
+    [revenuePerCustomer, missedCalls, controls, animateValue, cancelPresentation],
+  );
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      presentationTimeouts.current.forEach(clearTimeout);
+      animationFrames.current.forEach(cancelAnimationFrame);
+    };
+  }, []);
+
   // Listen for AI Agent events
   useEffect(() => {
     const handleAIUpdate = (event: CustomEvent) => {
-      if (event.detail.revenue) setRevenuePerCustomer(event.detail.revenue);
-      if (event.detail.missedCalls) setMissedCalls(event.detail.missedCalls);
+      if (presentationMode) return; // Prevent double-triggering
+      const targetRevenue = event.detail.revenue ?? revenuePerCustomer;
+      const targetCalls = event.detail.missedCalls ?? missedCalls;
+      runPresentation(targetRevenue, targetCalls);
     };
 
     window.addEventListener(
@@ -44,7 +169,7 @@ const Calculator: React.FC = () => {
         'updateCalculator',
         handleAIUpdate as EventListener,
       );
-  }, []);
+  }, [revenuePerCustomer, missedCalls, presentationMode, runPresentation]);
 
   // Load dramatic border preference
   useEffect(() => {
@@ -67,8 +192,8 @@ const Calculator: React.FC = () => {
     { label: `${t.calculator.scenarios.dental} (2k)`, val: 2000, calls: 2 },
   ];
 
-  // Inner content component
-  const CalculatorContent = () => (
+  // Inner content (JSX variable, not a component — avoids remount on re-render)
+  const calculatorContent = (
     <div className="grid lg:grid-cols-2 gap-14 relative z-10">
       {/* Controls */}
       <div className="space-y-10">
@@ -139,7 +264,10 @@ const Calculator: React.FC = () => {
             max="10000"
             step="100"
             value={revenuePerCustomer}
-            onChange={(e) => setRevenuePerCustomer(Number(e.target.value))}
+            onChange={(e) => {
+              if (presentationMode) cancelPresentation();
+              setRevenuePerCustomer(Number(e.target.value));
+            }}
             className="w-full h-2 bg-bg-card rounded-lg appearance-none cursor-pointer accent-brand-primary"
           />
         </div>
@@ -161,7 +289,10 @@ const Calculator: React.FC = () => {
             max="20"
             step="1"
             value={missedCalls}
-            onChange={(e) => setMissedCalls(Number(e.target.value))}
+            onChange={(e) => {
+              if (presentationMode) cancelPresentation();
+              setMissedCalls(Number(e.target.value));
+            }}
             className="w-full h-2 bg-bg-card rounded-lg appearance-none cursor-pointer accent-brand-primary"
           />
         </div>
@@ -191,7 +322,7 @@ const Calculator: React.FC = () => {
           </p>
           <h3 className="text-[3.5rem] lg:text-[4rem] font-bold font-display tracking-[-0.04em] text-text-primary mb-2 relative z-10 leading-none">
             {t.currency}
-            {monthlyLoss.toLocaleString()}
+            {(presentationMode ? displayedMonthlyLoss : monthlyLoss).toLocaleString()}
           </h3>
           <p className="text-xs text-text-secondary relative z-10">
             {t.calculator.disclaimer}
@@ -199,8 +330,12 @@ const Calculator: React.FC = () => {
         </motion.div>
 
         <motion.div
-          animate={controls}
+          animate={yearlyControls}
           className="glass-card rounded-2xl p-6 text-center"
+          style={{
+            opacity: yearlyVisible ? 1 : 0,
+            transition: 'opacity 500ms ease-in',
+          }}
         >
           <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-secondary mb-2">
             {t.calculator.yearlyLoss}
@@ -258,7 +393,7 @@ const Calculator: React.FC = () => {
                   <div className="relative z-10 p-8 lg:p-14">
                     {/* Background Ambient Light */}
                     <div className="absolute top-0 right-0 w-96 h-96 bg-money-loss/10 rounded-full blur-[100px] pointer-events-none" />
-                    <CalculatorContent />
+                    {calculatorContent}
                   </div>
                 </div>
               </div>
@@ -288,7 +423,7 @@ const Calculator: React.FC = () => {
               </button>
             </div>
 
-            <CalculatorContent />
+            {calculatorContent}
           </div>
         )}
       </div>

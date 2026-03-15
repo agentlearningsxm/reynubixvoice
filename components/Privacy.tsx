@@ -116,8 +116,8 @@ const Privacy: React.FC = () => (
             We retain contact information only as long as necessary to provide
             our services or as required by law. Recorded demo data, including
             transcripts and audio, is retained only for as long as needed for
-            follow-up, support, product improvement, or legal compliance, and
-            is subject to internal access controls.
+            follow-up, support, product improvement, or legal compliance, and is
+            subject to internal access controls.
           </p>
         </div>
 

@@ -38,3 +38,5 @@ dev-server*.log
 
 # Brand assets (not app code)
 brand-logos*
+
+.vercel

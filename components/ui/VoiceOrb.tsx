@@ -1,315 +1,332 @@
 import type React from 'react';
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+
+/**
+ * 3D Particle Sphere Orb — rectangleworld.com algorithm adapted for React
+ *
+ * States:
+ * - Dormant (!isActive)       : dim blue, slow rotation
+ * - Idle (active, quiet)      : blue (#212°), gentle breathing
+ * - User speaking             : cyan (#192°), slight contraction
+ * - Agent speaking (isSpeaking): green (#142°), fast spin + pulse
+ * - Error                     : red (#5°), slow pulse
+ * - isVisible=false           : particles dissolve outward (orb explodes away)
+ */
 
 interface VoiceOrbProps {
   isActive: boolean;
   isSpeaking: boolean;
   isUserSpeaking?: boolean;
+  /** When false the orb dissolves — used to hide during live transcription */
+  isVisible?: boolean;
+  hasError?: boolean;
 }
 
-/**
- * Perplexity-style Voice Orb
- *
- * States:
- * - Dormant (!isActive): Dim, slow breathing, muted colors
- * - Startup (isActive transitions true): Particles gather inward, orb forms
- * - Idle (isActive, !isSpeaking, !isUserSpeaking): Gentle breathing pulse, slow rotation
- * - Agent Speaking (isSpeaking): Rhythmic pulsation, brighter glow, faster rotation
- * - User Speaking (isUserSpeaking): Subtle reactive glow, slight contraction ("listening")
- * - Shutdown (isActive transitions false): Orb dissolves outward
- */
+interface Particle {
+  x: number;
+  y: number;
+  z: number;
+  vx: number;
+  vy: number;
+  vz: number;
+  age: number;
+  dead: boolean;
+  attack: number;
+  hold: number;
+  decay: number;
+  holdV: number;
+  alpha: number;
+  stuck: number;
+  projX: number;
+  projY: number;
+  prev: Particle | null;
+  next: Particle | null;
+}
+
 const VoiceOrb: React.FC<VoiceOrbProps> = ({
   isActive,
   isSpeaking,
   isUserSpeaking = false,
+  isVisible = true,
+  hasError = false,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animFrameRef = useRef<number>(0);
-  const stateRef = useRef({
-    // Animated values (lerped smoothly)
-    currentScale: 0.3, // Orb scale (0 = nothing, 1 = full)
-    currentGlow: 0, // Glow intensity (0-1)
-    currentRotationSpeed: 0, // Rotation speed multiplier
-    currentBrightness: 0.3, // Particle brightness
-    currentPulse: 0, // Pulse amount for speaking
-    // Targets (set by state)
-    targetScale: 0.3,
-    targetGlow: 0,
-    targetRotationSpeed: 0.3,
-    targetBrightness: 0.3,
-    targetPulse: 0,
-    // Internal
+  const rafRef = useRef<number>(0);
+
+  // All smoothly animated state lives here — readable from the RAF loop without recreating it
+  const anim = useRef({
+    hue: 212,
+    targetHue: 212,
+    sat: 75,
+    targetSat: 75,
+    lit: 58,
+    targetLit: 58,
+    globalAlpha: 0,
+    targetGlobalAlpha: 1,
+    speedMult: 0.45,
+    targetSpeedMult: 0.45,
+    pulseMag: 0.02,
+    targetPulseMag: 0.02,
+    pulseFreq: 1.8,
+    targetPulseFreq: 1.8,
+    // Secondary color for multi-tone effect
+    hue2: 235,
+    targetHue2: 235,
+    turnAngle: 0,
     time: 0,
-    rotation: 0,
-    phase: 'dormant' as 'dormant' | 'starting' | 'active' | 'stopping',
-    startTime: 0,
   });
 
-  // Particle data (created once)
-  const particlesRef = useRef<
-    {
-      theta: number;
-      phi: number;
-      baseR: number;
-      speed: number;
-      offset: number;
-    }[]
-  >([]);
-
-  // Initialize particles
+  // Sync props → anim targets on every prop change
   useEffect(() => {
-    const count = 200;
-    const particles = [];
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        theta: Math.random() * Math.PI * 2,
-        phi: Math.acos(2 * Math.random() - 1),
-        baseR: 55 + Math.random() * 15, // Varied radii for depth
-        speed: 0.3 + Math.random() * 0.7,
-        offset: Math.random() * Math.PI * 2,
-      });
-    }
-    particlesRef.current = particles;
-  }, []);
-
-  // Handle state transitions
-  useEffect(() => {
-    const s = stateRef.current;
-    if (isActive) {
-      if (s.phase === 'dormant' || s.phase === 'stopping') {
-        s.phase = 'starting';
-        s.startTime = s.time;
-      }
-      // Set targets based on sub-state
-      if (isSpeaking) {
-        s.targetScale = 1.05;
-        s.targetGlow = 1.0;
-        s.targetRotationSpeed = 2.0;
-        s.targetBrightness = 1.0;
-        s.targetPulse = 0.2; // Strong rhythmic pulse — very visible
-      } else if (isUserSpeaking) {
-        s.targetScale = 0.85;
-        s.targetGlow = 0.65;
-        s.targetRotationSpeed = 0.7;
-        s.targetBrightness = 0.85;
-        s.targetPulse = 0.08; // Moderate reactivity
-      } else {
-        // Idle / listening
-        s.targetScale = 0.9;
-        s.targetGlow = 0.35;
-        s.targetRotationSpeed = 0.4;
-        s.targetBrightness = 0.65;
-        s.targetPulse = 0.03; // Gentle breathing
-      }
+    const a = anim.current;
+    if (hasError) {
+      a.targetHue = 5;    a.targetHue2 = 25;
+      a.targetSat = 90;   a.targetLit = 62;
+      a.targetSpeedMult = 0.35; a.targetPulseMag = 0.14; a.targetPulseFreq = 4.5;
+    } else if (!isActive) {
+      a.targetHue = 218;  a.targetHue2 = 240;
+      a.targetSat = 52;   a.targetLit = 36;
+      a.targetSpeedMult = 0.22; a.targetPulseMag = 0.012; a.targetPulseFreq = 1.4;
+    } else if (isSpeaking) {
+      // Agent speaking — vibrant green
+      a.targetHue = 142;  a.targetHue2 = 168;
+      a.targetSat = 90;   a.targetLit = 60;
+      a.targetSpeedMult = 2.6; a.targetPulseMag = 0.22; a.targetPulseFreq = 7.5;
+    } else if (isUserSpeaking) {
+      // User speaking — sky cyan, listening contraction
+      a.targetHue = 192;  a.targetHue2 = 210;
+      a.targetSat = 94;   a.targetLit = 66;
+      a.targetSpeedMult = 0.65; a.targetPulseMag = 0.055; a.targetPulseFreq = 3.2;
     } else {
-      if (s.phase === 'starting' || s.phase === 'active') {
-        s.phase = 'stopping';
-        s.startTime = s.time;
-      }
-      s.targetScale = 0.3;
-      s.targetGlow = 0;
-      s.targetRotationSpeed = 0.1;
-      s.targetBrightness = 0.25;
-      s.targetPulse = 0;
+      // Connected idle — cool blue
+      a.targetHue = 212;  a.targetHue2 = 238;
+      a.targetSat = 84;   a.targetLit = 62;
+      a.targetSpeedMult = 0.48; a.targetPulseMag = 0.022; a.targetPulseFreq = 1.8;
     }
-  }, [isActive, isSpeaking, isUserSpeaking]);
+    a.targetGlobalAlpha = isVisible ? 1 : 0;
+  }, [isActive, isSpeaking, isUserSpeaking, isVisible, hasError]);
 
-  // Get theme color from CSS variable
-  const getAccentColor = useCallback((): [number, number, number] => {
-    if (typeof window === 'undefined') return [59, 130, 246]; // Default blue
-    const root = document.documentElement;
-    const accent = getComputedStyle(root)
-      .getPropertyValue('--accent-primary')
-      .trim();
-    // Parse hex or rgb
-    if (accent.startsWith('#')) {
-      const hex = accent.replace('#', '');
-      return [
-        parseInt(hex.substring(0, 2), 16),
-        parseInt(hex.substring(2, 4), 16),
-        parseInt(hex.substring(4, 6), 16),
-      ];
-    }
-    // Fallback
-    return [59, 130, 246];
-  }, []);
-
-  // Main render loop
+  // Main render loop — runs once, reads from anim ref
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d')!;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = 280 * dpr;
-    canvas.height = 280 * dpr;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const SIZE = 200;
+    canvas.width = SIZE * dpr;
+    canvas.height = SIZE * dpr;
     ctx.scale(dpr, dpr);
+    const cx = SIZE / 2;
+    const cy = SIZE / 2;
 
-    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-    const accentColor = getAccentColor();
+    // --- Sphere constants (from rectangleworld.com approach) ---
+    const SPHERE_R       = 66;   // sphere radius in px
+    const F_LEN          = 250;  // focal length (distance viewer → z=0)
+    const SPH_CZ         = -3 - SPHERE_R; // sphere center Z (keeps it in view)
+    const ZERO_ALPHA_Z   = -580; // depth at which alpha → 0
+    const P_RAD          = 1.9;  // base particle draw radius
+    const NUM_ADD        = 5;    // particles added per frame
+    const BASE_TURN      = (2 * Math.PI) / 1400; // one full rotation per 1400 frames
+    const RAND_ACCEL     = 0.075;
+
+    // --- Particle linked list ---
+    const pList: { first: Particle | null } = { first: null };
+    const bin:   { first: Particle | null } = { first: null };
+
+    function addP(
+      x: number, y: number, z: number,
+      vx: number, vy: number, vz: number,
+    ): Particle {
+      let p: Particle;
+      if (bin.first) {
+        p = bin.first;
+        if (p.next) { bin.first = p.next; p.next.prev = null; }
+        else bin.first = null;
+      } else {
+        p = {} as Particle;
+      }
+      if (!pList.first) {
+        pList.first = p; p.prev = null; p.next = null;
+      } else {
+        p.next = pList.first; pList.first.prev = p; pList.first = p; p.prev = null;
+      }
+      p.x = x; p.y = y; p.z = z;
+      p.vx = vx; p.vy = vy; p.vz = vz;
+      p.age = 0; p.dead = false; p.alpha = 0; p.projX = 0; p.projY = 0;
+      return p;
+    }
+
+    function recP(p: Particle) {
+      if (pList.first === p) {
+        if (p.next) { p.next.prev = null; pList.first = p.next; }
+        else pList.first = null;
+      } else {
+        if (p.prev) p.prev.next = p.next;
+        if (p.next) p.next.prev = p.prev;
+      }
+      if (!bin.first) { bin.first = p; p.prev = null; p.next = null; }
+      else { p.next = bin.first; bin.first.prev = p; bin.first = p; p.prev = null; }
+    }
+
+    const lerpN = (x: number, y: number, t: number) => x + (y - x) * t;
+    const lerpH = (x: number, y: number, t: number) => {
+      let d = y - x;
+      if (d > 180) d -= 360;
+      if (d < -180) d += 360;
+      return x + d * t;
+    };
+
+    const a = anim.current;
+    a.globalAlpha = 0; // Start faded in
 
     const render = () => {
-      const s = stateRef.current;
-      s.time += 0.016; // ~60fps
+      a.time += 0.016;
 
-      // Smooth interpolation — fast enough to feel responsive
-      const lerpSpeed = 0.15; // Snappy transitions (~6 frames to 90%)
-      s.currentScale = lerp(s.currentScale, s.targetScale, lerpSpeed);
-      s.currentGlow = lerp(s.currentGlow, s.targetGlow, lerpSpeed);
-      s.currentRotationSpeed = lerp(
-        s.currentRotationSpeed,
-        s.targetRotationSpeed,
-        lerpSpeed,
-      );
-      s.currentBrightness = lerp(
-        s.currentBrightness,
-        s.targetBrightness,
-        lerpSpeed,
-      );
-      s.currentPulse = lerp(s.currentPulse, s.targetPulse, lerpSpeed * 1.5); // Even faster for pulse
+      // Smooth lerp all targets
+      const T = 0.035;
+      a.hue          = lerpH(a.hue,          a.targetHue,          T);
+      a.hue2         = lerpH(a.hue2,         a.targetHue2,         T);
+      a.sat          = lerpN(a.sat,          a.targetSat,          T);
+      a.lit          = lerpN(a.lit,          a.targetLit,          T);
+      a.globalAlpha  = lerpN(a.globalAlpha,  a.targetGlobalAlpha,  0.04);
+      a.speedMult    = lerpN(a.speedMult,    a.targetSpeedMult,    T);
+      a.pulseMag     = lerpN(a.pulseMag,     a.targetPulseMag,     0.055);
+      a.pulseFreq    = lerpN(a.pulseFreq,    a.targetPulseFreq,    T);
 
-      // Phase transitions
-      if (s.phase === 'starting' && s.time - s.startTime > 1.0) {
-        s.phase = 'active';
-      }
-      if (s.phase === 'stopping' && s.currentScale < 0.35) {
-        s.phase = 'dormant';
+      // Skip expensive work when nearly invisible
+      if (a.globalAlpha < 0.004) {
+        ctx.clearRect(0, 0, SIZE, SIZE);
+        rafRef.current = requestAnimationFrame(render);
+        return;
       }
 
-      // Rotation
-      s.rotation += 0.008 * s.currentRotationSpeed;
+      a.turnAngle = (a.turnAngle + BASE_TURN * a.speedMult) % (2 * Math.PI);
+      const sinA = Math.sin(a.turnAngle);
+      const cosA = Math.cos(a.turnAngle);
 
-      // Pulsation (Perplexity-style: smooth sine wave)
-      const breathe = Math.sin(s.time * 1.5) * 0.015; // Subtle always-on breathing
-      const speakPulse = Math.sin(s.time * 8) * s.currentPulse; // Rhythmic speaking pulse
-      const totalPulse = breathe + speakPulse;
-      const effectiveScale = s.currentScale + totalPulse;
+      // Pulsing sphere radius
+      const pulse = 1 + Math.sin(a.time * a.pulseFreq) * a.pulseMag;
+      const sr = SPHERE_R * pulse;
+
+      // Spawn new particles on sphere surface
+      for (let i = 0; i < NUM_ADD; i++) {
+        const theta = Math.random() * 2 * Math.PI;
+        const phi   = Math.acos(Math.random() * 2 - 1);
+        const x0 = sr * Math.sin(phi) * Math.cos(theta);
+        const y0 = sr * Math.sin(phi) * Math.sin(theta);
+        const z0 = sr * Math.cos(phi);
+        const p = addP(x0, y0, SPH_CZ + z0, 0.002 * x0, 0.002 * y0, 0.002 * z0);
+        p.attack = 42;
+        p.hold   = 58;
+        p.decay  = 92;
+        p.holdV  = 1;
+        p.stuck  = 78 + Math.random() * 28;
+      }
 
       // Clear
-      ctx.clearRect(0, 0, 280, 280);
-      const cx = 140;
-      const cy = 140;
+      ctx.clearRect(0, 0, SIZE, SIZE);
 
-      // --- Draw Glow (behind particles) ---
-      if (s.currentGlow > 0.01) {
-        const glowRadius = 70 * effectiveScale;
-        const gradient = ctx.createRadialGradient(
-          cx,
-          cy,
-          0,
-          cx,
-          cy,
-          glowRadius * 1.8,
-        );
-        gradient.addColorStop(
-          0,
-          `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${0.3 * s.currentGlow})`,
-        );
-        gradient.addColorStop(
-          0.5,
-          `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${0.1 * s.currentGlow})`,
-        );
-        gradient.addColorStop(
-          1,
-          `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, 0)`,
-        );
-        ctx.fillStyle = gradient;
+      // === Outer ambient glow (large, soft) ===
+      {
+        const gr = 72 * pulse;
+        const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, gr * 1.7);
+        grd.addColorStop(0,   `hsla(${a.hue},${a.sat}%,${a.lit}%,${0.20 * a.globalAlpha})`);
+        grd.addColorStop(0.45,`hsla(${a.hue},${a.sat}%,${a.lit}%,${0.07 * a.globalAlpha})`);
+        grd.addColorStop(1,   `hsla(${a.hue},${a.sat}%,${a.lit}%,0)`);
+        ctx.fillStyle = grd;
         ctx.beginPath();
-        ctx.arc(cx, cy, glowRadius * 1.8, 0, Math.PI * 2);
+        ctx.arc(cx, cy, gr * 1.7, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // --- Draw Particles ---
-      const particles = particlesRef.current;
-      // Sort by z for depth (back-to-front)
-      const projected: {
-        x: number;
-        y: number;
-        z: number;
-        alpha: number;
-        size: number;
-      }[] = [];
+      // === Inner core glow (tight, bright) ===
+      {
+        const cr = 28 * pulse;
+        const cgrd = ctx.createRadialGradient(cx, cy, 0, cx, cy, cr);
+        cgrd.addColorStop(0,   `rgba(255,255,255,${0.12 * a.globalAlpha})`);
+        cgrd.addColorStop(0.4, `hsla(${a.hue},${a.sat}%,${a.lit + 12}%,${0.08 * a.globalAlpha})`);
+        cgrd.addColorStop(1,   `hsla(${a.hue},${a.sat}%,${a.lit}%,0)`);
+        ctx.fillStyle = cgrd;
+        ctx.beginPath();
+        ctx.arc(cx, cy, cr, 0, Math.PI * 2);
+        ctx.fill();
+      }
 
-      for (const p of particles) {
-        const r = p.baseR * effectiveScale;
-        // Spherical to cartesian
-        let x = r * Math.sin(p.phi) * Math.cos(p.theta + s.rotation * p.speed);
-        const y =
-          r * Math.sin(p.phi) * Math.sin(p.theta + s.rotation * p.speed);
-        let z = r * Math.cos(p.phi);
+      // === Update + draw particles ===
+      let p = pList.first;
+      while (p !== null) {
+        const nx = p.next;
+        p.age++;
 
-        // Y-axis rotation
-        const cosR = Math.cos(s.rotation * 0.3);
-        const sinR = Math.sin(s.rotation * 0.3);
-        const x2 = x * cosR - z * sinR;
-        const z2 = x * sinR + z * cosR;
-        x = x2;
-        z = z2;
+        // After stuck time, drift outward with random micro-turbulence
+        if (p.age > p.stuck) {
+          p.vx += RAND_ACCEL * (Math.random() * 2 - 1);
+          p.vy += RAND_ACCEL * (Math.random() * 2 - 1);
+          p.vz += RAND_ACCEL * (Math.random() * 2 - 1);
+          p.x += p.vx;
+          p.y += p.vy;
+          p.z += p.vz;
+        }
+
+        // Rotate around Y axis (same as rectangleworld)
+        const relZ = p.z - SPH_CZ;
+        const rx = cosA * p.x + sinA * relZ;
+        const rz = -sinA * p.x + cosA * relZ + SPH_CZ;
 
         // Perspective projection
-        const perspective = 400;
-        const scale = perspective / (perspective + z);
-        const px = x * scale + cx;
-        const py = y * scale + cy;
+        const m = F_LEN / (F_LEN - rz);
+        p.projX = rx * m + cx;
+        p.projY = p.y * m + cy;
 
-        // Depth-based alpha and size
-        const depthAlpha = (z + r) / (2 * r);
-        const alpha = depthAlpha * s.currentBrightness;
-        const size = Math.max(0.5, scale * 2.5 * s.currentBrightness);
+        // Alpha envelope (attack → hold → decay)
+        const tot = p.attack + p.hold + p.decay;
+        if (p.age < tot) {
+          if      (p.age < p.attack)                p.alpha = (p.holdV / p.attack) * p.age;
+          else if (p.age < p.attack + p.hold)       p.alpha = p.holdV;
+          else p.alpha = p.holdV * (1 - (p.age - p.attack - p.hold) / p.decay);
+        } else {
+          p.dead = true;
+        }
 
-        projected.push({ x: px, y: py, z, alpha, size });
-      }
+        const outside =
+          p.projX > SIZE || p.projX < 0 ||
+          p.projY > SIZE || p.projY < 0 ||
+          rz > F_LEN - 2;
 
-      // Sort back-to-front
-      projected.sort((a, b) => a.z - b.z);
+        if (outside || p.dead) {
+          recP(p);
+          p = nx;
+          continue;
+        }
 
-      for (const pt of projected) {
+        // Depth-based darkening (back particles dimmer)
+        const depthF = Math.max(0, Math.min(1, 1 - rz / ZERO_ALPHA_Z));
+        const fa = depthF * p.alpha * a.globalAlpha;
+
+        // Slight hue shift by depth for chromatic depth — front particles hue2, back particles hue
+        const hueBlend = a.hue + (a.hue2 - a.hue) * Math.max(0, rz / -200);
+
+        ctx.fillStyle = `hsla(${hueBlend},${a.sat}%,${a.lit}%,${fa})`;
         ctx.beginPath();
-        ctx.arc(pt.x, pt.y, pt.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${pt.alpha})`;
+        ctx.arc(p.projX, p.projY, m * P_RAD, 0, 2 * Math.PI, false);
+        ctx.closePath();
         ctx.fill();
+
+        p = nx;
       }
 
-      // --- Inner Core Glow (Perplexity-style bright center) ---
-      if (s.currentGlow > 0.05) {
-        const coreGrad = ctx.createRadialGradient(
-          cx,
-          cy,
-          0,
-          cx,
-          cy,
-          25 * effectiveScale,
-        );
-        coreGrad.addColorStop(
-          0,
-          `rgba(255, 255, 255, ${0.15 * s.currentGlow})`,
-        );
-        coreGrad.addColorStop(
-          0.5,
-          `rgba(${accentColor[0]}, ${accentColor[1]}, ${accentColor[2]}, ${0.08 * s.currentGlow})`,
-        );
-        coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = coreGrad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, 25 * effectiveScale, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      animFrameRef.current = requestAnimationFrame(render);
+      rafRef.current = requestAnimationFrame(render);
     };
 
     render();
-
-    return () => {
-      cancelAnimationFrame(animFrameRef.current);
-    };
-  }, [getAccentColor]);
+    return () => { cancelAnimationFrame(rafRef.current); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <canvas
       ref={canvasRef}
-      width={280}
-      height={280}
-      style={{ width: '100%', height: '100%' }}
+      className="block w-[200px] h-[200px]"
+      aria-hidden="true"
     />
   );
 };

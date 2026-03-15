@@ -1,137 +1,54 @@
-import { useState, useRef, useCallback } from 'react';
-import { GoogleGenAI, LiveServerMessage, Modality, Type, Blob } from '@google/genai';
-import { SYSTEM_INSTRUCTION, SILENCE_MODES } from '../components/AgentPrompt';
+import {
+  type Blob,
+  GoogleGenAI,
+  type LiveServerMessage,
+  Modality,
+  Type,
+} from '@google/genai';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { SILENCE_MODES, SYSTEM_INSTRUCTION } from '../components/AgentPrompt';
 
 // ─── Tool Declarations ──────────────────────────────────────────────
 const TOOLS = [
   {
     functionDeclarations: [
-      // === EXISTING TOOLS ===
       {
-        name: "highlight_element",
-        description: "Visually highlight a specific element on the page with a glow effect. Supported IDs: receptionist, calculator, input-revenue, input-calls, result-box, solutions, comparison, automations, reviews, referral-section, footer",
+        name: 'update_calculator',
+        description:
+          'Update the values in the Revenue Loss Calculator to show the visitor their potential monthly loss.',
         parameters: {
           type: Type.OBJECT,
           properties: {
-            element_id: {
-              type: Type.STRING,
-              description: "The HTML ID of the element to highlight.",
-            }
-          },
-          required: ["element_id"]
-        }
-      },
-      {
-        name: "control_website",
-        description: "Scroll the webpage smoothly to a specific section. Supported Targets: receptionist, calculator, solutions, comparison, automations, reviews, referral-section, footer",
-        parameters: {
-          type: Type.OBJECT,
-          properties: {
-            target: {
-              type: Type.STRING,
-              description: "The section ID to scroll to."
-            }
-          },
-          required: ["target"]
-        }
-      },
-      {
-        name: "update_calculator",
-        description: "Update the values in the Revenue Loss Calculator to show the visitor their potential monthly loss.",
-        parameters: {
-          type: Type.OBJECT,
-          properties: {
-            revenue: { type: Type.NUMBER, description: "Average revenue per customer in dollars" },
-            missedCalls: { type: Type.NUMBER, description: "Missed calls per day (1-20)" }
-          },
-          required: ["revenue", "missedCalls"]
-        }
-      },
-      // === NEW TOOLS ===
-      {
-        name: "navigate_carousel",
-        description: "Navigate a carousel to show specific cards. Carousels: 'industry' (IndustrySlider with HVAC, Dental, Roofing, Tree, Auto), 'automation' (AutomationCards with partner tools), 'comparison' (Comparison 3D carousel). Actions: 'next', 'prev', or a card index number (0-based).",
-        parameters: {
-          type: Type.OBJECT,
-          properties: {
-            carousel: {
-              type: Type.STRING,
-              description: "Which carousel: 'industry', 'automation', or 'comparison'"
+            revenue: {
+              type: Type.NUMBER,
+              description: 'Average revenue per customer in dollars',
             },
-            action: {
-              type: Type.STRING,
-              description: "'next', 'prev', or a card index number (0-based string like '0', '1', '2')"
-            }
-          },
-          required: ["carousel", "action"]
-        }
-      },
-      {
-        name: "toggle_theme",
-        description: "Change the website appearance. Toggle between dark/light mode, or change the accent color to blue, green, or orange. Use this to show off the site or match the visitor's preference.",
-        parameters: {
-          type: Type.OBJECT,
-          properties: {
-            mode: {
-              type: Type.STRING,
-              description: "Theme mode: 'dark' or 'light'. Omit to keep current."
+            missedCalls: {
+              type: Type.NUMBER,
+              description: 'Missed calls per day (1-20)',
             },
-            accent: {
-              type: Type.STRING,
-              description: "Accent color: 'blue', 'green', or 'orange'. Omit to keep current."
-            }
           },
-          required: []
-        }
+          required: ['revenue', 'missedCalls'],
+        },
       },
       {
-        name: "open_cal_popup",
-        description: "Open the Cal.com booking popup so the visitor can schedule a call. ONLY use this AFTER the visitor explicitly agrees to book.",
+        name: 'open_cal_popup',
+        description:
+          'Open the Cal.com booking popup so the visitor can schedule a call. ONLY use this AFTER the visitor explicitly agrees to book.',
         parameters: {
           type: Type.OBJECT,
           properties: {},
-          required: []
-        }
+          required: [],
+        },
       },
-      {
-        name: "trigger_animation",
-        description: "Play a visual effect on a section to draw attention. Effects: 'pulse' (gentle scale throb), 'glow' (bright border glow), 'shake' (quick attention shake). Target is a section ID.",
-        parameters: {
-          type: Type.OBJECT,
-          properties: {
-            target: {
-              type: Type.STRING,
-              description: "Section ID to animate (receptionist, calculator, solutions, comparison, automations, reviews, referral-section)"
-            },
-            effect: {
-              type: Type.STRING,
-              description: "Animation effect: 'pulse', 'glow', or 'shake'"
-            }
-          },
-          required: ["target", "effect"]
-        }
-      },
-      {
-        name: "toggle_section",
-        description: "Control expandable UI elements. Actions: 'set_category_filter' (filter mentor cards by category: 'all', 'n8n', 'voice', 'web', 'claude', 'mindset').",
-        parameters: {
-          type: Type.OBJECT,
-          properties: {
-            action: {
-              type: Type.STRING,
-              description: "UI action: 'set_category_filter'"
-            },
-            value: {
-              type: Type.STRING,
-              description: "Parameter for the action (category name for filter)"
-            }
-          },
-          required: ["action"]
-        }
-      }
-    ]
-  }
+    ],
+  },
 ];
+
+// ─── Resilience Constants ───────────────────────────────────────────
+const MAX_RECONNECT_ATTEMPTS = 3;
+const RECONNECT_BASE_DELAY_MS = 2000;
+const CONNECTION_TIMEOUT_MS = 15000;
 
 // ─── Transcript types ───────────────────────────────────────────────
 export interface TranscriptEntry {
@@ -146,6 +63,8 @@ export function useGeminiLive() {
   // Connection State
   const [connected, setConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
+  const [fallbackMode, setFallbackMode] = useState(false);
   const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -166,11 +85,45 @@ export function useGeminiLive() {
   const nextStartTimeRef = useRef<number>(0);
   const sourcesRef = useRef<Set<AudioBufferSourceNode>>(new Set());
 
-  // Session Ref
+  // Session Refs
   const sessionRef = useRef<any>(null);
+  const resolvedSessionRef = useRef<any>(null);
+
+  // Resilience Refs
+  const intentionalDisconnectRef = useRef(false);
+  const reconnectAttemptsRef = useRef(0);
+  const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // ─── AudioContext Resume on Tab Switch ────────────────────────────
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        if (
+          audioContextRef.current &&
+          audioContextRef.current.state === 'suspended'
+        ) {
+          audioContextRef.current.resume().catch(() => {});
+        }
+        if (
+          outputAudioContextRef.current &&
+          outputAudioContextRef.current.state === 'suspended'
+        ) {
+          outputAudioContextRef.current.resume().catch(() => {});
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () =>
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
 
   // ─── Audio Helpers ──────────────────────────────────────────────
-  const downsampleTo16k = (input: Float32Array, inputRate: number): Float32Array => {
+  const downsampleTo16k = (
+    input: Float32Array,
+    inputRate: number,
+  ): Float32Array => {
     if (inputRate === 16000) return input;
     const ratio = inputRate / 16000;
     const newLength = Math.floor(input.length / ratio);
@@ -209,7 +162,10 @@ export function useGeminiLive() {
     };
   };
 
-  const decodeAudioData = async (b64: string, ctx: AudioContext): Promise<AudioBuffer> => {
+  const decodeAudioData = async (
+    b64: string,
+    ctx: AudioContext,
+  ): Promise<AudioBuffer> => {
     const binaryString = atob(b64);
     const len = binaryString.length;
     const bytes = new Uint8Array(len);
@@ -227,133 +183,203 @@ export function useGeminiLive() {
 
   // ─── Tool Handlers ────────────────────────────────────────────
   const handleToolCall = (fc: any): { status: string } => {
-    let result = { status: "ok" };
+    let result = { status: 'ok' };
 
     switch (fc.name) {
-      case "control_website": {
-        const target = (fc.args as any).target;
-        const el = document.getElementById(target);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          result = { status: "scrolled_to_" + target };
-        } else {
-          result = { status: "element_not_found_" + target };
-        }
-        break;
-      }
-
-      case "update_calculator": {
+      case 'update_calculator': {
         const { revenue, missedCalls } = fc.args as any;
-        window.dispatchEvent(new CustomEvent('updateCalculator', {
-          detail: { revenue, missedCalls }
-        }));
-        result = { status: "updated_calculator" };
+        window.dispatchEvent(
+          new CustomEvent('updateCalculator', {
+            detail: { revenue, missedCalls },
+          }),
+        );
+        result = { status: 'updated_calculator' };
         break;
       }
 
-      case "highlight_element": {
-        const { element_id } = fc.args as any;
-        window.dispatchEvent(new CustomEvent('highlightElement', {
-          detail: { id: element_id }
-        }));
-        result = { status: "highlighted_" + element_id };
-        break;
-      }
-
-      case "navigate_carousel": {
-        const { carousel, action } = fc.args as any;
-        window.dispatchEvent(new CustomEvent('navigateCarousel', {
-          detail: { carousel, action }
-        }));
-        result = { status: `navigated_${carousel}_${action}` };
-        break;
-      }
-
-      case "toggle_theme": {
-        const { mode, accent } = fc.args as any;
-        window.dispatchEvent(new CustomEvent('toggleTheme', {
-          detail: { mode, accent }
-        }));
-        result = { status: `theme_changed` };
-        break;
-      }
-
-      case "open_cal_popup": {
+      case 'open_cal_popup': {
         // Cal.com is loaded globally by Navbar.tsx
         const calApi = (window as any).Cal;
-        if (calApi && calApi.ns && calApi.ns["let-s-talk"]) {
-          calApi.ns["let-s-talk"]("openModal");
-          result = { status: "cal_popup_opened" };
+        if (calApi && calApi.ns && calApi.ns['let-s-talk']) {
+          calApi.ns['let-s-talk']('openModal');
+          result = { status: 'cal_popup_opened' };
         } else {
           // Fallback: click the first cal.com button
-          const calBtn = document.querySelector('[data-cal-link]') as HTMLElement;
+          const calBtn = document.querySelector(
+            '[data-cal-link]',
+          ) as HTMLElement;
           if (calBtn) {
             calBtn.click();
-            result = { status: "cal_button_clicked" };
+            result = { status: 'cal_button_clicked' };
           } else {
-            result = { status: "cal_not_available" };
+            result = { status: 'cal_not_available' };
           }
         }
         break;
       }
 
-      case "trigger_animation": {
-        const { target, effect } = fc.args as any;
-        const el = document.getElementById(target);
-        if (el) {
-          const className = `reyna-animate-${effect}`;
-          el.classList.add(className);
-          setTimeout(() => el.classList.remove(className), 1500);
-          result = { status: `animated_${target}_${effect}` };
-        } else {
-          result = { status: "element_not_found_" + target };
-        }
-        break;
-      }
-
-      case "toggle_section": {
-        const { action, value } = fc.args as any;
-        window.dispatchEvent(new CustomEvent('toggleSection', {
-          detail: { action, value }
-        }));
-        result = { status: `section_${action}_${value || 'done'}` };
-        break;
-      }
-
       default:
-        result = { status: "unknown_tool_" + fc.name };
+        result = { status: 'unknown_tool_' + fc.name };
     }
 
     return result;
   };
 
+  // ─── Cleanup Audio (without clearing transcript) ───────────────
+  const cleanupAudio = useCallback(() => {
+    if (inputSourceRef.current) {
+      inputSourceRef.current.disconnect();
+      inputSourceRef.current = null;
+    }
+    if (processorRef.current) {
+      processorRef.current.disconnect();
+      processorRef.current = null;
+    }
+    if (mediaStreamRef.current) {
+      mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      mediaStreamRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
+    }
+    if (outputAudioContextRef.current) {
+      outputAudioContextRef.current.close();
+      outputAudioContextRef.current = null;
+    }
+    sourcesRef.current.clear();
+    nextStartTimeRef.current = 0;
+  }, []);
+
+  // ─── Close Session ─────────────────────────────────────────────
+  const closeSession = useCallback(() => {
+    resolvedSessionRef.current = null;
+    if (sessionRef.current) {
+      sessionRef.current
+        .then((session: any) => session.close())
+        .catch(() => {});
+      sessionRef.current = null;
+    }
+  }, []);
+
+  // ─── Disconnect (user-initiated full teardown) ─────────────────
+  const disconnect = useCallback(() => {
+    intentionalDisconnectRef.current = true;
+    reconnectAttemptsRef.current = 0;
+
+    if (connectionTimeoutRef.current) {
+      clearTimeout(connectionTimeoutRef.current);
+      connectionTimeoutRef.current = null;
+    }
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+
+    closeSession();
+    cleanupAudio();
+
+    setConnected(false);
+    setIsConnecting(false);
+    setIsReconnecting(false);
+    setIsAgentSpeaking(false);
+    setIsUserSpeaking(false);
+    setTranscript([]);
+  }, [closeSession, cleanupAudio]);
+
+  // ─── Reconnect (automatic recovery) ────────────────────────────
+  const reconnect = useCallback(() => {
+    if (intentionalDisconnectRef.current) return;
+
+    reconnectAttemptsRef.current += 1;
+    const attempt = reconnectAttemptsRef.current;
+
+    console.warn(
+      `[Reyna] Reconnection attempt ${attempt}/${MAX_RECONNECT_ATTEMPTS}`,
+    );
+
+    if (attempt > MAX_RECONNECT_ATTEMPTS) {
+      console.error(
+        '[Reyna] Max reconnection attempts reached — switching to Groq fallback',
+      );
+      closeSession();
+      cleanupAudio();
+      setConnected(false);
+      setIsConnecting(false);
+      setIsReconnecting(false);
+      setIsAgentSpeaking(false);
+      setFallbackMode(true);
+      return;
+    }
+
+    // Tear down current connection but keep transcript
+    closeSession();
+    cleanupAudio();
+    setConnected(false);
+    setIsAgentSpeaking(false);
+    setIsReconnecting(true);
+
+    const delay = RECONNECT_BASE_DELAY_MS * attempt;
+    reconnectTimeoutRef.current = setTimeout(() => {
+      if (!intentionalDisconnectRef.current) {
+        // connectToGemini is called directly — it's hoisted
+        void connectToGemini(true);
+      }
+    }, delay);
+  }, [closeSession, cleanupAudio]);
+
   // ─── Connect ──────────────────────────────────────────────────
-  const connectToGemini = async () => {
+  const connectToGemini = async (isReconnect = false) => {
     try {
-      setError(null);
-      setTranscript([]);
+      if (!isReconnect) {
+        intentionalDisconnectRef.current = false;
+        reconnectAttemptsRef.current = 0;
+        setFallbackMode(false);
+        setError(null);
+        setTranscript([]);
+      }
+
       setIsConnecting(true);
 
       if (!import.meta.env.VITE_GEMINI_API_KEY) {
-        setError("API Key is missing.");
+        setError('API Key is missing.');
         setIsConnecting(false);
+        setIsReconnecting(false);
         return;
       }
 
-      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+      // Connection timeout — if onopen doesn't fire in time, retry
+      connectionTimeoutRef.current = setTimeout(() => {
+        console.warn('[Reyna] Connection timeout — attempting reconnect');
+        closeSession();
+        cleanupAudio();
+        setIsConnecting(false);
+        reconnect();
+      }, CONNECTION_TIMEOUT_MS);
+
+      const ai = new GoogleGenAI({
+        apiKey: import.meta.env.VITE_GEMINI_API_KEY,
+      });
 
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaStreamRef.current = stream;
-      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      audioContextRef.current = new (
+        window.AudioContext || (window as any).webkitAudioContext
+      )();
       const inputSampleRate = audioContextRef.current.sampleRate;
 
-      outputAudioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
+      outputAudioContextRef.current = new (
+        window.AudioContext || (window as any).webkitAudioContext
+      )({ sampleRate: 24000 });
       outputNodeRef.current = outputAudioContextRef.current.createGain();
       outputNodeRef.current.connect(outputAudioContextRef.current.destination);
 
       // Build dynamic system instruction with silence mode
-      const silenceMode = localStorage.getItem('reyna-silence-mode') || 'checkin';
-      const silenceContext = SILENCE_MODES[silenceMode as keyof typeof SILENCE_MODES] || SILENCE_MODES.checkin;
+      const silenceMode =
+        localStorage.getItem('reyna-silence-mode') || 'checkin';
+      const silenceContext =
+        SILENCE_MODES[silenceMode as keyof typeof SILENCE_MODES] ||
+        SILENCE_MODES.checkin;
       const fullInstruction = SYSTEM_INSTRUCTION + '\n\n' + silenceContext;
 
       const sessionPromise = ai.live.connect({
@@ -363,7 +389,7 @@ export function useGeminiLive() {
           systemInstruction: fullInstruction,
           tools: TOOLS,
           speechConfig: {
-            voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
+            voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } },
           },
           outputAudioTranscription: {},
           inputAudioTranscription: {},
@@ -371,8 +397,23 @@ export function useGeminiLive() {
         callbacks: {
           onopen: () => {
             try {
+              // Clear connection timeout — we're in
+              if (connectionTimeoutRef.current) {
+                clearTimeout(connectionTimeoutRef.current);
+                connectionTimeoutRef.current = null;
+              }
+
+              // Reset reconnection state on successful connect
+              reconnectAttemptsRef.current = 0;
               setIsConnecting(false);
+              setIsReconnecting(false);
               setConnected(true);
+              setError(null);
+
+              // Store resolved session for direct access
+              sessionPromise.then((session) => {
+                resolvedSessionRef.current = session;
+              });
 
               // Short hum to wake the model
               const humRate = 16000;
@@ -380,22 +421,33 @@ export function useGeminiLive() {
               const numSamples = humRate * duration;
               const humData = new Float32Array(numSamples);
               for (let i = 0; i < numSamples; i++) {
-                const envelope = i < 500 ? i / 500 : (i > numSamples - 500 ? (numSamples - i) / 500 : 1);
-                humData[i] = Math.sin(2 * Math.PI * 150 * i / humRate) * 0.1 * envelope;
+                const envelope =
+                  i < 500
+                    ? i / 500
+                    : i > numSamples - 500
+                      ? (numSamples - i) / 500
+                      : 1;
+                humData[i] =
+                  Math.sin((2 * Math.PI * 150 * i) / humRate) * 0.1 * envelope;
               }
               const humBlob = createBlob(humData);
 
               setTimeout(() => {
-                sessionPromise.then(session => {
-                  session.sendRealtimeInput({ media: humBlob });
+                resolvedSessionRef.current?.sendRealtimeInput({
+                  media: humBlob,
                 });
               }, 500);
 
               // Setup Mic Stream
               if (!audioContextRef.current) return;
-              const source = audioContextRef.current.createMediaStreamSource(stream);
+              const source =
+                audioContextRef.current.createMediaStreamSource(stream);
               inputSourceRef.current = source;
-              const processor = audioContextRef.current.createScriptProcessor(4096, 1, 1);
+              const processor = audioContextRef.current.createScriptProcessor(
+                4096,
+                1,
+                1,
+              );
               processorRef.current = processor;
 
               processor.onaudioprocess = (e) => {
@@ -419,18 +471,26 @@ export function useGeminiLive() {
                   setIsUserSpeaking(false);
                 }
 
-                const downsampledData = downsampleTo16k(inputData, inputSampleRate);
+                const downsampledData = downsampleTo16k(
+                  inputData,
+                  inputSampleRate,
+                );
                 const blob = createBlob(downsampledData);
 
-                sessionPromise.then(session => {
-                  session.sendRealtimeInput({ media: blob });
-                }).catch(() => {});
+                // Use resolved session ref instead of promise chain
+                try {
+                  resolvedSessionRef.current?.sendRealtimeInput({
+                    media: blob,
+                  });
+                } catch (_) {
+                  // Session may have closed — ignore
+                }
               };
 
               source.connect(processor);
               processor.connect(audioContextRef.current.destination);
             } catch (openErr) {
-              setError("Failed to start mic streaming.");
+              setError('Failed to start mic streaming.');
             }
           },
 
@@ -443,18 +503,26 @@ export function useGeminiLive() {
                 responses.push({
                   id: fc.id,
                   name: fc.name,
-                  response: { result }
+                  response: { result },
                 });
               }
-              sessionPromise.then(session => {
-                session.sendToolResponse({ functionResponses: responses });
-              });
+              try {
+                resolvedSessionRef.current?.sendToolResponse({
+                  functionResponses: responses,
+                });
+              } catch (_) {
+                // Session may have closed
+              }
             }
 
             // Handle Audio Output
-            const audioData = msg.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
+            const audioData =
+              msg.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
             if (audioData && outputAudioContextRef.current) {
-              const buffer = await decodeAudioData(audioData, outputAudioContextRef.current);
+              const buffer = await decodeAudioData(
+                audioData,
+                outputAudioContextRef.current,
+              );
               const now = outputAudioContextRef.current.currentTime;
               if (nextStartTimeRef.current < now) {
                 nextStartTimeRef.current = now;
@@ -486,8 +554,10 @@ export function useGeminiLive() {
 
             // Handle Interruptions
             if (msg.serverContent?.interrupted) {
-              sourcesRef.current.forEach(source => {
-                try { source.stop(); } catch (e) { }
+              sourcesRef.current.forEach((source) => {
+                try {
+                  source.stop();
+                } catch (e) {}
               });
               sourcesRef.current.clear();
               nextStartTimeRef.current = 0;
@@ -497,10 +567,13 @@ export function useGeminiLive() {
             // Handle AI Transcription
             const aiTranscription = msg.serverContent?.outputTranscription;
             if (aiTranscription && aiTranscription.text) {
-              setTranscript(prev => {
+              setTranscript((prev) => {
                 let lastIndex = -1;
                 for (let i = prev.length - 1; i >= 0; i--) {
-                  if (prev[i].speaker === 'ai' && !prev[i].isFinal) { lastIndex = i; break; }
+                  if (prev[i].speaker === 'ai' && !prev[i].isFinal) {
+                    lastIndex = i;
+                    break;
+                  }
                 }
                 if (lastIndex !== -1) {
                   const newPrev = [...prev];
@@ -508,30 +581,44 @@ export function useGeminiLive() {
                   const newText = aiTranscription.text as string;
                   newPrev[lastIndex] = {
                     ...newPrev[lastIndex],
-                    text: newText.startsWith(lastText) ? newText : lastText + newText,
-                    isFinal: !!aiTranscription.finished
+                    text: newText.startsWith(lastText)
+                      ? newText
+                      : lastText + newText,
+                    isFinal: !!aiTranscription.finished,
                   };
                   return newPrev;
                 }
                 return [
-                  ...prev.map(m => m.speaker === 'ai' ? { ...m, isFinal: true } : m),
-                  { speaker: 'ai' as const, text: aiTranscription.text as string, id: Math.random(), isFinal: !!aiTranscription.finished }
+                  ...prev.map((m) =>
+                    m.speaker === 'ai' ? { ...m, isFinal: true } : m,
+                  ),
+                  {
+                    speaker: 'ai' as const,
+                    text: aiTranscription.text as string,
+                    id: Math.random(),
+                    isFinal: !!aiTranscription.finished,
+                  },
                 ];
               });
             }
 
             // Handle turn complete
             if (msg.serverContent?.turnComplete) {
-              setTranscript(prev => prev.map(m => ({ ...m, isFinal: true })));
+              setTranscript((prev) =>
+                prev.map((m) => ({ ...m, isFinal: true })),
+              );
             }
 
             // Handle User Transcription
             const userTranscription = msg.serverContent?.inputTranscription;
             if (userTranscription && userTranscription.text) {
-              setTranscript(prev => {
+              setTranscript((prev) => {
                 let lastIndex = -1;
                 for (let i = prev.length - 1; i >= 0; i--) {
-                  if (prev[i].speaker === 'human' && !prev[i].isFinal) { lastIndex = i; break; }
+                  if (prev[i].speaker === 'human' && !prev[i].isFinal) {
+                    lastIndex = i;
+                    break;
+                  }
                 }
                 if (lastIndex !== -1) {
                   const newPrev = [...prev];
@@ -539,14 +626,23 @@ export function useGeminiLive() {
                   const newText = userTranscription.text as string;
                   newPrev[lastIndex] = {
                     ...newPrev[lastIndex],
-                    text: newText.startsWith(lastText) ? newText : lastText + newText,
-                    isFinal: !!userTranscription.finished
+                    text: newText.startsWith(lastText)
+                      ? newText
+                      : lastText + newText,
+                    isFinal: !!userTranscription.finished,
                   };
                   return newPrev;
                 }
                 return [
-                  ...prev.map(m => m.speaker === 'human' ? { ...m, isFinal: true } : m),
-                  { speaker: 'human' as const, text: userTranscription.text as string, id: Math.random(), isFinal: !!userTranscription.finished }
+                  ...prev.map((m) =>
+                    m.speaker === 'human' ? { ...m, isFinal: true } : m,
+                  ),
+                  {
+                    speaker: 'human' as const,
+                    text: userTranscription.text as string,
+                    id: Math.random(),
+                    isFinal: !!userTranscription.finished,
+                  },
                 ];
               });
             }
@@ -555,60 +651,70 @@ export function useGeminiLive() {
           onclose: () => {
             setConnected(false);
             setIsAgentSpeaking(false);
+            resolvedSessionRef.current = null;
+
+            // Auto-reconnect unless user pressed end call
+            if (!intentionalDisconnectRef.current) {
+              console.warn('[Reyna] Connection closed unexpectedly — reconnecting');
+              reconnect();
+            }
           },
+
           onerror: (e: ErrorEvent | Event) => {
             const msg = (e as ErrorEvent).message || 'Unknown WebSocket error';
             console.error('[Reyna] Live API error:', msg, e);
             setIsConnecting(false);
-            setError(`Connection failed: ${msg}`);
-            disconnect();
-          }
-        }
+            resolvedSessionRef.current = null;
+
+            // Don't hard-disconnect — try to reconnect
+            if (!intentionalDisconnectRef.current) {
+              console.warn('[Reyna] Error received — attempting reconnect');
+              reconnect();
+            } else {
+              setError(`Connection failed: ${msg}`);
+            }
+          },
+        },
       });
       sessionRef.current = sessionPromise;
-
     } catch (e: any) {
       const msg = e?.message || String(e);
       console.error('[Reyna] Connect error:', msg, e);
       setIsConnecting(false);
-      setError(msg.includes('API') || msg.includes('key') || msg.includes('401') || msg.includes('403')
-        ? `API error: ${msg}`
-        : `Connection error: ${msg}`);
+
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
+
+      // API key errors shouldn't trigger reconnection
+      const isAuthError =
+        msg.includes('API') ||
+        msg.includes('key') ||
+        msg.includes('401') ||
+        msg.includes('403');
+
+      if (isAuthError) {
+        setIsReconnecting(false);
+        setError(`API error: ${msg}`);
+      } else if (!intentionalDisconnectRef.current) {
+        reconnect();
+      } else {
+        setError(`Connection error: ${msg}`);
+      }
     }
   };
-
-  // ─── Disconnect ───────────────────────────────────────────────
-  const disconnect = useCallback(() => {
-    if (inputSourceRef.current) { inputSourceRef.current.disconnect(); inputSourceRef.current = null; }
-    if (processorRef.current) { processorRef.current.disconnect(); processorRef.current = null; }
-    if (mediaStreamRef.current) {
-      mediaStreamRef.current.getTracks().forEach(track => track.stop());
-      mediaStreamRef.current = null;
-    }
-    if (audioContextRef.current) { audioContextRef.current.close(); audioContextRef.current = null; }
-    if (outputAudioContextRef.current) { outputAudioContextRef.current.close(); outputAudioContextRef.current = null; }
-    if (sessionRef.current) {
-      sessionRef.current.then((session: any) => session.close()).catch(() => { });
-      sessionRef.current = null;
-    }
-    setConnected(false);
-    setIsConnecting(false);
-    setIsAgentSpeaking(false);
-    setIsUserSpeaking(false);
-    setTranscript([]);
-  }, []);
 
   return {
     connected,
     isConnecting,
+    isReconnecting,
+    fallbackMode,
     isAgentSpeaking,
     isUserSpeaking,
     error,
     transcript,
     connectToGemini,
     disconnect,
-    // Stubs for Hero.tsx compatibility
-    fallbackMode: false as const,
-    isReconnecting: false as const,
   };
 }

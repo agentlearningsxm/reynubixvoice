@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
+import { RadiusMap } from './radius-map';
 import {
   persistLeadId,
   postJsonWithContext,
@@ -53,8 +54,8 @@ const contactMethods = [
     icon: MapPin,
     title: 'Visit Us',
     description: 'Our headquarters',
-    value: 'Zuilenstein 2, 3334 CZ Zwijndrecht',
-    link: 'https://www.google.com/maps/search/?api=1&query=Zuilenstein+2,+3334+CZ+Zwijndrecht',
+    value: 'Zwijndrecht, Netherlands',
+    link: 'https://www.google.com/maps/search/?api=1&query=Zwijndrecht,+Netherlands',
     gradient: 'from-purple-500/20 to-pink-500/20',
     gradientLight: 'from-purple-100 to-pink-100',
     iconColor: 'text-purple-700 dark:text-purple-400',
@@ -86,6 +87,7 @@ export function PremiumContact() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     company: '',
     message: '',
   });
@@ -119,6 +121,10 @@ export function PremiumContact() {
       newErrors.email = 'Please enter a valid email';
     }
 
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    }
+
     if (!formData.message.trim()) {
       newErrors.message = 'Message is required';
     } else if (formData.message.trim().length < 10) {
@@ -135,14 +141,15 @@ export function PremiumContact() {
 
     setIsSubmitting(true);
     trackEventFireAndForget('contact_form_submit_attempt', {
+      phoneProvided: Boolean(formData.phone.trim()),
       companyProvided: Boolean(formData.company.trim()),
       messageLength: formData.message.trim().length,
     });
     try {
-      const res = await postJsonWithContext<{ success: boolean; leadId?: string }>(
-        '/api/contact',
-        formData,
-      );
+      const res = await postJsonWithContext<{
+        success: boolean;
+        leadId?: string;
+      }>('/api/contact', formData);
       persistLeadId(res.leadId);
       trackEventFireAndForget('contact_form_submit_success', {
         leadId: res.leadId ?? null,
@@ -150,9 +157,11 @@ export function PremiumContact() {
       setIsSubmitted(true);
     } catch {
       trackEventFireAndForget('contact_form_submit_error');
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       setErrors({
-        message:
-          'Failed to send message. Please try emailing us directly at voice@reynubix.com',
+        message: isLocal
+          ? "Contact form requires 'npm run dev:api' for local testing. In production, this works automatically."
+          : 'Failed to send message. Please try emailing us directly at voice@reynubix.com',
       });
     } finally {
       setIsSubmitting(false);
@@ -411,17 +420,43 @@ export function PremiumContact() {
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-secondary/50 group-focus-within:text-brand-primary transition-colors" />
-                    <input
-                      type="text"
-                      placeholder="Company (Optional)"
-                      value={formData.company}
-                      onChange={(e) =>
-                        handleInputChange('company', e.target.value)
-                      }
-                      className="w-full pl-12 pr-4 py-4.5 bg-bg-card border border-border rounded-2xl text-text-primary placeholder-text-secondary/40 focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-glow/10 transition-all"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-secondary/50 group-focus-within:text-brand-primary transition-colors" />
+                      <input
+                        type="tel"
+                        placeholder="Phone Number"
+                        value={formData.phone}
+                        onChange={(e) =>
+                          handleInputChange('phone', e.target.value)
+                        }
+                        className={`w-full pl-12 pr-4 py-4.5 bg-bg-card border rounded-2xl text-text-primary placeholder-text-secondary/40 focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-glow/10 transition-all ${
+                          errors.phone ? 'border-red-500/50' : 'border-border'
+                        }`}
+                      />
+                      {errors.phone && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="text-red-400 text-sm mt-2"
+                        >
+                          {errors.phone}
+                        </motion.p>
+                      )}
+                    </div>
+
+                    <div className="relative">
+                      <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-secondary/50 group-focus-within:text-brand-primary transition-colors" />
+                      <input
+                        type="text"
+                        placeholder="Company (Optional)"
+                        value={formData.company}
+                        onChange={(e) =>
+                          handleInputChange('company', e.target.value)
+                        }
+                        className="w-full pl-12 pr-4 py-4.5 bg-bg-card border border-border rounded-2xl text-text-primary placeholder-text-secondary/40 focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-glow/10 transition-all"
+                      />
+                    </div>
                   </div>
 
                   <div className="relative group">
@@ -510,6 +545,7 @@ export function PremiumContact() {
                       setFormData({
                         name: '',
                         email: '',
+                        phone: '',
                         company: '',
                         message: '',
                       });
@@ -531,13 +567,7 @@ export function PremiumContact() {
               whileHover={{ scale: 1.01, borderColor: 'var(--accent-primary)' }}
             >
               <div className="relative w-full h-[300px] sm:h-[400px]">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2464.2483569804!2d4.607490077383187!3d51.8213233871936!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c42f0a1ea33a41%3A0xe99f0f9c2c8f8b7b!2sZuilenstein%202%2C%203334%20CZ%20Zwijndrecht!5e0!3m2!1sen!2snl!4v1708080000000!5m2!1sen!2snl"
-                  className="absolute inset-0 w-full h-full border-0 grayscale hover:grayscale-0 dark:invert-[0.9] dark:hover:invert-0 transition-all duration-1000 opacity-90 group-hover:opacity-100"
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
+                <RadiusMap />
               </div>
             </motion.div>
           </motion.div>
@@ -592,6 +622,8 @@ export function PremiumContact() {
                   <motion.a
                     key={index}
                     href={method.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() =>
                       trackEventFireAndForget('contact_method_clicked', {
                         method: method.title,
