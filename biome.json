@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!**/dist"]
+    "includes": ["**", "!!**/dist", "!!src/styles/global.css"]
   },
   "formatter": {
     "enabled": true,
@@ -17,11 +17,36 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "a11y": {
+        "noAriaHiddenOnFocusable": "warn",
+        "noLabelWithoutControl": "warn",
+        "noStaticElementInteractions": "warn",
+        "noSvgWithoutTitle": "warn",
+        "useAnchorContent": "warn",
+        "useButtonType": "warn",
+        "useValidAnchor": "warn"
+      },
+      "complexity": {
+        "noArguments": "warn",
+        "useOptionalChain": "warn"
+      },
       "correctness": {
-        "noUnusedImports": "warn"
+        "noUnusedImports": "warn",
+        "noUnusedVariables": "warn",
+        "useExhaustiveDependencies": "warn",
+        "useHookAtTopLevel": "warn"
+      },
+      "security": {
+        "noDangerouslySetInnerHtml": "warn"
       },
       "style": {
-        "noNonNullAssertion": "warn"
+        "noNonNullAssertion": "warn",
+        "useTemplate": "warn"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "warn",
+        "noExplicitAny": "warn",
+        "useIterableCallbackReturn": "warn"
       }
     }
   },
