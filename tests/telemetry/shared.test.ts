@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ContactSubmitPayload,
   createPublicId,
   guessFileExtension,
   parseDataUrl,
@@ -37,5 +38,16 @@ describe('telemetry shared helpers', () => {
     expect(guessFileExtension('audio/webm;codecs=opus')).toBe('webm');
     expect(guessFileExtension('audio/ogg')).toBe('ogg');
     expect(guessFileExtension('audio/mp4')).toBe('m4a');
+  });
+
+  it('ContactSubmitPayload includes phone field', () => {
+    const payload: ContactSubmitPayload = {
+      context: {},
+      name: 'Test User',
+      email: 'test@example.com',
+      phone: '+31612345678',
+      message: 'Hello',
+    };
+    expect(payload.phone).toBe('+31612345678');
   });
 });
