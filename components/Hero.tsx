@@ -22,15 +22,19 @@ const Hero: React.FC = () => {
   const groq = useGroqFallback();
   const isGroqActive = gemini.fallbackMode;
 
-  const connected      = isGroqActive ? groq.connected      : gemini.connected;
-  const isConnecting   = isGroqActive ? groq.isConnecting   : gemini.isConnecting;
-  const isAgentSpeaking = isGroqActive ? groq.isAgentSpeaking : gemini.isAgentSpeaking;
-  const isUserSpeaking  = isGroqActive ? groq.isUserSpeaking  : gemini.isUserSpeaking;
-  const error           = isGroqActive ? groq.error           : gemini.error;
-  const transcript      = isGroqActive ? groq.transcript      : gemini.transcript;
+  const connected = isGroqActive ? groq.connected : gemini.connected;
+  const isConnecting = isGroqActive ? groq.isConnecting : gemini.isConnecting;
+  const isAgentSpeaking = isGroqActive
+    ? groq.isAgentSpeaking
+    : gemini.isAgentSpeaking;
+  const isUserSpeaking = isGroqActive
+    ? groq.isUserSpeaking
+    : gemini.isUserSpeaking;
+  const error = isGroqActive ? groq.error : gemini.error;
+  const transcript = isGroqActive ? groq.transcript : gemini.transcript;
 
   const [consentAccepted, setConsentAccepted] = useState(false);
-  const [consentError, setConsentError]       = useState<string | null>(null);
+  const [consentError, setConsentError] = useState<string | null>(null);
 
   useEffect(() => {
     if (gemini.fallbackMode && !groq.connected && !groq.isConnecting) {
@@ -52,19 +56,19 @@ const Hero: React.FC = () => {
   const isLiveSession = connected || isConnecting || gemini.isReconnecting;
 
   // Phone title / subtitle
-  let phoneTitle    = t.hero.live.idleTitle;
+  let phoneTitle = t.hero.live.idleTitle;
   let phoneSubtitle = t.hero.live.idleSubtitle;
   if (error) {
-    phoneTitle    = t.hero.live.errorTitle;
+    phoneTitle = t.hero.live.errorTitle;
     phoneSubtitle = error;
   } else if (isConnecting) {
-    phoneTitle    = t.hero.live.connectingTitle;
+    phoneTitle = t.hero.live.connectingTitle;
     phoneSubtitle = t.hero.live.connectingSubtitle;
   } else if (connected) {
     phoneTitle = t.hero.live.connectedTitle;
-    if (isAgentSpeaking)     phoneSubtitle = t.hero.live.speaking;
+    if (isAgentSpeaking) phoneSubtitle = t.hero.live.speaking;
     else if (isUserSpeaking) phoneSubtitle = t.hero.live.listening;
-    else                     phoneSubtitle = t.hero.live.connectedSubtitle;
+    else phoneSubtitle = t.hero.live.connectedSubtitle;
   }
 
   const centerBtnBg = connected
@@ -93,11 +97,11 @@ const Hero: React.FC = () => {
   const glowOpacity = error
     ? 0.65
     : isAgentSpeaking
-      ? 0.70
+      ? 0.7
       : isUserSpeaking
         ? 0.55
         : isLiveSession
-          ? 0.40
+          ? 0.4
           : 0;
 
   const phoneBoxShadow = [
@@ -124,7 +128,9 @@ const Hero: React.FC = () => {
     }
     if (!consentAccepted) {
       setConsentError(t.hero.live.consentRequired);
-      trackEventFireAndForget('voice_demo_consent_missing', { location: 'hero_phone' });
+      trackEventFireAndForget('voice_demo_consent_missing', {
+        location: 'hero_phone',
+      });
       return;
     }
     setConsentError(null);
@@ -147,12 +153,13 @@ const Hero: React.FC = () => {
       />
       <div
         className="absolute bottom-0 inset-x-0 h-40 pointer-events-none"
-        style={{ background: 'linear-gradient(to top, var(--bg-main), transparent)' }}
+        style={{
+          background: 'linear-gradient(to top, var(--bg-main), transparent)',
+        }}
       />
 
       <div className="page-container relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-12 items-center">
-
           {/* ── Left: copy ── */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -178,12 +185,17 @@ const Hero: React.FC = () => {
 
             <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold font-display tracking-[-0.03em] leading-[1.04] mb-6 text-text-primary">
               {t.hero.headline}{' '}
-              <span className="text-gradient-danger">{t.hero.headlineHighlight}</span>.
+              <span className="text-gradient-danger">
+                {t.hero.headlineHighlight}
+              </span>
+              .
             </h1>
 
             <p className="text-base lg:text-lg text-text-secondary mb-10 max-w-[480px] mx-auto lg:mx-0 leading-[1.7]">
               {t.hero.subheadline}
-              <span className="text-text-primary font-medium block mt-2">{t.hero.payoff}</span>
+              <span className="text-text-primary font-medium block mt-2">
+                {t.hero.payoff}
+              </span>
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
@@ -203,7 +215,11 @@ const Hero: React.FC = () => {
               >
                 {t.hero.bookDemo} <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
-              <Button variant="secondary" size="lg" className="w-full sm:w-auto group">
+              <Button
+                variant="secondary"
+                size="lg"
+                className="w-full sm:w-auto group"
+              >
                 <Play className="w-5 h-5 fill-current" />
                 {t.hero.listenSample}
               </Button>
@@ -222,7 +238,9 @@ const Hero: React.FC = () => {
                     className="w-9 h-9 rounded-full border-2 shrink-0 flex items-center justify-center"
                     style={{ borderColor: 'var(--bg-main)', background: bg }}
                   >
-                    <span className="text-[10px] font-bold text-white leading-none">{initials}</span>
+                    <span className="text-[10px] font-bold text-white leading-none">
+                      {initials}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -239,7 +257,9 @@ const Hero: React.FC = () => {
                     </svg>
                   ))}
                 </div>
-                <p className="text-xs font-medium text-text-secondary">{t.hero.trustedBy}</p>
+                <p className="text-xs font-medium text-text-secondary">
+                  {t.hero.trustedBy}
+                </p>
               </div>
             </div>
           </motion.div>
@@ -248,11 +268,14 @@ const Hero: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.2, delay: 0.18, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{
+              duration: 1.2,
+              delay: 0.18,
+              ease: [0.25, 0.46, 0.45, 0.94],
+            }}
             className="relative flex items-center justify-center"
             style={{ height: 'clamp(420px, 45vw, 600px)' }}
           >
-
             {/* ─── Floating card — Appointment ─── */}
             <motion.div
               animate={{ y: [0, -12, 0] }}
@@ -261,8 +284,19 @@ const Hero: React.FC = () => {
               style={{ left: '-5%', top: '15%' }}
             >
               <div className="hero-float-card hero-float-card--enhanced p-4 flex items-center gap-3 w-56">
-                <div className="hero-float-icon hero-float-icon--blue shrink-0" aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <div
+                  className="hero-float-icon hero-float-icon--blue shrink-0"
+                  aria-hidden="true"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    aria-hidden="true"
+                  >
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                     <line x1="16" y1="2" x2="16" y2="6" />
                     <line x1="8" y1="2" x2="8" y2="6" />
@@ -270,8 +304,12 @@ const Hero: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-text-secondary leading-tight">{t.hero.widget.booked}</p>
-                  <p className="text-sm font-bold text-text-primary leading-tight mt-0.5">{t.hero.widget.time}</p>
+                  <p className="text-[10px] font-medium text-text-secondary leading-tight">
+                    {t.hero.widget.booked}
+                  </p>
+                  <p className="text-sm font-bold text-text-primary leading-tight mt-0.5">
+                    {t.hero.widget.time}
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -279,7 +317,12 @@ const Hero: React.FC = () => {
             {/* ─── Floating card — Revenue saved ─── */}
             <motion.div
               animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+              transition={{
+                duration: 5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: 1,
+              }}
               className="absolute z-20"
               style={{ right: '-8%', top: '55%' }}
             >
@@ -288,8 +331,12 @@ const Hero: React.FC = () => {
                   {t.currency}
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-text-secondary leading-tight">{t.hero.widget.saved}</p>
-                  <p className="text-base font-bold text-text-primary leading-tight mt-0.5">{t.currency}12,450</p>
+                  <p className="text-[10px] font-medium text-text-secondary leading-tight">
+                    {t.hero.widget.saved}
+                  </p>
+                  <p className="text-base font-bold text-text-primary leading-tight mt-0.5">
+                    {t.currency}12,450
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -297,13 +344,20 @@ const Hero: React.FC = () => {
             {/* ─── Floating card — Answer rate ─── */}
             <motion.div
               animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+              transition={{
+                duration: 3.5,
+                repeat: Infinity,
+                ease: 'easeInOut',
+                delay: 0.5,
+              }}
               className="absolute z-20"
               style={{ right: '-2%', top: '18%' }}
             >
               <div className="hero-float-card hero-float-card--enhanced px-4 py-3 flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-green-400 shrink-0 animate-pulse" />
-                <p className="text-xs font-semibold text-text-primary whitespace-nowrap">100% Answer Rate</p>
+                <p className="text-xs font-semibold text-text-primary whitespace-nowrap">
+                  100% Answer Rate
+                </p>
               </div>
             </motion.div>
 
@@ -319,9 +373,10 @@ const Hero: React.FC = () => {
                 style={{
                   inset: '-10px',
                   borderRadius: '2.8rem',
-                  background: glowOpacity > 0
-                    ? `radial-gradient(ellipse 80% 85% at 50% 50%, rgba(${glowColor},${glowOpacity * 0.5}) 0%, rgba(${glowColor},${glowOpacity * 0.2}) 50%, transparent 78%)`
-                    : 'transparent',
+                  background:
+                    glowOpacity > 0
+                      ? `radial-gradient(ellipse 80% 85% at 50% 50%, rgba(${glowColor},${glowOpacity * 0.5}) 0%, rgba(${glowColor},${glowOpacity * 0.2}) 50%, transparent 78%)`
+                      : 'transparent',
                   filter: 'blur(22px)',
                   zIndex: 0,
                 }}
@@ -366,7 +421,6 @@ const Hero: React.FC = () => {
 
                   {/* ── Central area: orb OR live transcript (crossfade) ── */}
                   <div className="relative flex-1 w-full flex flex-col items-center justify-center">
-
                     {/* PRE-CALL: orb + title */}
                     <div
                       className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-700 ${connected ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
@@ -386,7 +440,9 @@ const Hero: React.FC = () => {
                         {phoneTitle}
                       </h2>
                       <p className="text-white/45 text-[11px] text-center mt-1 px-4 leading-relaxed">
-                        {!error ? phoneSubtitle : `${phoneSubtitle} ${t.hero.live.retry}`}
+                        {!error
+                          ? phoneSubtitle
+                          : `${phoneSubtitle} ${t.hero.live.retry}`}
                       </p>
                     </div>
 
@@ -428,11 +484,16 @@ const Hero: React.FC = () => {
                           latestTranscriptEntries.map((entry) => {
                             const isAgent = entry.speaker === 'ai';
                             return (
-                              <div key={entry.id} className={`flex flex-col ${isAgent ? 'items-start' : 'items-end'}`}>
+                              <div
+                                key={entry.id}
+                                className={`flex flex-col ${isAgent ? 'items-start' : 'items-end'}`}
+                              >
                                 <span
                                   className={`text-[9px] font-bold uppercase tracking-[0.18em] mb-1 ${isAgent ? 'text-green-400' : 'text-sky-400'}`}
                                 >
-                                  {isAgent ? t.hero.widget.agent : t.hero.live.userLabel}
+                                  {isAgent
+                                    ? t.hero.widget.agent
+                                    : t.hero.live.userLabel}
                                 </span>
                                 <div
                                   className={`max-w-[92%] rounded-2xl px-3 py-2 text-[11px] leading-[1.55] text-white/80 border ${isAgent ? 'bg-[rgba(74,222,128,0.08)] border-[rgba(74,222,128,0.15)]' : 'bg-[rgba(56,189,248,0.08)] border-[rgba(56,189,248,0.15)]'}`}
@@ -444,7 +505,9 @@ const Hero: React.FC = () => {
                           })
                         ) : (
                           <div className="text-center">
-                            <p className="text-[11px] text-white/38 leading-relaxed">{phoneSubtitle}</p>
+                            <p className="text-[11px] text-white/38 leading-relaxed">
+                              {phoneSubtitle}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -468,9 +531,13 @@ const Hero: React.FC = () => {
                         />
                         <span>{t.hero.live.consentLabel}</span>
                       </label>
-                      <p className="mt-2 text-[10px] text-white/50">{t.hero.live.consentHelp}</p>
+                      <p className="mt-2 text-[10px] text-white/50">
+                        {t.hero.live.consentHelp}
+                      </p>
                       {consentError ? (
-                        <p className="mt-2 text-[10px] text-red-300">{consentError}</p>
+                        <p className="mt-2 text-[10px] text-red-300">
+                          {consentError}
+                        </p>
                       ) : null}
                     </div>
                   </div>
@@ -491,14 +558,21 @@ const Hero: React.FC = () => {
                       type="button"
                       onClick={handlePhoneButtonClick}
                       disabled={isConnecting}
-                      aria-label={connected ? t.hero.live.endButtonLabel : t.hero.live.startButtonLabel}
+                      aria-label={
+                        connected
+                          ? t.hero.live.endButtonLabel
+                          : t.hero.live.startButtonLabel
+                      }
                       aria-busy={isConnecting ? 'true' : 'false'}
                       aria-pressed={connected ? 'true' : 'false'}
                       className="w-16 h-16 rounded-full flex items-center justify-center text-white transition-transform duration-200 hover:scale-105 active:scale-95 disabled:cursor-wait disabled:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#05060b]"
                       style={{
                         background: centerBtnBg,
                         boxShadow: centerBtnShadow,
-                        animation: connected || isConnecting ? 'none' : 'phoneBtnPulse 2s ease-in-out infinite',
+                        animation:
+                          connected || isConnecting
+                            ? 'none'
+                            : 'phoneBtnPulse 2s ease-in-out infinite',
                       }}
                     >
                       {isConnecting ? (
@@ -520,11 +594,14 @@ const Hero: React.FC = () => {
                       <MicOff size={18} />
                     </div>
                   </div>
-                </div>{/* end screen interior */}
-              </div>{/* end phone body */}
-            </motion.div>{/* end phone wrapper */}
-
-          </motion.div>{/* end right column */}
+                </div>
+                {/* end screen interior */}
+              </div>
+              {/* end phone body */}
+            </motion.div>
+            {/* end phone wrapper */}
+          </motion.div>
+          {/* end right column */}
         </div>
       </div>
 

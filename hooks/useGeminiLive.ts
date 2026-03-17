@@ -655,7 +655,9 @@ export function useGeminiLive() {
 
             // Auto-reconnect unless user pressed end call
             if (!intentionalDisconnectRef.current) {
-              console.warn('[Reyna] Connection closed unexpectedly — reconnecting');
+              console.warn(
+                '[Reyna] Connection closed unexpectedly — reconnecting',
+              );
               reconnect();
             }
           },

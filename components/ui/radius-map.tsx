@@ -14,12 +14,14 @@ export function RadiusMap() {
     // Dynamically import leaflet to avoid SSR issues
     import('leaflet').then((L) => {
       // Fix default icon paths for bundlers
-      // @ts-ignore
+      // @ts-expect-error
       delete L.Icon.Default.prototype._getIconUrl;
       L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconRetinaUrl:
+          'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        shadowUrl:
+          'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       });
 
       const map = L.map(mapRef.current!, {
@@ -31,9 +33,12 @@ export function RadiusMap() {
       });
 
       // Dark/light CartoDB tile layer
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-      }).addTo(map);
+      L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+        {
+          maxZoom: 19,
+        },
+      ).addTo(map);
 
       // Radius circle — 15km around Zwijndrecht
       L.circle(CENTER, {
@@ -59,7 +64,7 @@ export function RadiusMap() {
 
     return () => {
       if (mapInstanceRef.current) {
-        // @ts-ignore
+        // @ts-expect-error
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }

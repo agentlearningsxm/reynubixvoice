@@ -289,7 +289,11 @@ const Navbar: React.FC = () => {
                 <button
                   onClick={toggleMode}
                   className="control-btn"
-                  aria-label={mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                  aria-label={
+                    mode === 'dark'
+                      ? 'Switch to light mode'
+                      : 'Switch to dark mode'
+                  }
                 >
                   {mode === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
                 </button>

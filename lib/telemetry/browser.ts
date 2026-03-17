@@ -104,7 +104,9 @@ export async function trackEvent(
     return;
   }
 
-  const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const isDev =
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1';
   if (isDev) return;
 
   const payload: EventIngestPayload = {

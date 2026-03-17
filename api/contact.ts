@@ -98,7 +98,8 @@ async function _handler(req: VercelRequest, res: VercelResponse) {
       .eq('lead_id', leadId)
       .eq('session_id', sessionDbId);
   } catch (error) {
-    const errMsg = error instanceof Error ? error.message : JSON.stringify(error);
+    const errMsg =
+      error instanceof Error ? error.message : JSON.stringify(error);
     console.error('[contact] email send failed (non-fatal):', errMsg);
     await supabase
       .from('contact_submissions')

@@ -1,7 +1,10 @@
 import { createHash } from 'node:crypto';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { VoiceAudioUploadPayload } from '../../lib/telemetry/shared.js';
-import { guessFileExtension, parseDataUrl } from '../../lib/telemetry/shared.js';
+import {
+  guessFileExtension,
+  parseDataUrl,
+} from '../../lib/telemetry/shared.js';
 import { readJsonBody, rejectMethod } from '../_lib/http.js';
 import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js';
 import {

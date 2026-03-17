@@ -235,8 +235,12 @@ const Footer: React.FC = () => {
                       fontWeight="bold"
                       fontSize="52"
                     >
-                      <tspan className="fill-text-secondary group-hover:fill-[#1a237e] transition-colors">s</tspan>
-                      <tspan className="fill-text-secondary group-hover:fill-[#d94b2e] transition-colors">k</tspan>
+                      <tspan className="fill-text-secondary group-hover:fill-[#1a237e] transition-colors">
+                        s
+                      </tspan>
+                      <tspan className="fill-text-secondary group-hover:fill-[#d94b2e] transition-colors">
+                        k
+                      </tspan>
                     </text>
                   </svg>
                 </a>

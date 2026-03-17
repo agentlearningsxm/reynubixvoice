@@ -49,7 +49,7 @@ const Calculator: React.FC = () => {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         // ease-out cubic
-        const eased = 1 - Math.pow(1 - progress, 3);
+        const eased = 1 - (1 - progress) ** 3;
         const current = Math.floor(from + (to - from) * eased);
         setter(current);
         if (progress < 1) {
@@ -91,13 +91,20 @@ const Calculator: React.FC = () => {
       const timeouts = presentationTimeouts.current;
 
       // Stage 0: Scroll into view
-      document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+      document
+        .getElementById('calculator')
+        ?.scrollIntoView({ behavior: 'smooth' });
 
       // Stage 1: Revenue slider (1500ms delay)
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(1);
-          animateValue(revenuePerCustomer, targetRevenue, 800, setRevenuePerCustomer);
+          animateValue(
+            revenuePerCustomer,
+            targetRevenue,
+            800,
+            setRevenuePerCustomer,
+          );
         }, 1500),
       );
 
@@ -113,7 +120,9 @@ const Calculator: React.FC = () => {
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(3);
-          const targetMonthly = Math.floor(targetCalls * 30 * 0.25 * targetRevenue);
+          const targetMonthly = Math.floor(
+            targetCalls * 30 * 0.25 * targetRevenue,
+          );
           animateValue(0, targetMonthly, 1500, setDisplayedMonthlyLoss, () => {
             // Trigger pulse animation on monthly loss card
             controls.start({
@@ -140,7 +149,13 @@ const Calculator: React.FC = () => {
         }, 8000),
       );
     },
-    [revenuePerCustomer, missedCalls, controls, animateValue, cancelPresentation],
+    [
+      revenuePerCustomer,
+      missedCalls,
+      controls,
+      animateValue,
+      cancelPresentation,
+    ],
   );
 
   // Cleanup on unmount
@@ -322,7 +337,10 @@ const Calculator: React.FC = () => {
           </p>
           <h3 className="text-[3.5rem] lg:text-[4rem] font-bold font-display tracking-[-0.04em] text-text-primary mb-2 relative z-10 leading-none">
             {t.currency}
-            {(presentationMode ? displayedMonthlyLoss : monthlyLoss).toLocaleString()}
+            {(presentationMode
+              ? displayedMonthlyLoss
+              : monthlyLoss
+            ).toLocaleString()}
           </h3>
           <p className="text-xs text-text-secondary relative z-10">
             {t.calculator.disclaimer}

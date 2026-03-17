@@ -18,12 +18,12 @@ import {
 } from 'lucide-react';
 import type React from 'react';
 import { useEffect, useState } from 'react';
-import { RadiusMap } from './radius-map';
 import {
   persistLeadId,
   postJsonWithContext,
   trackEventFireAndForget,
 } from '../../lib/telemetry/browser';
+import { RadiusMap } from './radius-map';
 
 const contactMethods = [
   {
@@ -157,7 +157,9 @@ export function PremiumContact() {
       setIsSubmitted(true);
     } catch {
       trackEventFireAndForget('contact_form_submit_error');
-      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const isLocal =
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1';
       setErrors({
         message: isLocal
           ? "Contact form requires 'npm run dev:api' for local testing. In production, this works automatically."
