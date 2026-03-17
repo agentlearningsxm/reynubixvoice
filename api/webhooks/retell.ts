@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { rejectMethod } from '../_lib/http';
+import { rejectMethod } from '../_lib/http.js';
 
 /**
  * Retell AI Webhook Endpoint

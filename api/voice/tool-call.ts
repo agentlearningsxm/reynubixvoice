@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { VoiceToolCallPayload } from '../../lib/telemetry/shared';
-import { readJsonBody, rejectMethod } from '../_lib/http';
-import { recordEvent, recordVoiceToolCall } from '../_lib/telemetry';
+import type { VoiceToolCallPayload } from '../../lib/telemetry/shared.js';
+import { readJsonBody, rejectMethod } from '../_lib/http.js';
+import { recordEvent, recordVoiceToolCall } from '../_lib/telemetry.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (rejectMethod(req, res)) {

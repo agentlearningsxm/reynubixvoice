@@ -4,14 +4,14 @@ import type {
   TrackingContextInput,
   TranscriptTurnPayload,
   VoiceConsentPayload,
-} from '../../lib/telemetry/shared';
+} from '../../lib/telemetry/shared.js';
 import {
   normalizeEmail,
   sanitizeEventName,
   sanitizeText,
-} from '../../lib/telemetry/shared';
-import { getClientIp, hashIp } from './http';
-import { getSupabaseAdmin } from './supabaseAdmin';
+} from '../../lib/telemetry/shared.js';
+import { getClientIp, hashIp } from './http.js';
+import { getSupabaseAdmin } from './supabaseAdmin.js';
 
 type JsonObject = Record<string, unknown>;
 

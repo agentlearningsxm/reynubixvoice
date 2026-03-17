@@ -2,9 +2,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type {
   VoiceSessionStartPayload,
   VoiceSessionStartResponse,
-} from '../../../lib/telemetry/shared';
-import { readJsonBody, rejectMethod } from '../../_lib/http';
-import { createVoiceSession, recordEvent } from '../../_lib/telemetry';
+} from '../../../lib/telemetry/shared.js';
+import { readJsonBody, rejectMethod } from '../../_lib/http.js';
+import { createVoiceSession, recordEvent } from '../../_lib/telemetry.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (rejectMethod(req, res)) {

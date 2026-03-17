@@ -1,11 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { VoiceTranscriptPayload } from '../../lib/telemetry/shared';
-import { readJsonBody, rejectMethod } from '../_lib/http';
+import type { VoiceTranscriptPayload } from '../../lib/telemetry/shared.js';
+import { readJsonBody, rejectMethod } from '../_lib/http.js';
 import {
   recordEvent,
   updateVoiceSession,
   upsertTranscriptTurns,
-} from '../_lib/telemetry';
+} from '../_lib/telemetry.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (rejectMethod(req, res)) {

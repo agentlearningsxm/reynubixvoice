@@ -2,10 +2,10 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type {
   VoiceTokenPayload,
   VoiceTokenResponse,
-} from '../../lib/telemetry/shared';
-import { getGeminiAdminClient } from '../_lib/gemini';
-import { readJsonBody, rejectMethod } from '../_lib/http';
-import { recordEvent, updateVoiceSession } from '../_lib/telemetry';
+} from '../../lib/telemetry/shared.js';
+import { getGeminiAdminClient } from '../_lib/gemini.js';
+import { readJsonBody, rejectMethod } from '../_lib/http.js';
+import { recordEvent, updateVoiceSession } from '../_lib/telemetry.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (rejectMethod(req, res)) {

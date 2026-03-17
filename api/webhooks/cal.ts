@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { normalizeEmail } from '../../lib/telemetry/shared';
-import { readJsonBody, rejectMethod } from '../_lib/http';
-import { getSupabaseAdmin } from '../_lib/supabaseAdmin';
+import { normalizeEmail } from '../../lib/telemetry/shared.js';
+import { readJsonBody, rejectMethod } from '../_lib/http.js';
+import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js';
 
 function resolveBookingMetadata(payload: Record<string, any>) {
   const bookingId =

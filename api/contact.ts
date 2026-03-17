@@ -1,16 +1,26 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
-import type { ContactSubmitPayload } from '../lib/telemetry/shared';
-import { normalizeEmail } from '../lib/telemetry/shared';
-import { readJsonBody, rejectMethod } from './_lib/http';
+import type { ContactSubmitPayload } from '../lib/telemetry/shared.js';
+import { normalizeEmail } from '../lib/telemetry/shared.js';
+import { readJsonBody, rejectMethod } from './_lib/http.js';
 import {
   attachLeadToSession,
   ensureTrackingEntities,
   recordEvent,
   upsertLead,
-} from './_lib/telemetry';
+} from './_lib/telemetry.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  try {
+    return await _handler(req, res);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : JSON.stringify(err);
+    console.error('[contact] unhandled error:', msg, err);
+    return res.status(500).json({ error: msg });
+  }
+}
+
+async function _handler(req: VercelRequest, res: VercelResponse) {
   if (rejectMethod(req, res)) {
     return;
   }
@@ -88,13 +98,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .eq('lead_id', leadId)
       .eq('session_id', sessionDbId);
   } catch (error) {
+    const errMsg = error instanceof Error ? error.message : JSON.stringify(error);
+    console.error('[contact] email send failed (non-fatal):', errMsg);
     await supabase
       .from('contact_submissions')
-      .update({ delivery_status: 'failed', status: 'error' })
+      .update({ delivery_status: 'failed' })
       .eq('lead_id', leadId)
       .eq('session_id', sessionDbId);
-
-    throw error;
+    // Email failure must never block form submission — lead is already saved
   }
 
   await recordEvent({
