@@ -64,7 +64,6 @@ export function RadiusMap() {
 
     return () => {
       if (mapInstanceRef.current) {
-        // @ts-expect-error
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
