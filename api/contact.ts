@@ -16,9 +16,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const payload = readJsonBody<ContactSubmitPayload>(req);
-  const { context, name, email, company, message } = payload;
+  const { context, name, email, phone, company, message } = payload;
 
-  if (!name || !email || !message) {
+  if (!name || !email || !phone || !message) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -108,6 +108,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       messageLength: message.trim().length,
     },
   });
+
+  // Fire n8n webhook — never block the form response
+  if (process.env.N8N_WEBHOOK_URL) {
+    try {
+      await fetch(process.env.N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: safeEmail,
+          phone: phone.trim(),
+          company: company?.trim() || null,
+          message: message.trim(),
+          leadId,
+          source: 'contact_form',
+        }),
+      });
+    } catch (err) {
+      console.error('[n8n webhook] failed to notify:', err);
+      // never rethrow — form submission must succeed regardless
+    }
+  }
 
   return res.status(200).json({ success: true, leadId });
 }
