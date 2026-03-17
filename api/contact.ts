@@ -27,6 +27,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const leadId = await upsertLead({
     email: safeEmail,
     name,
+    phone,
     company,
     source: 'contact_form',
     metadata: {
@@ -48,6 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       delivery_status: 'pending',
       metadata: {
         context,
+        phone: phone.trim(),
       },
     });
 
@@ -71,9 +73,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       to: 'voice@reynubix.com',
       replyTo: safeEmail,
       subject: `New Inquiry from ${name}${company ? ` (${company})` : ''}`,
-      text: `Name: ${name}\nEmail: ${safeEmail}\nCompany: ${company || 'N/A'}\n\n${message}`,
+      text: `Name: ${name}\nEmail: ${safeEmail}\nPhone: ${phone}\nCompany: ${company || 'N/A'}\n\n${message}`,
       html: `<p><strong>Name:</strong> ${name}</p>
              <p><strong>Email:</strong> ${safeEmail}</p>
+             <p><strong>Phone:</strong> ${phone}</p>
              <p><strong>Company:</strong> ${company || 'N/A'}</p>
              <hr>
              <p>${message.replace(/\n/g, '<br>')}</p>`,
