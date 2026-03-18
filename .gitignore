@@ -28,6 +28,9 @@ dist-ssr
 
 # Environment & secrets
 .env
+.env.vercel-pull
+credentials.json
+token.json
 
 # Dev logs
 dev-server*.log
