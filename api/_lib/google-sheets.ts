@@ -12,7 +12,7 @@ let cachedAccessToken: string | null = null;
 let tokenExpiresAt = 0;
 
 function requireEnv(name: string): string {
-  const value = process.env[name];
+  const value = process.env[name]?.trim();
   if (!value) {
     throw new Error(
       `Missing env var ${name}. Run: node scripts/setup-google-auth.mjs`,
