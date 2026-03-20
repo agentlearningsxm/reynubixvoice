@@ -40,8 +40,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     return res.status(200).json(responseBody);
-  } catch (error) {
-    console.error('Voice session start failed', error);
-    return res.status(500).json({ error: 'Failed to create voice session' });
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    const errStack = error instanceof Error ? error.stack : undefined;
+    console.error('Voice session start failed', errMsg, errStack);
+    return res.status(500).json({
+      error: 'Failed to create voice session',
+      detail: errMsg,
+      envCheck: {
+        hasSupabaseUrl: !!process.env.SUPABASE_URL,
+        hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+        supabaseUrlLength: (process.env.SUPABASE_URL || '').length,
+        serviceKeyLength: (process.env.SUPABASE_SERVICE_ROLE_KEY || '').length,
+      },
+    });
   }
 }
