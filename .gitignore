@@ -28,6 +28,8 @@ dist-ssr
 
 # Environment & secrets
 .env
+.env.local
+.env.docker
 .env.vercel-pull
 credentials.json
 token.json
