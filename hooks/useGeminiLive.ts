@@ -7,6 +7,10 @@ import {
 } from '@google/genai';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SILENCE_MODES, SYSTEM_INSTRUCTION } from '../components/AgentPrompt';
+import {
+  startVoiceSession,
+  endVoiceSession,
+} from '../lib/telemetry/voice';
 
 // ─── Tool Declarations ──────────────────────────────────────────────
 const TOOLS = [
@@ -68,7 +72,16 @@ export function useGeminiLive() {
   const [isAgentSpeaking, setIsAgentSpeaking] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
+  const [transcript, _setTranscript] = useState<TranscriptEntry[]>([]);
+
+  // Wrap setTranscript to keep ref in sync (avoids stale closure in disconnect)
+  const setTranscript: typeof _setTranscript = useCallback((action) => {
+    _setTranscript((prev) => {
+      const next = typeof action === 'function' ? action(prev) : action;
+      transcriptRef.current = next;
+      return next;
+    });
+  }, []);
 
   // Audio Refs
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -94,6 +107,11 @@ export function useGeminiLive() {
   const reconnectAttemptsRef = useRef(0);
   const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Telemetry Refs
+  const voiceSessionIdRef = useRef<string | null>(null);
+  const sessionStartTimeRef = useRef<number>(0);
+  const transcriptRef = useRef<TranscriptEntry[]>([]);
 
   // ─── AudioContext Resume on Tab Switch ────────────────────────────
   useEffect(() => {
@@ -276,6 +294,33 @@ export function useGeminiLive() {
       reconnectTimeoutRef.current = null;
     }
 
+    // Fire endVoiceSession before clearing state — triggers sheet sync
+    // Skip mock sessions (backend won't find them in Supabase)
+    if (
+      voiceSessionIdRef.current &&
+      !voiceSessionIdRef.current.startsWith('vs_mock_')
+    ) {
+      const transcriptText = transcriptRef.current
+        .map((t) => `${t.speaker}: ${t.text}`)
+        .join('\n')
+        .slice(0, 50000); // keepalive has 64KB limit
+      const durationMs = sessionStartTimeRef.current
+        ? Date.now() - sessionStartTimeRef.current
+        : undefined;
+
+      endVoiceSession({
+        voiceSessionId: voiceSessionIdRef.current,
+        status: 'completed',
+        durationMs,
+        transcriptText: transcriptText || undefined,
+      }).catch((err) =>
+        console.warn('[Reyna] endVoiceSession failed:', err),
+      );
+
+      voiceSessionIdRef.current = null;
+      sessionStartTimeRef.current = 0;
+    }
+
     closeSession();
     cleanupAudio();
 
@@ -414,6 +459,20 @@ export function useGeminiLive() {
               sessionPromise.then((session) => {
                 resolvedSessionRef.current = session;
               });
+
+              // Start telemetry session → gets voiceSessionId for sheet sync
+              sessionStartTimeRef.current = Date.now();
+              startVoiceSession({
+                accepted: true,
+                acceptedAt: new Date().toISOString(),
+                version: '1.0',
+              })
+                .then(({ voiceSessionId }) => {
+                  voiceSessionIdRef.current = voiceSessionId;
+                })
+                .catch((err) =>
+                  console.warn('[Reyna] Telemetry session start failed:', err),
+                );
 
               // Short hum to wake the model
               const humRate = 16000;

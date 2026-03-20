@@ -1,5 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
 import { SILENCE_MODES, SYSTEM_INSTRUCTION } from '../components/AgentPrompt';
+import {
+  startVoiceSession,
+  endVoiceSession,
+} from '../lib/telemetry/voice';
 
 // Match the TranscriptEntry shape from useGeminiLive
 export interface TranscriptEntry {
@@ -29,12 +33,21 @@ export function useGroqFallback() {
   const isAgentSpeakingRef = useRef(false); // ref for use inside callbacks
   const isConnectedRef = useRef(false); // ref for use inside recognition.onend
 
+  // Telemetry
+  const voiceSessionIdRef = useRef<string | null>(null);
+  const sessionStartTimeRef = useRef<number>(0);
+  const transcriptRef = useRef<TranscriptEntry[]>([]);
+
   const appendTranscript = useCallback(
     (speaker: 'ai' | 'human', text: string) => {
-      setTranscript((prev) => [
-        ...prev,
-        { speaker, text, id: Date.now() + Math.random(), isFinal: true },
-      ]);
+      setTranscript((prev) => {
+        const next = [
+          ...prev,
+          { speaker, text, id: Date.now() + Math.random(), isFinal: true },
+        ];
+        transcriptRef.current = next;
+        return next;
+      });
     },
     [],
   );
@@ -211,6 +224,20 @@ export function useGroqFallback() {
       isConnectedRef.current = true;
       setConnected(true);
       setIsConnecting(false);
+
+      // Start telemetry session
+      sessionStartTimeRef.current = Date.now();
+      startVoiceSession({
+        accepted: true,
+        acceptedAt: new Date().toISOString(),
+        version: '1.0',
+      })
+        .then(({ voiceSessionId }) => {
+          voiceSessionIdRef.current = voiceSessionId;
+        })
+        .catch((err) =>
+          console.warn('[Reyna Groq] Telemetry session start failed:', err),
+        );
     };
 
     try {
@@ -235,6 +262,33 @@ export function useGroqFallback() {
   }, [isConnecting, sendToGroq, speak, appendTranscript]);
 
   const disconnect = useCallback(() => {
+    // Fire endVoiceSession before clearing state — triggers sheet sync
+    // Skip mock sessions (backend won't find them in Supabase)
+    if (
+      voiceSessionIdRef.current &&
+      !voiceSessionIdRef.current.startsWith('vs_mock_')
+    ) {
+      const transcriptText = transcriptRef.current
+        .map((t) => `${t.speaker}: ${t.text}`)
+        .join('\n')
+        .slice(0, 50000); // keepalive has 64KB limit
+      const durationMs = sessionStartTimeRef.current
+        ? Date.now() - sessionStartTimeRef.current
+        : undefined;
+
+      endVoiceSession({
+        voiceSessionId: voiceSessionIdRef.current,
+        status: 'completed',
+        durationMs,
+        transcriptText: transcriptText || undefined,
+      }).catch((err) =>
+        console.warn('[Reyna Groq] endVoiceSession failed:', err),
+      );
+
+      voiceSessionIdRef.current = null;
+      sessionStartTimeRef.current = 0;
+    }
+
     window.speechSynthesis.cancel();
     isConnectedRef.current = false;
     isAgentSpeakingRef.current = false;
