@@ -317,7 +317,7 @@ export async function createVoiceSession(input: {
       public_id: publicId,
       visitor_id: visitorDbId,
       session_id: sessionDbId,
-      lead_id: input.context.leadId ?? null,
+      lead_id: input.context?.leadId ?? null,
       provider: 'gemini',
       model: 'gemini-live',
       status: 'created',
