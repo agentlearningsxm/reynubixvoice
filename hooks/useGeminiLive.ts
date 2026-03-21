@@ -10,12 +10,24 @@ import { SILENCE_MODES, SYSTEM_INSTRUCTION } from '../components/AgentPrompt';
 import {
   startVoiceSession,
   endVoiceSession,
+  uploadVoiceAudio,
+  recordVoiceToolCall,
 } from '../lib/telemetry/voice';
 
 // ─── Tool Declarations ──────────────────────────────────────────────
 const TOOLS = [
   {
     functionDeclarations: [
+      {
+        name: 'show_calculator',
+        description:
+          'Scroll the Revenue Loss Calculator into view. Call this when you START asking about revenue or missed calls, BEFORE you have both numbers. Does not animate anything.',
+        parameters: {
+          type: Type.OBJECT,
+          properties: {},
+          required: [],
+        },
+      },
       {
         name: 'update_calculator',
         description:
@@ -113,6 +125,11 @@ export function useGeminiLive() {
   const sessionStartTimeRef = useRef<number>(0);
   const transcriptRef = useRef<TranscriptEntry[]>([]);
 
+  // Recording Refs (mix mic + AI into one WebM for Google Sheets)
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const recordingChunksRef = useRef<BlobPart[]>([]);
+  const micSourceForMixRef = useRef<MediaStreamAudioSourceNode | null>(null);
+
   // ─── AudioContext Resume on Tab Switch ────────────────────────────
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -204,6 +221,12 @@ export function useGeminiLive() {
     let result = { status: 'ok' };
 
     switch (fc.name) {
+      case 'show_calculator': {
+        window.dispatchEvent(new CustomEvent('showCalculator'));
+        result = { status: 'calculator_shown' };
+        break;
+      }
+
       case 'update_calculator': {
         const { revenue, missedCalls } = fc.args as any;
         window.dispatchEvent(
@@ -245,6 +268,10 @@ export function useGeminiLive() {
 
   // ─── Cleanup Audio (without clearing transcript) ───────────────
   const cleanupAudio = useCallback(() => {
+    if (micSourceForMixRef.current) {
+      micSourceForMixRef.current.disconnect();
+      micSourceForMixRef.current = null;
+    }
     if (inputSourceRef.current) {
       inputSourceRef.current.disconnect();
       inputSourceRef.current = null;
@@ -294,35 +321,72 @@ export function useGeminiLive() {
       reconnectTimeoutRef.current = null;
     }
 
-    // Fire endVoiceSession before clearing state — triggers sheet sync
-    // Skip mock sessions (backend won't find them in Supabase)
-    if (
-      voiceSessionIdRef.current &&
-      !voiceSessionIdRef.current.startsWith('vs_mock_')
-    ) {
-      const transcriptText = transcriptRef.current
+    // Capture state before cleanup
+    const sessionId = voiceSessionIdRef.current;
+    const currentTranscript = transcriptRef.current;
+    const startTime = sessionStartTimeRef.current;
+    const recorder = recorderRef.current;
+    const chunks = recordingChunksRef.current;
+
+    // Helper: fire endVoiceSession (triggers sheet sync)
+    const fireEndSession = () => {
+      if (!sessionId || sessionId.startsWith('vs_mock_')) return;
+      const transcriptText = currentTranscript
         .map((t) => `${t.speaker}: ${t.text}`)
         .join('\n')
-        .slice(0, 50000); // keepalive has 64KB limit
-      const durationMs = sessionStartTimeRef.current
-        ? Date.now() - sessionStartTimeRef.current
-        : undefined;
-
+        .slice(0, 50000);
+      const durationMs = startTime ? Date.now() - startTime : undefined;
       endVoiceSession({
-        voiceSessionId: voiceSessionIdRef.current,
+        voiceSessionId: sessionId,
         status: 'completed',
         durationMs,
         transcriptText: transcriptText || undefined,
       }).catch((err) =>
         console.warn('[Reyna] endVoiceSession failed:', err),
       );
+    };
 
-      voiceSessionIdRef.current = null;
-      sessionStartTimeRef.current = 0;
+    // Upload recording BEFORE ending session so sheet sync finds the audio
+    if (
+      sessionId &&
+      !sessionId.startsWith('vs_mock_') &&
+      recorder &&
+      recorder.state !== 'inactive'
+    ) {
+      recorder.ondataavailable = (e) => {
+        if (e.data.size) chunks.push(e.data);
+      };
+      recorder.onstop = async () => {
+        const audioBlob = new window.Blob(chunks, { type: 'audio/webm' });
+
+        // Upload audio first so sheet sync can generate a signed URL.
+        // Cap wait at 10s — if upload is slow, end session anyway to
+        // prevent dangling sessions when the user navigates away.
+        if (audioBlob.size > 0) {
+          const upload = uploadVoiceAudio(sessionId, 'recording', audioBlob)
+            .catch((e) => console.warn('[Reyna] Audio upload failed:', e));
+          await Promise.race([
+            upload,
+            new Promise((r) => setTimeout(r, 10_000)),
+          ]);
+        }
+
+        fireEndSession();
+        cleanupAudio(); // Safe to destroy AudioContext after upload completes
+      };
+      recorder.stop();
+      closeSession(); // Close WebSocket — recorder doesn't need it
+    } else {
+      fireEndSession();
+      closeSession();
+      cleanupAudio();
     }
 
-    closeSession();
-    cleanupAudio();
+    // Clear refs
+    voiceSessionIdRef.current = null;
+    sessionStartTimeRef.current = 0;
+    recorderRef.current = null;
+    recordingChunksRef.current = [];
 
     setConnected(false);
     setIsConnecting(false);
@@ -548,6 +612,33 @@ export function useGeminiLive() {
 
               source.connect(processor);
               processor.connect(audioContextRef.current.destination);
+
+              // ── Recording: mix mic + AI into one WebM ──────────
+              try {
+                const mixDest =
+                  outputAudioContextRef.current!.createMediaStreamDestination();
+                outputNodeRef.current!.connect(mixDest);
+                const micForMix =
+                  outputAudioContextRef.current!.createMediaStreamSource(stream);
+                micForMix.connect(mixDest);
+                micSourceForMixRef.current = micForMix;
+
+                const mimeType = MediaRecorder.isTypeSupported(
+                  'audio/webm;codecs=opus',
+                )
+                  ? 'audio/webm;codecs=opus'
+                  : 'audio/webm';
+                const recorder = new MediaRecorder(mixDest.stream, { mimeType });
+                const chunks: BlobPart[] = [];
+                recorder.ondataavailable = (e) => {
+                  if (e.data.size) chunks.push(e.data);
+                };
+                recordingChunksRef.current = chunks;
+                recorderRef.current = recorder;
+                recorder.start(1000);
+              } catch (recErr) {
+                console.warn('[Reyna] Recording setup failed:', recErr);
+              }
             } catch (openErr) {
               setError('Failed to start mic streaming.');
             }
@@ -559,6 +650,21 @@ export function useGeminiLive() {
               const responses = [];
               for (const fc of msg.toolCall.functionCalls) {
                 const result = handleToolCall(fc);
+
+                // Record tool call to backend (fire-and-forget)
+                const sid = voiceSessionIdRef.current;
+                if (sid && !sid.startsWith('vs_mock_')) {
+                  recordVoiceToolCall({
+                    voiceSessionId: sid,
+                    callId: fc.id,
+                    toolName: fc.name,
+                    args: fc.args as Record<string, unknown>,
+                    result: result as Record<string, unknown>,
+                  }).catch((err) =>
+                    console.warn('[Reyna] Tool call recording failed:', err),
+                  );
+                }
+
                 responses.push({
                   id: fc.id,
                   name: fc.name,

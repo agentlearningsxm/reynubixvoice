@@ -142,13 +142,13 @@ const Hero: React.FC = () => {
       className="relative pt-32 pb-28 lg:pt-44 lg:pb-32 overflow-x-clip"
       id="receptionist"
     >
-      <div className="absolute inset-0 dot-grid opacity-100 pointer-events-none" />
+      {/* Grid provided by full-page square-grid in App.tsx — no local grid needed */}
 
       <div
         className="absolute inset-x-0 top-0 h-[700px] pointer-events-none"
         style={{
           background:
-            'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(14,165,233,0.11) 0%, transparent 70%)',
+            'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(200,169,96,0.11) 0%, transparent 70%)',
         }}
       />
       <div
@@ -170,8 +170,8 @@ const Hero: React.FC = () => {
             <div
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-7 border"
               style={{
-                background: 'rgba(14,165,233,0.07)',
-                borderColor: 'rgba(14,165,233,0.2)',
+                background: 'rgba(200,169,96,0.07)',
+                borderColor: 'rgba(200,169,96,0.2)',
               }}
             >
               <span className="relative flex h-2 w-2 shrink-0">
@@ -228,10 +228,10 @@ const Hero: React.FC = () => {
             <div className="mt-8 flex items-center justify-center lg:justify-start gap-3">
               <div className="flex -space-x-2.5">
                 {[
-                  { initials: 'JR', bg: '#0EA5E9' },
-                  { initials: 'SM', bg: '#8B5CF6' },
-                  { initials: 'AK', bg: '#10B981' },
-                  { initials: 'LP', bg: '#F59E0B' },
+                  { initials: 'JR', bg: '#c8a960' },
+                  { initials: 'SM', bg: '#a07d4f' },
+                  { initials: 'AK', bg: '#8faa6b' },
+                  { initials: 'LP', bg: '#c47d5a' },
                 ].map(({ initials, bg }) => (
                   <div
                     key={initials}
@@ -400,7 +400,7 @@ const Hero: React.FC = () => {
                           ? 'bg-red-400'
                           : isLiveSession
                             ? 'bg-green-400 animate-pulse'
-                            : 'bg-[#4fa8ff]'
+                            : 'bg-[#c8a960]'
                       }`}
                     />
                     <span className="text-[9px] uppercase tracking-[0.12em] text-white/70">
@@ -461,9 +461,9 @@ const Hero: React.FC = () => {
                           </div>
                         )}
                         {isUserSpeaking && (
-                          <div className="flex items-center gap-1.5 rounded-full bg-sky-500/12 border border-sky-400/20 px-3 py-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
-                            <span className="text-[10px] text-sky-300 font-semibold uppercase tracking-wider">
+                          <div className="flex items-center gap-1.5 rounded-full bg-amber-500/12 border border-amber-400/20 px-3 py-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            <span className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">
                               {t.hero.live.listening}
                             </span>
                           </div>
@@ -489,14 +489,14 @@ const Hero: React.FC = () => {
                                 className={`flex flex-col ${isAgent ? 'items-start' : 'items-end'}`}
                               >
                                 <span
-                                  className={`text-[9px] font-bold uppercase tracking-[0.18em] mb-1 ${isAgent ? 'text-green-400' : 'text-sky-400'}`}
+                                  className={`text-[9px] font-bold uppercase tracking-[0.18em] mb-1 ${isAgent ? 'text-green-400' : 'text-amber-400'}`}
                                 >
                                   {isAgent
                                     ? t.hero.widget.agent
                                     : t.hero.live.userLabel}
                                 </span>
                                 <div
-                                  className={`max-w-[92%] rounded-2xl px-3 py-2 text-[11px] leading-[1.55] text-white/80 border ${isAgent ? 'bg-[rgba(74,222,128,0.08)] border-[rgba(74,222,128,0.15)]' : 'bg-[rgba(56,189,248,0.08)] border-[rgba(56,189,248,0.15)]'}`}
+                                  className={`max-w-[92%] rounded-2xl px-3 py-2 text-[11px] leading-[1.55] text-white/80 border ${isAgent ? 'bg-[rgba(74,222,128,0.08)] border-[rgba(74,222,128,0.15)]' : 'bg-[rgba(200,169,96,0.08)] border-[rgba(200,169,96,0.15)]'}`}
                                 >
                                   {entry.text}
                                 </div>
@@ -527,7 +527,7 @@ const Hero: React.FC = () => {
                             setConsentAccepted(event.target.checked);
                             if (event.target.checked) setConsentError(null);
                           }}
-                          className="mt-0.5 h-4 w-4 rounded border-white/25 bg-white/10 text-[#4fa8ff]"
+                          className="mt-0.5 h-4 w-4 rounded border-white/25 bg-white/10 text-[#c8a960]"
                         />
                         <span>{t.hero.live.consentLabel}</span>
                       </label>
@@ -587,7 +587,7 @@ const Hero: React.FC = () => {
                     <div
                       className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 ${
                         isUserSpeaking
-                          ? 'bg-sky-500/12 border-sky-400/30 text-sky-300'
+                          ? 'bg-amber-500/12 border-amber-400/30 text-amber-300'
                           : 'bg-white/[0.04] border-white/10 text-white/30'
                       }`}
                     >

@@ -72,7 +72,7 @@ export interface VoiceTranscriptPayload {
 
 export interface VoiceAudioUploadPayload {
   voiceSessionId: string;
-  assetType: 'microphone' | 'assistant';
+  assetType: 'microphone' | 'assistant' | 'recording';
   mimeType: string;
   dataUrl: string;
   durationMs?: number;

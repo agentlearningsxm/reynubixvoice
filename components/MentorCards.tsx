@@ -50,7 +50,7 @@ const MENTORS: Mentor[] = [
       { id: 'zKBPwDpBfhs', title: 'n8n Masterclass: Build & Sell AI Agents' },
     ],
     skoolLink: 'https://www.skool.com/ai-automation-society-plus',
-    gradient: 'from-cyan-500 to-blue-600',
+    gradient: 'from-amber-500 to-yellow-600',
     description:
       'Nate taught me to build AI automation systems that run your business while you sleep. His n8n masterclass showed me how to create lead-capture bots, auto-follow-ups, and smart scheduling  so your phone rings with pre-qualified customers, not tire-kickers. Think: a Rotterdam plumber getting 30% more booked jobs without hiring anyone new.',
   },
@@ -65,7 +65,7 @@ const MENTORS: Mentor[] = [
       { id: 'zVjX_vqyd7I', title: 'n8n AI Agent That Automates Workflows' },
     ],
     skoolLink: 'https://www.skool.com/the-ai-automation-circle',
-    gradient: 'from-blue-500 to-indigo-600',
+    gradient: 'from-yellow-500 to-amber-600',
     description:
       "Michele showed me how to build AI sales teams that work 24/7 without calling in sick. From auto-processing invoices to qualifying leads while you're on a job site  his n8n workflows save hours every single week. That's real money back in your pocket: less admin, more revenue.",
   },
@@ -78,7 +78,7 @@ const MENTORS: Mentor[] = [
     youtubeChannel: 'https://www.youtube.com/@SixflowAutomations',
     videos: [{ id: '0_TQV5tfFds', title: 'Production-Grade Voice AI Systems' }],
     skoolLink: 'https://www.skool.com/voiceai',
-    gradient: 'from-emerald-500 to-teal-600',
+    gradient: 'from-emerald-500 to-emerald-700',
     description:
       "Sixflow builds production-grade voice AI that never misses a call. They taught me how to design agents that qualify leads, book appointments, and handle customer questions  even at 2 AM when your competitor's phone goes to voicemail. Their analytics platform shows exactly how many leads and bookings your AI receptionist handles each day.",
   },
@@ -111,7 +111,7 @@ const MENTORS: Mentor[] = [
       { id: 'rsks8RkIgbg', title: 'Voice AI Pioneer & Bootcamp Leader' },
     ],
     skoolLink: 'https://www.skool.com/voice-ai-bootcamp',
-    gradient: 'from-teal-500 to-cyan-600',
+    gradient: 'from-amber-500 to-yellow-600',
     description:
       'Henryk is a Voice AI pioneer who deploys agents at 20x lower cost and 32x faster than traditional call centers. His Voice AI Bootcamp taught me how to build systems that handle hundreds of calls simultaneously  meaning your business never misses a lead, even during peak hours. Like hiring 50 receptionists for the price of one.',
   },
@@ -126,7 +126,7 @@ const MENTORS: Mentor[] = [
       { id: 'wOmtvSPp2_k', title: "How I'd Start a Voice AI Agency in 2025" },
     ],
     skoolLink: 'https://www.skool.com/voice-ai-bootcamp',
-    gradient: 'from-cyan-500 to-green-600',
+    gradient: 'from-yellow-500 to-amber-600',
     description:
       'Jannis built multiple SaaS companies and co-runs the Voice AI Bootcamp. He showed me exactly how to build and scale voice AI systems  from first agent to fully automated phone operations that save businesses thousands per month. His approach: never let another call go unanswered, and turn every missed call into a booked job.',
   },
@@ -144,7 +144,7 @@ const MENTORS: Mentor[] = [
       },
     ],
     skoolLink: null,
-    gradient: 'from-purple-500 to-pink-600',
+    gradient: 'from-amber-600 to-yellow-700',
     description:
       'Roberts taught me how to build stunning, custom websites using AI tools  in days, not months. No cookie-cutter templates. Your business gets a high-converting site that matches your brand perfectly. That means more leads from your website, faster turnaround, and thousands saved compared to traditional web agencies.',
   },
@@ -249,9 +249,9 @@ const SECTION_COPY: Record<
 /* ─── Category Badge Color Map ───────────────────────────────────── */
 
 const CATEGORY_COLORS: Record<string, string> = {
-  n8n: 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+  n8n: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
   voice: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
-  web: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+  web: 'bg-amber-600/15 text-amber-500 border-amber-600/30',
   claude: 'bg-orange-500/15 text-orange-400 border-orange-500/30',
   mindset: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
 };
@@ -487,11 +487,11 @@ const MentorCards: React.FC = () => {
     imageSrc:
       mentor.videos.length > 0
         ? `https://img.youtube.com/vi/${mentor.videos[0].id}/hqdefault.jpg`
-        : `https://placehold.co/1280x720/050f1a/38bdf8?text=${encodeURIComponent(mentor.name)}`,
+        : `https://placehold.co/1280x720/1a1714/ddb872?text=${encodeURIComponent(mentor.name)}`,
   }));
 
   return (
-    <section className="relative py-28" id="reviews">
+    <section className="relative py-28 section-grid-bg" id="reviews">
       {/* Light mode subtle background layer */}
       <div className="absolute inset-0 dark:hidden bg-gradient-to-b from-transparent via-slate-100/50 to-transparent pointer-events-none" />
       <div className="page-container relative">

@@ -24,8 +24,12 @@ The webhook handler forwards this structure. Your n8n expressions use `$json.*`:
     "call_id": "abc123",
     "call_status": "ended",
     "agent_id": "agent_a35ba6c12d493367593b7445fe",
+    "agent_name": "Reyna - Dutch (Main)",
     "start_timestamp": 1710763200000,
     "end_timestamp": 1710763320000,
+    "recording_url": "https://dxc03zgurdly9.cloudfront.net/.../recording.wav",
+    "recording_multi_channel_url": "https://dxc03zgurdly9.cloudfront.net/.../recording_multichannel.wav",
+    "transcript": "Agent: Goededag...\nUser: ...",
     "metadata": {
       "leadId": "uuid-from-supabase",
       "name": "Jan de Vries",
@@ -35,11 +39,21 @@ The webhook handler forwards this structure. Your n8n expressions use `$json.*`:
       "call_summary": "Caller is interested in AI reception for dental practice...",
       "user_sentiment": "Positive",
       "call_successful": true,
-      "custom_analysis_data": {}
+      "custom_analysis_data": {
+        "call_outcome": "qualified",
+        "lead_temperature": "warm",
+        "appointment_booked": false,
+        "lead_interest": "AI reception for dental practice",
+        "next_steps": "Follow up next week"
+      }
     }
   }
 }
 ```
+
+Key recording fields:
+- `call.recording_url` — full call recording (WAV)
+- `call.recording_multi_channel_url` — separate audio channels per speaker
 
 Map fields as: `$json.call.metadata.name`, `$json.call.call_analysis.call_summary`, etc.
 
@@ -81,15 +95,21 @@ Column mapping (switch each field to Expression mode):
 | Column name | n8n Expression |
 |-------------|----------------|
 | Timestamp | `={{ $now.toISO() }}` |
-| Name | `={{ $json.call.metadata.name ?? 'Unknown' }}` |
-| Lead ID | `={{ $json.call.metadata.leadId ?? '' }}` |
-| Call Outcome | `={{ $json.call.call_analysis?.call_summary ?? 'No summary' }}` |
-| Sentiment | `={{ $json.call.call_analysis?.user_sentiment ?? 'Unknown' }}` |
+| Name | `={{ $json.call.metadata?.name ?? 'Unknown' }}` |
+| Lead ID | `={{ $json.call.metadata?.leadId ?? '' }}` |
+| Phone | `={{ $json.call.metadata?.phone ?? $json.call.to_number ?? '' }}` |
+| Call Outcome | `={{ $json.call.call_analysis?.custom_analysis_data?.call_outcome ?? 'unknown' }}` |
+| Lead Temperature | `={{ $json.call.call_analysis?.custom_analysis_data?.lead_temperature ?? 'unknown' }}` |
+| Appointment Booked | `={{ $json.call.call_analysis?.custom_analysis_data?.appointment_booked ? 'Yes' : 'No' }}` |
+| Lead Interest | `={{ $json.call.call_analysis?.custom_analysis_data?.lead_interest ?? '' }}` |
+| Next Steps | `={{ $json.call.call_analysis?.custom_analysis_data?.next_steps ?? '' }}` |
 | Call Successful | `={{ $json.call.call_analysis?.call_successful ? 'Yes' : 'No' }}` |
-| Follow-Up Needed | `={{ $json.call.call_analysis?.custom_analysis_data?.follow_up_needed ?? 'Check transcript' }}` |
-| Booking Made | `={{ $json.call.call_analysis?.custom_analysis_data?.booking_made ?? 'No' }}` |
+| Sentiment | `={{ $json.call.call_analysis?.user_sentiment ?? 'Unknown' }}` |
 | Duration (s) | `={{ $json.call.end_timestamp && $json.call.start_timestamp ? Math.round(($json.call.end_timestamp - $json.call.start_timestamp) / 1000) : 0 }}` |
 | Summary | `={{ $json.call.call_analysis?.call_summary ?? '' }}` |
+| Transcript | `={{ ($json.call.transcript ?? '').slice(0, 4000) }}` |
+| Recording URL | `={{ $json.call.recording_url ?? '' }}` |
+| Agent | `={{ $json.call.agent_name ?? $json.call.agent_id ?? '' }}` |
 
 ---
 
@@ -104,13 +124,15 @@ Column mapping (switch each field to Expression mode):
    - Header value: `{{ $env.TEXTBEE_API_KEY }}`
    - Body Content Type: **JSON**
 
-Body:
-```json
-{
+Body (expression mode):
+```
+={
   "recipients": ["+31685367996"],
-  "message": "Reyna belde {{ $json.call.metadata.name ?? 'onbekend' }}:\n{{ $json.call.call_analysis?.call_summary?.slice(0, 120) ?? 'geen samenvatting' }}\nDuur: {{ $json.call.end_timestamp && $json.call.start_timestamp ? Math.round(($json.call.end_timestamp - $json.call.start_timestamp) / 1000) : '?' }}s"
+  "message": "Reyna call done:\n" + ($json.call.metadata?.name ?? "onbekend") + " (" + ($json.call.call_analysis?.custom_analysis_data?.lead_temperature ?? "?") + ")\nOutcome: " + ($json.call.call_analysis?.custom_analysis_data?.call_outcome ?? "unknown") + "\nBooked: " + ($json.call.call_analysis?.custom_analysis_data?.appointment_booked ? "Yes" : "No") + "\nAgent: " + ($json.call.agent_name ?? "?") + "\nDuur: " + ($json.call.end_timestamp && $json.call.start_timestamp ? Math.round(($json.call.end_timestamp - $json.call.start_timestamp) / 1000) : "?") + "s" + ($json.call.recording_url ? "\nRec: " + $json.call.recording_url : "")
 }
 ```
+
+The SMS now includes: lead name, temperature, outcome, booking status, which agent handled the call, duration, and a clickable recording URL.
 
 ---
 
@@ -180,8 +202,12 @@ curl -X POST https://n8n.srv1093654.hstgr.cloud/webhook/retell-post-call \
       "call_id": "test-001",
       "call_status": "ended",
       "agent_id": "agent_a35ba6c12d493367593b7445fe",
+      "agent_name": "Reyna - Dutch (Main)",
       "start_timestamp": 1710763200000,
       "end_timestamp": 1710763320000,
+      "recording_url": "https://example.com/test-recording.wav",
+      "transcript": "Agent: Goededag, test call.\nUser: Hello, this is a test.",
+      "to_number": "+31612345678",
       "metadata": {
         "leadId": "test-lead-001",
         "name": "Jan de Vries",
@@ -191,7 +217,13 @@ curl -X POST https://n8n.srv1093654.hstgr.cloud/webhook/retell-post-call \
         "call_summary": "Lead runs a dental practice. Wants AI reception for after-hours calls. Decision maker. Timeline Q2. Booked a meeting.",
         "user_sentiment": "Positive",
         "call_successful": true,
-        "custom_analysis_data": {}
+        "custom_analysis_data": {
+          "call_outcome": "qualified",
+          "lead_temperature": "warm",
+          "appointment_booked": true,
+          "lead_interest": "AI reception for dental practice, after-hours calls",
+          "next_steps": "Meeting booked for next week"
+        }
       }
     }
   }'
@@ -209,8 +241,10 @@ Expected outcome:
 In your leads Google Sheet, create a new tab called `Post-Call Analysis` with these column headers in row 1:
 
 ```
-Timestamp | Name | Lead ID | Call Outcome | Sentiment | Call Successful | Follow-Up Needed | Booking Made | Duration (s) | Summary
+Timestamp | Name | Lead ID | Phone | Call Outcome | Lead Temperature | Appointment Booked | Lead Interest | Next Steps | Call Successful | Sentiment | Duration (s) | Summary | Transcript | Recording URL | Agent
 ```
+
+Also add a `Recording URL` column to the `Leads` tab — the workflow updates this column after each call so you can listen back from the main lead view.
 
 ---
 

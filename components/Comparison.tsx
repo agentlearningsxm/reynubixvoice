@@ -182,12 +182,11 @@ const Comparison: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="py-28 bg-bg-main overflow-hidden relative min-h-[650px] md:min-h-[750px] lg:min-h-[850px] flex flex-col items-center justify-center select-none"
+      className="py-28 section-grid-bg overflow-hidden relative min-h-[650px] md:min-h-[750px] lg:min-h-[850px] flex flex-col items-center justify-center select-none"
       id="comparison"
     >
       {/* Background Ambience */}
       <div className="absolute inset-0 bg-gradient pointer-events-none" />
-      <div className="absolute inset-0 bg-grid pointer-events-none opacity-20" />
 
       <div className="page-container relative z-10 flex flex-col items-center">
         <header className="text-center mb-14">

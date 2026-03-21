@@ -26,9 +26,9 @@ export const getAccentColor = (): {
       };
     default:
       return {
-        primary: '#3B82F6',
-        secondary: '#60A5FA',
-        glow: 'rgba(59, 130, 246, 0.4)',
+        primary: '#c8a960',
+        secondary: '#ddb872',
+        glow: 'rgba(200, 169, 96, 0.4)',
       };
   }
 };
@@ -42,7 +42,7 @@ export const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
         g: parseInt(result[2], 16),
         b: parseInt(result[3], 16),
       }
-    : { r: 59, g: 130, b: 246 };
+    : { r: 200, g: 169, b: 96 };
 };
 
 export interface Particle {

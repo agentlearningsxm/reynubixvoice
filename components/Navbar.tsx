@@ -158,7 +158,7 @@ const Navbar: React.FC = () => {
   ];
 
   const themes: { code: ThemeAccent; label: string; color: string }[] = [
-    { code: 'blue', label: 'Electric Blue', color: '#3B82F6' },
+    { code: 'blue', label: 'Royal Gold', color: '#c8a960' },
     { code: 'green', label: 'Neon Green', color: '#22C55E' },
     { code: 'orange', label: 'Coral Action', color: '#F97316' },
   ];

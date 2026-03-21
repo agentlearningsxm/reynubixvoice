@@ -24,8 +24,8 @@ const Button: React.FC<ButtonProps> = ({
   const variants = {
     primary: [
       'text-white border border-transparent font-semibold',
-      'shadow-[0_0_20px_rgba(14,165,233,0.22),0_4px_14px_rgba(0,0,0,0.3)]',
-      'hover:shadow-[0_0_30px_rgba(14,165,233,0.38),0_6px_20px_rgba(0,0,0,0.35)]',
+      'shadow-[0_0_20px_rgba(200,169,96,0.22),0_4px_14px_rgba(0,0,0,0.3)]',
+      'hover:shadow-[0_0_30px_rgba(200,169,96,0.38),0_6px_20px_rgba(0,0,0,0.35)]',
     ].join(' '),
     secondary:
       'bg-bg-card hover:bg-white/[0.055] text-text-primary border border-border font-medium',

@@ -34,6 +34,12 @@ dist-ssr
 credentials.json
 token.json
 
+# Docker (local testing only — never push to GitHub/Vercel)
+Dockerfile
+docker-compose*.yml
+docker-server.mjs
+.dockerignore
+
 # Dev logs
 dev-server*.log
 

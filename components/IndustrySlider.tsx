@@ -158,7 +158,7 @@ const IndustrySlider: React.FC = () => {
 
   return (
     <section
-      className="relative w-full h-[700px] md:h-[850px] lg:h-[1000px] overflow-hidden bg-[var(--bg-main)] text-[var(--text-primary)]"
+      className="relative w-full h-[700px] md:h-[850px] lg:h-[1000px] overflow-hidden section-grid-bg text-[var(--text-primary)]"
       id="solutions"
       ref={containerRef}
       onPointerDown={handlePointerDown}

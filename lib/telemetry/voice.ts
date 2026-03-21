@@ -63,7 +63,7 @@ export function syncVoiceTranscript(
 
 export async function uploadVoiceAudio(
   voiceSessionId: string,
-  assetType: 'microphone' | 'assistant',
+  assetType: 'microphone' | 'assistant' | 'recording',
   blob: Blob,
   metadata: Record<string, unknown> = {},
 ) {

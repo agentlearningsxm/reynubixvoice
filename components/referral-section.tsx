@@ -75,10 +75,10 @@ const referralCards: CardStackItem[] = [
 
 export default function ReferralSection() {
   return (
-    <section className="relative w-full bg-bg-main py-28 overflow-hidden">
+    <section className="relative w-full section-grid-bg py-28 overflow-hidden">
       {/* Background Gradient Effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-bg-main via-bg-card/50 to-bg-main" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-primary/10 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-bg-main/80 via-bg-card/30 to-bg-main/80 opacity-60" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-primary/10 via-transparent to-transparent opacity-60" />
 
       <div className="page-container relative z-10">
         {/* Header */}
@@ -114,7 +114,7 @@ export default function ReferralSection() {
         <div className="mt-20 text-center">
           <Link
             to="/contact"
-            className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-white shadow-[0_0_24px_rgba(14,165,233,0.28),0_4px_14px_rgba(0,0,0,0.3)] hover:shadow-[0_0_36px_rgba(14,165,233,0.42),0_6px_20px_rgba(0,0,0,0.35)] transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-white shadow-[0_0_24px_rgba(200,169,96,0.28),0_4px_14px_rgba(0,0,0,0.3)] hover:shadow-[0_0_36px_rgba(200,169,96,0.42),0_6px_20px_rgba(0,0,0,0.35)] transition-all hover:scale-105"
             style={{
               background:
                 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',

@@ -18,13 +18,13 @@
 
 | Role | Hex | CSS Variable |
 |------|-----|--------------|
-| Primary | `#0EA5E9` | `--color-primary` |
-| Secondary | `#38BDF8` | `--color-secondary` |
-| CTA/Accent | `#F97316` | `--color-cta` |
-| Background | `#F0F9FF` | `--color-background` |
-| Text | `#0C4A6E` | `--color-text` |
+| Primary | `#c8a960` | `--color-primary` |
+| Secondary | `#ddb872` | `--color-secondary` |
+| CTA/Accent | `#c47d5a` | `--color-cta` |
+| Background | `#1a1714` | `--color-background` |
+| Text | `#f5f0e8` | `--color-text` |
 
-**Color Notes:** Sky blue trust + warm CTA
+**Color Notes:** Warm gold luxury + premium feel
 
 ### Typography
 
@@ -85,8 +85,8 @@
 /* Secondary Button */
 .btn-secondary {
   background: transparent;
-  color: #0EA5E9;
-  border: 2px solid #0EA5E9;
+  color: #c8a960;
+  border: 2px solid #c8a960;
   padding: 12px 24px;
   border-radius: 8px;
   font-weight: 600;
@@ -99,7 +99,7 @@
 
 ```css
 .card {
-  background: #F0F9FF;
+  background: #1a1714;
   border-radius: 12px;
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -125,9 +125,9 @@
 }
 
 .input:focus {
-  border-color: #0EA5E9;
+  border-color: #c8a960;
   outline: none;
-  box-shadow: 0 0 0 3px #0EA5E920;
+  box-shadow: 0 0 0 3px #c8a96020;
 }
 ```
 

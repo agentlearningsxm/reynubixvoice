@@ -77,7 +77,7 @@ const Spotlight: React.FC = () => {
           className="hidden md:block" // Hide on mobile to prevent layout issues
         >
           {/* The Glowing Border */}
-          <div className="absolute -inset-4 border-2 border-brand-primary/50 rounded-xl shadow-[0_0_50px_rgba(99,102,241,0.3)] animate-pulse" />
+          <div className="absolute -inset-4 border-2 border-brand-primary/50 rounded-xl shadow-[0_0_50px_rgba(200,169,96,0.3)] animate-pulse" />
 
           {/* The Corner Brackets */}
           <div className="absolute top-[-10px] left-[-10px] w-6 h-6 border-t-2 border-l-2 border-brand-primary" />

@@ -119,9 +119,14 @@ export async function syncSessionToSheet(voiceSessionPublicId: string) {
   const storagePath = audioAssets?.[0]?.storage_path;
   let recordingUrl = 'N/A';
   if (storagePath) {
-    const { data: signedData } = await supabase.storage
+    const { data: signedData, error: signedError } = await supabase.storage
       .from('voice-session-audio')
       .createSignedUrl(storagePath, 60 * 60 * 24 * 365); // 1 year expiry
+    if (signedError) {
+      console.error('[sheet-sync] Signed URL failed:', signedError.message, {
+        storagePath,
+      });
+    }
     recordingUrl = signedData?.signedUrl || 'N/A';
   }
 

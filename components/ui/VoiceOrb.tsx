@@ -5,9 +5,9 @@ import { useEffect, useRef } from 'react';
  * 3D Particle Sphere Orb — rectangleworld.com algorithm adapted for React
  *
  * States:
- * - Dormant (!isActive)       : dim blue, slow rotation
- * - Idle (active, quiet)      : blue (#212°), gentle breathing
- * - User speaking             : cyan (#192°), slight contraction
+ * - Dormant (!isActive)       : dim gold, slow rotation
+ * - Idle (active, quiet)      : gold (#42°), gentle breathing
+ * - User speaking             : warm amber (#36°), slight contraction
  * - Agent speaking (isSpeaking): green (#142°), fast spin + pulse
  * - Error                     : red (#5°), slow pulse
  * - isVisible=false           : particles dissolve outward (orb explodes away)
@@ -55,8 +55,8 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
 
   // All smoothly animated state lives here — readable from the RAF loop without recreating it
   const anim = useRef({
-    hue: 212,
-    targetHue: 212,
+    hue: 42,
+    targetHue: 42,
     sat: 75,
     targetSat: 75,
     lit: 58,
@@ -70,8 +70,8 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
     pulseFreq: 1.8,
     targetPulseFreq: 1.8,
     // Secondary color for multi-tone effect
-    hue2: 235,
-    targetHue2: 235,
+    hue2: 48,
+    targetHue2: 48,
     turnAngle: 0,
     time: 0,
   });
@@ -88,8 +88,8 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
       a.targetPulseMag = 0.14;
       a.targetPulseFreq = 4.5;
     } else if (!isActive) {
-      a.targetHue = 218;
-      a.targetHue2 = 240;
+      a.targetHue = 40;
+      a.targetHue2 = 46;
       a.targetSat = 52;
       a.targetLit = 36;
       a.targetSpeedMult = 0.22;
@@ -105,18 +105,18 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
       a.targetPulseMag = 0.22;
       a.targetPulseFreq = 7.5;
     } else if (isUserSpeaking) {
-      // User speaking — sky cyan, listening contraction
-      a.targetHue = 192;
-      a.targetHue2 = 210;
+      // User speaking — warm amber, listening contraction
+      a.targetHue = 36;
+      a.targetHue2 = 44;
       a.targetSat = 94;
       a.targetLit = 66;
       a.targetSpeedMult = 0.65;
       a.targetPulseMag = 0.055;
       a.targetPulseFreq = 3.2;
     } else {
-      // Connected idle — cool blue
-      a.targetHue = 212;
-      a.targetHue2 = 238;
+      // Connected idle — warm gold
+      a.targetHue = 42;
+      a.targetHue2 = 48;
       a.targetSat = 84;
       a.targetLit = 62;
       a.targetSpeedMult = 0.48;

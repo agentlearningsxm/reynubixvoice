@@ -30,9 +30,9 @@ const AUTOMATION_TOOLS = [
     description:
       'Your 24/7 digital employee that handles research, planning, and complex tasks while you sleep — scaling your team without adding headcount.',
     logo: '/Antigravity-logo.webp',
-    color: '#8B5CF6',
-    gradient: 'from-purple-500 to-violet-600',
-    iconBg: 'bg-gradient-to-br from-purple-400 to-violet-500',
+    color: '#a07d4f',
+    gradient: 'from-amber-700 to-yellow-800',
+    iconBg: 'bg-gradient-to-br from-amber-600 to-yellow-700',
   },
   {
     name: 'Airtable',
@@ -49,8 +49,8 @@ const AUTOMATION_TOOLS = [
       'Writes your marketing copy, analyzes customer feedback, and creates business strategies on demand — like having an expert consultant always on call.',
     logo: '/chatgpt-logo.webp',
     color: '#00A67E',
-    gradient: 'from-emerald-500 to-teal-600',
-    iconBg: 'bg-gradient-to-br from-emerald-400 to-teal-500',
+    gradient: 'from-emerald-500 to-emerald-700',
+    iconBg: 'bg-gradient-to-br from-emerald-400 to-emerald-600',
   },
   {
     name: 'Retell AI',
@@ -58,9 +58,9 @@ const AUTOMATION_TOOLS = [
       'Answers every customer call instantly with a natural human voice, books appointments, and never misses a lead — your 24/7 AI receptionist.',
     logo: '/retell-logo-light.png',
     logoDark: '/retell-logo-dark.png',
-    color: '#004CC6',
-    gradient: 'from-blue-600 to-blue-800',
-    iconBg: 'bg-gradient-to-br from-blue-600 to-blue-800',
+    color: '#c8a960',
+    gradient: 'from-amber-600 to-amber-800',
+    iconBg: 'bg-gradient-to-br from-amber-600 to-amber-800',
   },
   {
     name: 'LiveKit',
@@ -77,8 +77,8 @@ const AUTOMATION_TOOLS = [
       'Delivers instant market research and competitor analysis with verified sources — make confident business decisions in minutes, not weeks.',
     logo: '/Perplexity-logo.webp',
     color: '#20B2AA',
-    gradient: 'from-teal-500 to-cyan-500',
-    iconBg: 'bg-gradient-to-br from-teal-400 to-cyan-500',
+    gradient: 'from-amber-500 to-yellow-500',
+    iconBg: 'bg-gradient-to-br from-amber-400 to-yellow-500',
   },
 ];
 
@@ -462,12 +462,12 @@ const AutomationCards: React.FC = () => {
 
   return (
     <section
-      className="py-28 relative overflow-hidden bg-bg-main"
+      className="py-28 relative overflow-hidden section-grid-bg"
       id="automations"
     >
       {/* Background effects */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-purple-500/5 rounded-full blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] bg-amber-500/5 rounded-full blur-[120px]" />
       </div>
 
       <div className="page-container relative z-10">
@@ -556,8 +556,8 @@ const AutomationCards: React.FC = () => {
         <div
           className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border"
           style={{
-            background: 'rgba(14, 165, 233, 0.06)',
-            borderColor: 'rgba(14, 165, 233, 0.25)',
+            background: 'rgba(200, 169, 96, 0.06)',
+            borderColor: 'rgba(200, 169, 96, 0.25)',
           }}
         >
           {/* Animated drag arrows */}

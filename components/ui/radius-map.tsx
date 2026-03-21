@@ -43,8 +43,8 @@ export function RadiusMap() {
       // Radius circle — 15km around Zwijndrecht
       L.circle(CENTER, {
         radius: RADIUS_KM * 1000,
-        color: '#6d28d9',
-        fillColor: '#7c3aed',
+        color: '#b8956a',
+        fillColor: '#c8a960',
         fillOpacity: 0.12,
         weight: 2,
         dashArray: '6 4',
@@ -53,8 +53,8 @@ export function RadiusMap() {
       // Center marker
       L.circleMarker(CENTER, {
         radius: 8,
-        color: '#6d28d9',
-        fillColor: '#7c3aed',
+        color: '#b8956a',
+        fillColor: '#c8a960',
         fillOpacity: 0.9,
         weight: 2,
       }).addTo(map);
@@ -80,7 +80,7 @@ export function RadiusMap() {
       <div
         ref={mapRef}
         className="absolute inset-0 w-full h-full rounded-[22px] overflow-hidden"
-        style={{ background: '#f0edf7' }}
+        style={{ background: '#f5f0e8' }}
       />
     </>
   );

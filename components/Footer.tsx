@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
   const { t } = useLanguage();
 
   return (
-    <footer id="footer" className="border-t border-border bg-bg-main">
+    <footer id="footer" className="border-t border-border section-grid-bg">
       {/* CTA Banner — Premium */}
       <div className="relative overflow-hidden border-b border-border py-24 md:py-28">
         {/* Ambient glow layers */}
@@ -16,10 +16,10 @@ const Footer: React.FC = () => {
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse 70% 80% at 50% 120%, rgba(14,165,233,0.13), transparent 70%)',
+              'radial-gradient(ellipse 70% 80% at 50% 120%, rgba(200,169,96,0.13), transparent 70%)',
           }}
         />
-        <div className="absolute inset-0 dot-grid opacity-30 pointer-events-none" />
+        {/* Grid provided by full-page square-grid in App.tsx — no local grid needed */}
 
         <div className="page-container text-center relative z-10">
           {/* Eyebrow */}
@@ -61,7 +61,7 @@ const Footer: React.FC = () => {
               background:
                 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
               boxShadow:
-                '0 0 28px rgba(14,165,233,0.30), 0 4px 16px rgba(0,0,0,0.35)',
+                '0 0 28px rgba(200,169,96,0.30), 0 4px 16px rgba(0,0,0,0.35)',
             }}
           >
             Book a Free Demo

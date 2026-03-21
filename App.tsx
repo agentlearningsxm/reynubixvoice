@@ -39,6 +39,8 @@ const MarketingLayout: React.FC<{ children: React.ReactNode }> = ({
         style={{ animationDelay: '2s' }}
       />
     </div>
+    {/* Full-page square grid — Cowork-inspired background texture, above glow blobs */}
+    <div className="fixed inset-0 z-1 pointer-events-none square-grid" />
 
     <div className="relative z-10">
       <Navbar />
@@ -61,16 +63,23 @@ const MarketingLayout: React.FC<{ children: React.ReactNode }> = ({
   </div>
 );
 
+const GridDivider = () => <div className="section-grid-divider" />;
+
 const HomePage: React.FC = () => (
   <>
     <Hero />
     <Calculator />
+    <GridDivider />
     <IndustrySlider />
+    <GridDivider />
     <Comparison />
+    <GridDivider />
     <Suspense fallback={<div className="min-h-[400px]" />}>
       <AutomationCards />
     </Suspense>
+    <GridDivider />
     <MentorCards />
+    <GridDivider />
     <ReferralSection />
   </>
 );

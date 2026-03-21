@@ -17,8 +17,8 @@ const Logo: React.FC<LogoProps> = ({ className = '', size = 32 }) => {
     >
       <defs>
         <linearGradient id="logo-gradient" x1="0" y1="0.5" x2="1" y2="0.5">
-          <stop offset="0%" stopColor="#0EA5E9" />
-          <stop offset="100%" stopColor="#38BDF8" />
+          <stop offset="0%" stopColor="#c8a960" />
+          <stop offset="100%" stopColor="#ddb872" />
         </linearGradient>
       </defs>
 
@@ -40,13 +40,13 @@ const Logo: React.FC<LogoProps> = ({ className = '', size = 32 }) => {
       {/* Sound Waves */}
       <path
         d="M22 10 Q26 13 26 16 Q26 19 23 21"
-        stroke="#0EA5E9"
+        stroke="#c8a960"
         strokeWidth="2.5"
         strokeLinecap="round"
       />
       <path
         d="M26 6 Q32 11 32 16 Q32 21 27 25"
-        stroke="#38BDF8"
+        stroke="#ddb872"
         strokeWidth="2.5"
         strokeLinecap="round"
         opacity="0.6"

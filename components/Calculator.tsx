@@ -15,6 +15,7 @@ const Calculator: React.FC = () => {
   const [yearlyVisible, setYearlyVisible] = useState(true);
   const presentationTimeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
   const animationFrames = useRef<number[]>([]);
+  const alreadyScrolledRef = useRef(false);
 
   // Logic: Missed Calls * 30 Days * 25% Booking Rate * Avg Ticket Price
   const monthlyLoss = useMemo(() => {
@@ -90,63 +91,72 @@ const Calculator: React.FC = () => {
 
       const timeouts = presentationTimeouts.current;
 
-      // Stage 0: Scroll into view
-      document
-        .getElementById('calculator')
-        ?.scrollIntoView({ behavior: 'smooth' });
+      // Stage 0: Scroll calculator into view (skip if show_calculator already did it)
+      if (!alreadyScrolledRef.current) {
+        const cardEl = document.getElementById('calculator-card');
+        if (cardEl) {
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          document
+            .getElementById('calculator')
+            ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+      alreadyScrolledRef.current = true;
 
-      // Stage 1: Revenue slider (1500ms delay)
+      // Stage 1: Revenue slider (600ms delay — allows scroll to settle)
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(1);
           animateValue(
             revenuePerCustomer,
             targetRevenue,
-            800,
+            600,
             setRevenuePerCustomer,
           );
-        }, 1500),
+        }, 600),
       );
 
-      // Stage 2: Missed calls slider (3000ms delay)
+      // Stage 2: Missed calls slider (1200ms delay)
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(2);
-          animateValue(missedCalls, targetCalls, 800, setMissedCalls);
-        }, 3000),
+          animateValue(missedCalls, targetCalls, 600, setMissedCalls);
+        }, 1200),
       );
 
-      // Stage 3: Monthly loss count-up (4500ms delay)
+      // Stage 3: Monthly loss count-up (2200ms delay)
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(3);
           const targetMonthly = Math.floor(
             targetCalls * 30 * 0.25 * targetRevenue,
           );
-          animateValue(0, targetMonthly, 1500, setDisplayedMonthlyLoss, () => {
+          animateValue(0, targetMonthly, 1200, setDisplayedMonthlyLoss, () => {
             // Trigger pulse animation on monthly loss card
             controls.start({
               scale: [1, 1.05, 1],
               transition: { duration: 0.4 },
             });
           });
-        }, 4500),
+        }, 2200),
       );
 
-      // Stage 4: Yearly fade-in (7000ms delay)
+      // Stage 4: Yearly fade-in (4000ms delay)
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(4);
           setYearlyVisible(true);
-        }, 7000),
+        }, 4000),
       );
 
-      // End presentation mode (8000ms)
+      // End presentation mode (5000ms)
       timeouts.push(
         setTimeout(() => {
           setPresentationMode(false);
           setPresentationStage(0);
-        }, 8000),
+          alreadyScrolledRef.current = false;
+        }, 5000),
       );
     },
     [
@@ -185,6 +195,26 @@ const Calculator: React.FC = () => {
         handleAIUpdate as EventListener,
       );
   }, [revenuePerCustomer, missedCalls, presentationMode, runPresentation]);
+
+  // Listen for show_calculator (scroll-only, no animation)
+  useEffect(() => {
+    const handleShowCalculator = () => {
+      if (alreadyScrolledRef.current) return;
+      alreadyScrolledRef.current = true;
+      const cardEl = document.getElementById('calculator-card');
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        document
+          .getElementById('calculator')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    };
+
+    window.addEventListener('showCalculator', handleShowCalculator);
+    return () =>
+      window.removeEventListener('showCalculator', handleShowCalculator);
+  }, []);
 
   // Load dramatic border preference
   useEffect(() => {
@@ -381,7 +411,7 @@ const Calculator: React.FC = () => {
   );
 
   return (
-    <section className="py-24 relative" id="calculator">
+    <section className="py-24 relative section-grid-bg" id="calculator">
       <div className="page-container">
         <div className="text-center mb-16">
           <div className="flex justify-center mb-4">
@@ -400,7 +430,7 @@ const Calculator: React.FC = () => {
 
         {dramaticBorderEnabled ? (
           /* Dramatic Animated Border Wrapper */
-          <div className="dramatic-border-container">
+          <div className="dramatic-border-container" id="calculator-card">
             <div className="dramatic-border-inner">
               <div className="dramatic-border-outer">
                 <div className="dramatic-main-card glass-card rounded-3xl shadow-2xl relative overflow-hidden bg-white/80 dark:bg-bg-card">
@@ -425,7 +455,7 @@ const Calculator: React.FC = () => {
           </div>
         ) : (
           /* Standard Glass Card (no dramatic border) */
-          <div className="glass-card rounded-3xl p-8 lg:p-14 shadow-2xl relative overflow-hidden bg-white/80 dark:bg-bg-card">
+          <div id="calculator-card" className="glass-card rounded-3xl p-8 lg:p-14 shadow-2xl relative overflow-hidden bg-white/80 dark:bg-bg-card">
             {/* Background Ambient Light */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-money-loss/10 rounded-full blur-[100px] pointer-events-none" />
 
