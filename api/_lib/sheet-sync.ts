@@ -62,11 +62,22 @@ export async function syncSessionToSheet(voiceSessionPublicId: string) {
     .order('occurred_at', { ascending: true });
 
   // ── 5. Audio assets (first recording, if any) ────────────────
-  const { data: audioAssets } = await supabase
-    .from('voice_audio_assets')
-    .select('storage_path')
-    .eq('voice_session_id', session.id)
-    .limit(1);
+  // The recording upload may still be in-flight when sheet sync starts.
+  // Try once; if nothing found, wait 3s and retry once more.
+  let audioAssets: { storage_path: string }[] | null = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { data } = await supabase
+      .from('voice_audio_assets')
+      .select('storage_path')
+      .eq('voice_session_id', session.id)
+      .limit(1);
+    audioAssets = data;
+    if (audioAssets && audioAssets.length > 0) break;
+    if (attempt === 0) {
+      console.log('[sheet-sync] No audio found yet, retrying in 3s…');
+      await new Promise((r) => setTimeout(r, 3000));
+    }
+  }
 
   // ── 6. Visitor language ──────────────────────────────────────
   let language = 'unknown';

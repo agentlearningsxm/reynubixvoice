@@ -73,7 +73,7 @@ export async function uploadVoiceAudio(
 
   const dataUrl = await blobToDataUrl(blob);
 
-  await fetch('/api/voice/audio', {
+  const resp = await fetch('/api/voice/audio', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -83,7 +83,12 @@ export async function uploadVoiceAudio(
       dataUrl,
       metadata,
     }),
+    // NOTE: no keepalive — base64 audio payloads exceed Chrome's 64KB keepalive limit
   });
+
+  if (!resp.ok) {
+    throw new Error(`Audio upload failed: ${resp.status} ${resp.statusText}`);
+  }
 }
 
 export function recordVoiceToolCall(input: {

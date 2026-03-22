@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-Sitemap: https://reynubixvoice.vercel.app/sitemap.xml
+Sitemap: https://reynubixvoice-landing-page.vercel.app/sitemap.xml

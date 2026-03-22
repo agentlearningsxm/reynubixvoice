@@ -96,6 +96,119 @@
   --accent-subtle: rgba(196, 125, 90, 0.08);
 }
 
+/* Pencil / Sketch-on-paper accent theme */
+[data-accent="pencil"] {
+  --accent-primary: #8a8a8a;
+  --accent-secondary: #a0a0a0;
+  --accent-glow: rgba(138, 138, 138, 0.25);
+  --accent-subtle: rgba(138, 138, 138, 0.07);
+
+  /* Dramatic border overrides */
+  --dramatic-border-color: #8a8a8a;
+  --dramatic-border-color-50: rgba(138, 138, 138, 0.5);
+  --dramatic-border-color-60: rgba(138, 138, 138, 0.6);
+  --dramatic-gradient-color: rgba(138, 138, 138, 0.4);
+}
+
+/* Pencil theme — notebook-paper grid (horizontal lines prominent) */
+[data-accent="pencil"] .square-grid,
+[data-accent="pencil"] .dot-grid {
+  background-image:
+    linear-gradient(rgba(138, 138, 138, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 138, 138, 0.06) 1px, transparent 1px);
+  background-size: 44px 28px;
+}
+.light[data-accent="pencil"] .square-grid,
+.light[data-accent="pencil"] .dot-grid {
+  background-image:
+    linear-gradient(rgba(138, 138, 138, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 138, 138, 0.04) 1px, transparent 1px);
+  background-size: 44px 28px;
+}
+
+/* Pencil theme — section grid with notebook lines */
+[data-accent="pencil"] .section-grid-bg::before {
+  background-image:
+    linear-gradient(rgba(138, 138, 138, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 138, 138, 0.04) 1px, transparent 1px);
+  background-size: 44px 28px;
+}
+.light[data-accent="pencil"] .section-grid-bg::before {
+  background-image:
+    linear-gradient(rgba(138, 138, 138, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138, 138, 138, 0.03) 1px, transparent 1px);
+  background-size: 44px 28px;
+}
+
+/* Pencil theme — grainier noise texture */
+[data-accent="pencil"] body::after,
+body:has([data-accent="pencil"])::after {
+  opacity: 0.05;
+}
+
+/* Pencil theme — handwritten accents (eyebrows only, not headlines) */
+[data-accent="pencil"] .section-eyebrow {
+  font-family: 'Caveat', cursive;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+
+/* Pencil theme — sketch-style card surfaces */
+[data-accent="pencil"] .glass-card,
+[data-accent="pencil"] .card-surface {
+  background: rgba(255, 252, 245, 0.04);
+  border-style: solid;
+  border-color: rgba(138, 138, 138, 0.18);
+  box-shadow:
+    1px 1px 0 rgba(138, 138, 138, 0.08),
+    -1px -1px 0 rgba(138, 138, 138, 0.04),
+    0 4px 24px rgba(0, 0, 0, 0.2);
+}
+[data-accent="pencil"] .glass-card:hover,
+[data-accent="pencil"] .card-surface:hover {
+  border-color: rgba(138, 138, 138, 0.35);
+  box-shadow:
+    1px 1px 0 rgba(138, 138, 138, 0.12),
+    -1px -1px 0 rgba(138, 138, 138, 0.06),
+    0 4px 24px rgba(0, 0, 0, 0.3),
+    0 0 28px rgba(138, 138, 138, 0.12);
+}
+.light[data-accent="pencil"] .glass-card,
+.light[data-accent="pencil"] .card-surface {
+  background: rgba(255, 252, 245, 0.85);
+  border-style: solid;
+  border-color: rgba(138, 138, 138, 0.15);
+  box-shadow:
+    1px 1px 0 rgba(138, 138, 138, 0.06),
+    -1px -1px 0 rgba(138, 138, 138, 0.03),
+    0 8px 32px rgba(0, 0, 0, 0.06);
+}
+.light[data-accent="pencil"] .glass-card:hover,
+.light[data-accent="pencil"] .card-surface:hover {
+  border-color: rgba(138, 138, 138, 0.3);
+  box-shadow:
+    1px 1px 0 rgba(138, 138, 138, 0.08),
+    -1px -1px 0 rgba(138, 138, 138, 0.04),
+    0 4px 24px rgba(0, 0, 0, 0.1),
+    0 0 20px rgba(138, 138, 138, 0.06);
+}
+
+/* Pencil theme — section dividers with sketch feel */
+[data-accent="pencil"] .section-grid-divider {
+  background: linear-gradient(
+    90deg,
+    transparent 5%,
+    rgba(138, 138, 138, 0.2) 30%,
+    rgba(138, 138, 138, 0.2) 70%,
+    transparent 95%
+  );
+}
+
+/* Pencil theme — section eyebrow label */
+[data-accent="pencil"] .section-eyebrow {
+  border: 1px solid rgba(138, 138, 138, 0.35);
+}
+
 /* Hero floating cards — premium liquid glass */
 .hero-float-card {
   -webkit-backdrop-filter: blur(32px) saturate(180%);
@@ -708,10 +821,10 @@ main > section::before {
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 80px;
   background: linear-gradient(to bottom, var(--bg-main), transparent);
   pointer-events: none;
-  z-index: 1;
+  z-index: 20;
 }
 main > section::after {
   content: "";
@@ -719,10 +832,30 @@ main > section::after {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 80px;
   background: linear-gradient(to top, var(--bg-main), transparent);
   pointer-events: none;
-  z-index: 1;
+  z-index: 20;
+}
+/* Hero section — no top fade (first thing users see) */
+main > section:first-child::before {
+  display: none;
+}
+/* Last section — softer bottom fade before footer */
+main > section:last-child::after {
+  height: 60px;
+  opacity: 0.7;
+}
+
+/* Mobile: smaller section fades (80px = 12% of mobile viewport — too much) */
+@media (max-width: 639px) {
+  main > section::before,
+  main > section::after {
+    height: 40px;
+  }
+  main > section:last-child::after {
+    height: 30px;
+  }
 }
 
 /* Accessibility: Reduced Motion */

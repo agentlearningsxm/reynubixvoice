@@ -106,7 +106,7 @@ All 5 new analysis fields must have safe defaults if Gemini returns partial/malf
 
 ## Success criteria
 
-1. After a voice session on reynubixvoice.vercel.app, a new row appears in the "reyna web" Google Sheet tab within 30 seconds
+1. After a voice session on reynubixvoice-landing-page.vercel.app, a new row appears in the "reyna web" Google Sheet tab within 30 seconds
 2. All 19 columns are populated with correct data
 3. Gemini 2.5 Pro provides actionable analysis — not just "summary: user asked about services"
 4. Recording URL links to actual audio when available

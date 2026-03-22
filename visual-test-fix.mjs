@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-const URL = 'https://reynubixvoice.vercel.app/';
+const URL = 'https://reynubixvoice-landing-page.vercel.app/';
 const DIR = './test-screenshots';
 
 async function run() {

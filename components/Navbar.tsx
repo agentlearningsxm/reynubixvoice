@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Globe, Menu, Moon, Palette, Sun, X } from 'lucide-react';
+import { Check, Globe, Menu, Moon, Palette, Pencil, Sun, X } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -161,6 +161,7 @@ const Navbar: React.FC = () => {
     { code: 'blue', label: 'Royal Gold', color: '#c8a960' },
     { code: 'green', label: 'Neon Green', color: '#22C55E' },
     { code: 'orange', label: 'Coral Action', color: '#F97316' },
+    { code: 'pencil', label: 'Pencil Sketch', color: '#5c5c5c' },
   ];
 
   const navItems = [

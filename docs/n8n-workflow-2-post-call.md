@@ -183,7 +183,7 @@ Tell Retell where to send post-call events:
 
 1. Go to https://app.retellai.com
 2. Settings → **Webhooks** (or inside each Agent → Webhook URL)
-3. Set webhook URL to: `https://reynubixvoice.vercel.app/api/webhooks/retell`
+3. Set webhook URL to: `https://reynubixvoice-landing-page.vercel.app/api/webhooks/retell`
 4. Enable events: `call_analyzed`, `call_ended`, `call_started`
 5. Save
 

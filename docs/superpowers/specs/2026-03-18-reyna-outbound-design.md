@@ -8,7 +8,7 @@
 
 ## Goal
 
-When a lead fills out the contact form at reynubixvoice.vercel.app, Reyna (an AI voice agent) automatically calls them within 2 minutes, qualifies them in Dutch, and either books a meeting, transfers to a human, or follows up via SMS.
+When a lead fills out the contact form at reynubixvoice-landing-page.vercel.app, Reyna (an AI voice agent) automatically calls them within 2 minutes, qualifies them in Dutch, and either books a meeting, transfers to a human, or follows up via SMS.
 
 ---
 

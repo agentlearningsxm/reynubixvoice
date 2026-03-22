@@ -1,7 +1,7 @@
 import type React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
 
-export type ThemeAccent = 'blue' | 'green' | 'orange';
+export type ThemeAccent = 'blue' | 'green' | 'orange' | 'pencil';
 export type ThemeMode = 'dark' | 'light';
 
 interface ThemeContextType {
@@ -40,7 +40,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
       const detail = (e as CustomEvent).detail;
       if (detail.mode && (detail.mode === 'dark' || detail.mode === 'light'))
         setMode(detail.mode);
-      if (detail.accent && ['blue', 'green', 'orange'].includes(detail.accent))
+      if (detail.accent && ['blue', 'green', 'orange', 'pencil'].includes(detail.accent))
         setAccent(detail.accent);
     };
     window.addEventListener('toggleTheme', handler);

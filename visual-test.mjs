@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { chromium } from 'playwright';
 
-const URL = 'https://reynubixvoice.vercel.app/';
+const URL = 'https://reynubixvoice-landing-page.vercel.app/';
 const SCREENSHOT_DIR = './test-screenshots';
 
 const viewports = [

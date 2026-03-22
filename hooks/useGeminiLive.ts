@@ -125,6 +125,11 @@ export function useGeminiLive() {
   const sessionStartTimeRef = useRef<number>(0);
   const transcriptRef = useRef<TranscriptEntry[]>([]);
 
+  // Anti-loop: track greeting delivery and tool call state
+  const greetingDeliveredRef = useRef(false);
+  const toolCallCountRef = useRef(0);
+  const lastToolCallNameRef = useRef<string | null>(null);
+
   // Recording Refs (mix mic + AI into one WebM for Google Sheets)
   const recorderRef = useRef<MediaRecorder | null>(null);
   const recordingChunksRef = useRef<BlobPart[]>([]);
@@ -217,13 +222,17 @@ export function useGeminiLive() {
   };
 
   // ─── Tool Handlers ────────────────────────────────────────────
-  const handleToolCall = (fc: any): { status: string } => {
-    let result = { status: 'ok' };
+  // Returns enriched result with context anchor to prevent Gemini
+  // from losing conversation state after tool responses.
+  const handleToolCall = (fc: any): Record<string, unknown> => {
+    toolCallCountRef.current += 1;
+    lastToolCallNameRef.current = fc.name;
+    let status = 'ok';
 
     switch (fc.name) {
       case 'show_calculator': {
         window.dispatchEvent(new CustomEvent('showCalculator'));
-        result = { status: 'calculator_shown' };
+        status = 'calculator_shown';
         break;
       }
 
@@ -234,7 +243,7 @@ export function useGeminiLive() {
             detail: { revenue, missedCalls },
           }),
         );
-        result = { status: 'updated_calculator' };
+        status = 'updated_calculator';
         break;
       }
 
@@ -243,7 +252,7 @@ export function useGeminiLive() {
         const calApi = (window as any).Cal;
         if (calApi && calApi.ns && calApi.ns['let-s-talk']) {
           calApi.ns['let-s-talk']('openModal');
-          result = { status: 'cal_popup_opened' };
+          status = 'cal_popup_opened';
         } else {
           // Fallback: click the first cal.com button
           const calBtn = document.querySelector(
@@ -251,19 +260,24 @@ export function useGeminiLive() {
           ) as HTMLElement;
           if (calBtn) {
             calBtn.click();
-            result = { status: 'cal_button_clicked' };
+            status = 'cal_button_clicked';
           } else {
-            result = { status: 'cal_not_available' };
+            status = 'cal_not_available';
           }
         }
         break;
       }
 
       default:
-        result = { status: 'unknown_tool_' + fc.name };
+        status = 'unknown_tool_' + fc.name;
     }
 
-    return result;
+    // Enrich response with context anchor — prevents the model from
+    // resetting its conversation state and re-greeting after tool calls.
+    return {
+      status,
+      context: 'IMPORTANT: The tool executed successfully. You are mid-conversation. Your greeting was already delivered. Continue naturally from where you left off. Do NOT re-introduce yourself.',
+    };
   };
 
   // ─── Cleanup Audio (without clearing transcript) ───────────────
@@ -309,6 +323,9 @@ export function useGeminiLive() {
 
   // ─── Disconnect (user-initiated full teardown) ─────────────────
   const disconnect = useCallback(() => {
+    // Guard: prevent double-disconnect (e.g. rapid button clicks)
+    if (!voiceSessionIdRef.current && !connected && !isConnecting) return;
+
     intentionalDisconnectRef.current = true;
     reconnectAttemptsRef.current = 0;
 
@@ -346,41 +363,48 @@ export function useGeminiLive() {
       );
     };
 
-    // Upload recording BEFORE ending session so sheet sync finds the audio
-    if (
-      sessionId &&
-      !sessionId.startsWith('vs_mock_') &&
-      recorder &&
-      recorder.state !== 'inactive'
-    ) {
+    // Upload recording BEFORE ending session so sheet sync finds the audio.
+    // Helper: upload accumulated chunks, then fire session-end.
+    // NOTE: cleanupAudio() is called synchronously OUTSIDE this helper
+    // to prevent it from running after refs are reassigned by a new session.
+    const uploadAndEnd = async () => {
+      const audioBlob = new window.Blob(chunks, { type: 'audio/webm' });
+
+      if (sessionId && !sessionId.startsWith('vs_mock_') && audioBlob.size > 0) {
+        console.log('[Reyna] Uploading recording:', audioBlob.size, 'bytes');
+        const upload = uploadVoiceAudio(sessionId, 'recording', audioBlob)
+          .catch((e) => console.warn('[Reyna] Audio upload failed:', e));
+        // Cap wait at 15s — prevents dangling sessions on slow networks
+        await Promise.race([
+          upload,
+          new Promise<void>((r) => setTimeout(() => {
+            console.warn('[Reyna] Upload timed out after 15s, proceeding');
+            r();
+          }, 15_000)),
+        ]);
+      }
+
+      fireEndSession();
+    };
+
+    if (recorder && recorder.state !== 'inactive') {
+      // Recorder is still running — stop it and upload in the onstop callback
       recorder.ondataavailable = (e) => {
         if (e.data.size) chunks.push(e.data);
       };
-      recorder.onstop = async () => {
-        const audioBlob = new window.Blob(chunks, { type: 'audio/webm' });
-
-        // Upload audio first so sheet sync can generate a signed URL.
-        // Cap wait at 10s — if upload is slow, end session anyway to
-        // prevent dangling sessions when the user navigates away.
-        if (audioBlob.size > 0) {
-          const upload = uploadVoiceAudio(sessionId, 'recording', audioBlob)
-            .catch((e) => console.warn('[Reyna] Audio upload failed:', e));
-          await Promise.race([
-            upload,
-            new Promise((r) => setTimeout(r, 10_000)),
-          ]);
-        }
-
-        fireEndSession();
-        cleanupAudio(); // Safe to destroy AudioContext after upload completes
-      };
+      recorder.onstop = () => { uploadAndEnd(); };
       recorder.stop();
-      closeSession(); // Close WebSocket — recorder doesn't need it
     } else {
-      fireEndSession();
-      closeSession();
-      cleanupAudio();
+      // Recorder already stopped (auto-stop when audio tracks ended) —
+      // chunks were already collected via ondataavailable during the session.
+      // Upload them directly instead of skipping.
+      uploadAndEnd();
     }
+
+    // Clean up audio resources synchronously — safe because recorder.stop()
+    // already captured all data, and uploadAndEnd uses only captured locals.
+    closeSession();
+    cleanupAudio();
 
     // Clear refs
     voiceSessionIdRef.current = null;
@@ -514,6 +538,9 @@ export function useGeminiLive() {
 
               // Reset reconnection state on successful connect
               reconnectAttemptsRef.current = 0;
+              greetingDeliveredRef.current = false;
+              toolCallCountRef.current = 0;
+              lastToolCallNameRef.current = null;
               setIsConnecting(false);
               setIsReconnecting(false);
               setConnected(true);
@@ -633,6 +660,13 @@ export function useGeminiLive() {
                 recorder.ondataavailable = (e) => {
                   if (e.data.size) chunks.push(e.data);
                 };
+                recorder.onstop = () => {
+                  // Log auto-stop so we know it happened (disconnect() overrides this)
+                  console.log(
+                    '[Reyna] Recorder auto-stopped. Chunks collected:',
+                    chunks.length,
+                  );
+                };
                 recordingChunksRef.current = chunks;
                 recorderRef.current = recorder;
                 recorder.start(1000);
@@ -674,6 +708,22 @@ export function useGeminiLive() {
               try {
                 resolvedSessionRef.current?.sendToolResponse({
                   functionResponses: responses,
+                });
+                // Anti-loop: inject a context anchor after tool response
+                // to prevent Gemini from resetting and re-greeting.
+                const toolNames = responses.map((r: any) => r.name).join(', ');
+                resolvedSessionRef.current?.sendClientContent({
+                  turns: [
+                    {
+                      role: 'user',
+                      parts: [
+                        {
+                          text: `[System note: ${toolNames} executed successfully. The visitor can see the result on screen. Continue the conversation from where you left off. You already introduced yourself — do NOT greet again.]`,
+                        },
+                      ],
+                    },
+                  ],
+                  turnComplete: true,
                 });
               } catch (_) {
                 // Session may have closed
@@ -732,6 +782,26 @@ export function useGeminiLive() {
             // Handle AI Transcription
             const aiTranscription = msg.serverContent?.outputTranscription;
             if (aiTranscription && aiTranscription.text) {
+              // Track greeting delivery for anti-loop detection
+              const aiText = (aiTranscription.text as string).toLowerCase();
+              if (!greetingDeliveredRef.current && aiText.includes("i'm reyna")) {
+                greetingDeliveredRef.current = true;
+              }
+              // Detect greeting loop: if greeting pattern appears AFTER first delivery
+              // AND a tool call just happened, log a warning (the sendClientContent
+              // context anchor should prevent this, but log for diagnostics)
+              if (
+                greetingDeliveredRef.current &&
+                toolCallCountRef.current > 0 &&
+                aiText.includes("i'm reyna") &&
+                aiText.includes('what brings you')
+              ) {
+                console.warn(
+                  '[Reyna] GREETING LOOP DETECTED after tool call:',
+                  lastToolCallNameRef.current,
+                  '— sendClientContent context anchor may not be working',
+                );
+              }
               setTranscript((prev) => {
                 let lastIndex = -1;
                 for (let i = prev.length - 1; i >= 0; i--) {

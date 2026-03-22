@@ -1,7 +1,7 @@
 # ReynubixVoice — Project Guidelines
 
 ## What This Is
-AI-powered voice receptionist landing page for ReynubixVoice (reynubixvoice.vercel.app).
+AI-powered voice receptionist landing page for ReynubixVoice (reynubixvoice-landing-page.vercel.app).
 Converts missed calls into booked appointments for service businesses (HVAC, dental, roofing, etc.).
 
 ## Stack
