@@ -31,7 +31,7 @@ const Footer: React.FC = () => {
       {/* ═══════════════════════════════════════════════════
           CTA BANNER — Dramatic, Premium
       ═══════════════════════════════════════════════════ */}
-      <div className="relative overflow-hidden py-28 md:py-36">
+      <div className="relative overflow-hidden py-14 md:py-28 lg:py-36">
         {/* Large ambient glow — top center */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -184,7 +184,7 @@ const Footer: React.FC = () => {
                 >
                   {value}
                 </span>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-text-primary/50"
+                <span className="text-xs font-semibold uppercase tracking-[0.15em] text-text-primary/50"
                 >
                   {label}
                 </span>
@@ -390,7 +390,7 @@ const Footer: React.FC = () => {
                 Back to top
               </span>
               <span
-                className="w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-all duration-300 group-hover:border-brand-primary/40 group-hover:shadow-[0_0_12px_var(--accent-glow)]"
+                className="w-11 h-11 rounded-lg border border-border flex items-center justify-center transition-all duration-300 group-hover:border-brand-primary/40 group-hover:shadow-[0_0_12px_var(--accent-glow)]"
                 style={{ background: 'var(--bg-card)' }}
               >
                 <ArrowUp className="w-3.5 h-3.5 transition-transform duration-300 group-hover:-translate-y-0.5" />

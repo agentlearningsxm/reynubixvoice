@@ -362,7 +362,7 @@ const Calculator: React.FC = () => {
                 'radial-gradient(ellipse 80% 60% at 50% 100%, rgba(239,68,68,0.08), transparent)',
             }}
           />
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-red-400 mb-2 relative z-10">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-red-400 mb-2 relative z-10">
             {t.calculator.monthlyLoss}
           </p>
           <h3 className="text-[3.5rem] lg:text-[4rem] font-bold font-display tracking-[-0.04em] text-text-primary mb-2 relative z-10 leading-none">
@@ -385,7 +385,7 @@ const Calculator: React.FC = () => {
             transition: 'opacity 500ms ease-in',
           }}
         >
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-text-secondary mb-2">
+          <p className="text-xs font-bold uppercase tracking-[0.14em] text-text-secondary mb-2">
             {t.calculator.yearlyLoss}
           </p>
           <h3 className="text-[2.75rem] font-bold font-display tracking-[-0.04em] text-text-primary leading-none">
@@ -411,9 +411,9 @@ const Calculator: React.FC = () => {
   );
 
   return (
-    <section className="py-24 relative section-grid-bg" id="calculator">
+    <section className="py-12 md:py-24 relative section-grid-bg" id="calculator">
       <div className="page-container">
-        <div className="text-center mb-16">
+        <div className="text-center mb-8 md:mb-16">
           <div className="flex justify-center mb-4">
             <span className="section-eyebrow">Revenue Loss Calculator</span>
           </div>
@@ -438,7 +438,7 @@ const Calculator: React.FC = () => {
                   <div className="dramatic-border-animation"></div>
 
                   {/* Content Layer - Clearly visible */}
-                  <div className="relative z-10 p-8 lg:p-14">
+                  <div className="relative z-10 p-4 sm:p-8 lg:p-14">
                     {/* Background Ambient Light */}
                     <div className="absolute top-0 right-0 w-96 h-96 bg-money-loss/10 rounded-full blur-[100px] pointer-events-none" />
                     {calculatorContent}
@@ -455,7 +455,7 @@ const Calculator: React.FC = () => {
           </div>
         ) : (
           /* Standard Glass Card (no dramatic border) */
-          <div id="calculator-card" className="glass-card rounded-3xl p-8 lg:p-14 shadow-2xl relative overflow-hidden bg-white/80 dark:bg-bg-card">
+          <div id="calculator-card" className="glass-card rounded-3xl p-4 sm:p-8 lg:p-14 shadow-2xl relative overflow-hidden bg-white/80 dark:bg-bg-card">
             {/* Background Ambient Light */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-money-loss/10 rounded-full blur-[100px] pointer-events-none" />
 

@@ -182,7 +182,7 @@ const Comparison: React.FC = () => {
   return (
     <section
       ref={sectionRef}
-      className="py-28 section-grid-bg overflow-hidden relative min-h-[650px] md:min-h-[750px] lg:min-h-[850px] flex flex-col items-center justify-center select-none"
+      className="py-14 md:py-28 section-grid-bg overflow-hidden relative min-h-[650px] md:min-h-[750px] lg:min-h-[850px] flex flex-col items-center justify-center select-none"
       id="comparison"
     >
       {/* Background Ambience */}
@@ -193,7 +193,7 @@ const Comparison: React.FC = () => {
           <div className="flex justify-center mb-4">
             <span className="section-eyebrow">Interactive Showcase</span>
           </div>
-          <h1 className="text-5xl lg:text-6xl font-bold font-display tracking-[-0.02em] text-text-primary">
+          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold font-display tracking-[-0.02em] text-text-primary">
             {t.comparison.title}{' '}
             <span className="text-brand-primary">
               {t.comparison.titleHighlight}

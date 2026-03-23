@@ -242,7 +242,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Right Side Controls - Wrapped in Pill Style */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden lg:flex items-center">
             <div ref={controlsRef} className="controls-wrap relative">
               {/* Language Selector */}
               <div className="control-item">
@@ -385,7 +385,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile Controls */}
-          <div className="md:hidden flex items-center gap-3">
+          <div className="lg:hidden flex items-center gap-3">
             <button onClick={toggleMode} className="mobile-icon-btn">
               {mode === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
             </button>

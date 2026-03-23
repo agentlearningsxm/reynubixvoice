@@ -491,7 +491,7 @@ const MentorCards: React.FC = () => {
   }));
 
   return (
-    <section className="relative py-28 section-grid-bg" id="reviews">
+    <section className="relative py-14 md:py-28 section-grid-bg" id="reviews">
       {/* Light mode subtle background layer */}
       <div className="absolute inset-0 dark:hidden bg-gradient-to-b from-transparent via-slate-100/50 to-transparent pointer-events-none" />
       <div className="page-container relative">

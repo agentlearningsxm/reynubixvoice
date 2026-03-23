@@ -196,7 +196,7 @@ export function PremiumContact() {
   return (
     <section
       id="contact"
-      className="relative py-32 bg-bg-main text-text-primary transition-colors duration-500 overflow-hidden min-h-screen"
+      className="relative py-16 md:py-32 bg-bg-main text-text-primary transition-colors duration-500 overflow-hidden min-h-screen"
     >
       {/* Enhanced Background Effects */}
       <div className="absolute inset-0">
@@ -268,7 +268,7 @@ export function PremiumContact() {
         viewport={{ once: true, margin: '-100px' }}
       >
         {/* Header */}
-        <motion.div className="text-center mb-20" variants={fadeInUp}>
+        <motion.div className="text-center mb-10 md:mb-20" variants={fadeInUp}>
           <motion.div
             className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-brand-subtle dark:bg-brand-subtle bg-slate-100 border border-brand-primary/20 dark:border-brand-primary/20 border-slate-200 backdrop-blur-md mb-8 shadow-lg shadow-brand-glow/5 dark:shadow-brand-glow/5 shadow-slate-200/50"
             whileHover={{ scale: 1.05, borderColor: 'var(--accent-primary)' }}
@@ -286,7 +286,7 @@ export function PremiumContact() {
           </motion.div>
 
           <motion.h2
-            className="text-4xl sm:text-6xl md:text-8xl font-bold mb-8 tracking-tighter"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold mb-8 tracking-tighter"
             variants={fadeInUp}
           >
             <span className="bg-clip-text text-transparent bg-gradient-to-b from-text-primary via-text-primary to-text-primary/50">
@@ -322,13 +322,13 @@ export function PremiumContact() {
 
         {/* Stats Bar */}
         <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20"
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10 md:mb-20"
           variants={fadeInUp}
         >
           {companyStats.map((stat, index) => (
             <motion.div
               key={index}
-              className="text-center p-8 bg-bg-card border border-border backdrop-blur-xl rounded-3xl group hover:border-brand-primary/30 hover:bg-brand-subtle transition-all shadow-lg shadow-black/5 dark:shadow-black/5 shadow-slate-200/50"
+              className="text-center p-4 sm:p-8 bg-bg-card border border-border backdrop-blur-xl rounded-3xl group hover:border-brand-primary/30 hover:bg-brand-subtle transition-all shadow-lg shadow-black/5 dark:shadow-black/5 shadow-slate-200/50"
               whileHover={{ scale: 1.05, y: -8 }}
               variants={fadeInUp}
             >
@@ -591,7 +591,7 @@ export function PremiumContact() {
                   return (
                     <motion.div
                       key={index}
-                      className="relative block p-8 bg-bg-card border border-border/80 backdrop-blur-2xl rounded-3xl opacity-70 cursor-not-allowed shadow-[0_2px_16px_rgba(0,0,0,0.06),0_1px_4px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_28px_rgba(0,0,0,0.5)]"
+                      className="relative block p-5 sm:p-8 bg-bg-card border border-border/80 backdrop-blur-2xl rounded-3xl opacity-70 cursor-not-allowed shadow-[0_2px_16px_rgba(0,0,0,0.06),0_1px_4px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_28px_rgba(0,0,0,0.5)]"
                       variants={fadeInUp}
                     >
                       <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
@@ -632,7 +632,7 @@ export function PremiumContact() {
                         href: method.link,
                       })
                     }
-                    className="relative block p-8 bg-bg-card border border-border/80 backdrop-blur-2xl rounded-3xl hover:bg-brand-subtle hover:border-brand-primary/30 transition-all group shadow-[0_2px_16px_rgba(0,0,0,0.06),0_1px_4px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_28px_rgba(0,0,0,0.5)]"
+                    className="relative block p-5 sm:p-8 bg-bg-card border border-border/80 backdrop-blur-2xl rounded-3xl hover:bg-brand-subtle hover:border-brand-primary/30 transition-all group shadow-[0_2px_16px_rgba(0,0,0,0.06),0_1px_4px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_28px_rgba(0,0,0,0.5)]"
                     variants={fadeInUp}
                     whileHover={{
                       scale: 1.02,

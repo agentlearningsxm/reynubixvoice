@@ -462,7 +462,7 @@ const AutomationCards: React.FC = () => {
 
   return (
     <section
-      className="py-28 relative overflow-hidden section-grid-bg"
+      className="py-14 md:py-28 relative overflow-hidden section-grid-bg"
       id="automations"
     >
       {/* Background effects */}
@@ -476,7 +476,7 @@ const AutomationCards: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8 md:mb-16"
         >
           <div className="flex justify-center mb-4">
             <span className="section-eyebrow">
@@ -545,6 +545,24 @@ const AutomationCards: React.FC = () => {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
+            onTouchStart={(e) => {
+              isDraggingRef.current = true;
+              lastMouseXRef.current = e.touches[0].clientX;
+              mouseVelocityRef.current = 0;
+              cardLineRef.current?.classList.add('dragging');
+            }}
+            onTouchMove={(e) => {
+              if (!isDraggingRef.current) return;
+              const deltaX = e.touches[0].clientX - lastMouseXRef.current;
+              positionRef.current += deltaX;
+              mouseVelocityRef.current = deltaX * 60;
+              lastMouseXRef.current = e.touches[0].clientX;
+              if (cardLineRef.current) {
+                cardLineRef.current.style.transform = `translateX(${positionRef.current}px)`;
+              }
+              updateCardClipping();
+            }}
+            onTouchEnd={handleMouseUp}
           >
             {cards}
           </div>

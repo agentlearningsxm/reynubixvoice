@@ -75,22 +75,22 @@ const referralCards: CardStackItem[] = [
 
 export default function ReferralSection() {
   return (
-    <section className="relative w-full section-grid-bg py-28 overflow-hidden">
+    <section className="relative w-full section-grid-bg py-14 md:py-28 overflow-hidden">
       {/* Background Gradient Effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-bg-main/80 via-bg-card/30 to-bg-main/80 opacity-60" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-primary/10 via-transparent to-transparent opacity-60" />
 
       <div className="page-container relative z-10">
         {/* Header */}
-        <div className="mb-16 text-center">
+        <div className="mb-8 md:mb-16 text-center">
           <div className="flex justify-center mb-4">
             <span className="section-eyebrow">Social Proof</span>
           </div>
-          <h2 className="mb-4 text-5xl font-bold font-display tracking-[-0.02em] text-text-primary sm:text-6xl">
+          <h2 className="mb-4 text-3xl font-bold font-display tracking-[-0.02em] text-text-primary sm:text-5xl md:text-6xl">
             Join the <span className="text-gradient">Family</span>
           </h2>
 
-          <p className="mx-auto max-w-2xl text-xl text-text-secondary">
+          <p className="mx-auto max-w-2xl text-base sm:text-xl text-text-secondary">
             Every great partnership starts with one 'yes'. <br />
             <span className="text-brand-primary font-semibold">
               Will you be next?

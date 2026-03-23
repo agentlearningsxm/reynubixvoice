@@ -352,14 +352,18 @@ export function CardStack<T extends CardStackItem>({
                 <button
                   key={it.id}
                   onClick={() => setActive(idx)}
-                  className={cn(
-                    'h-2 w-2 rounded-full transition',
-                    on
-                      ? 'bg-foreground'
-                      : 'bg-foreground/30 hover:bg-foreground/50',
-                  )}
+                  className="relative flex items-center justify-center w-8 h-8"
                   aria-label={`Go to ${it.title}`}
-                />
+                >
+                  <span
+                    className={cn(
+                      'h-2.5 w-2.5 rounded-full transition',
+                      on
+                        ? 'bg-foreground'
+                        : 'bg-foreground/30 hover:bg-foreground/50',
+                    )}
+                  />
+                </button>
               );
             })}
           </div>

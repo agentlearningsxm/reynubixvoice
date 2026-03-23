@@ -280,7 +280,7 @@ const Hero: React.FC = () => {
             <motion.div
               animate={{ y: [0, -12, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute z-20"
+              className="absolute z-20 hidden md:block"
               style={{ left: '-5%', top: '15%' }}
             >
               <div className="hero-float-card hero-float-card--enhanced p-4 flex items-center gap-3 w-56">
@@ -323,7 +323,7 @@ const Hero: React.FC = () => {
                 ease: 'easeInOut',
                 delay: 1,
               }}
-              className="absolute z-20"
+              className="absolute z-20 hidden md:block"
               style={{ right: '-8%', top: '55%' }}
             >
               <div className="hero-float-card hero-float-card--enhanced p-4 flex items-center gap-3 w-56">
@@ -350,7 +350,7 @@ const Hero: React.FC = () => {
                 ease: 'easeInOut',
                 delay: 0.5,
               }}
-              className="absolute z-20"
+              className="absolute z-20 hidden md:block"
               style={{ right: '-2%', top: '18%' }}
             >
               <div className="hero-float-card hero-float-card--enhanced px-4 py-3 flex items-center gap-3">

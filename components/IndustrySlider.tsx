@@ -339,7 +339,7 @@ const IndustrySlider: React.FC = () => {
         <div className="flex justify-center mb-4">
           <span className="section-eyebrow">Industries We Serve</span>
         </div>
-        <h2 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold leading-tight tracking-[-0.02em] mb-3">
+        <h2 className="text-3xl sm:text-5xl lg:text-7xl font-display font-bold leading-tight tracking-[-0.02em] mb-3">
           <span className="text-text-primary">{t.industries.title} </span>
           <span className="text-brand-primary">
             {t.industries.titleHighlight}
