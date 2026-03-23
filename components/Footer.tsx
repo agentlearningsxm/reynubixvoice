@@ -32,6 +32,11 @@ const Footer: React.FC = () => {
           CTA BANNER — Dramatic, Premium
       ═══════════════════════════════════════════════════ */}
       <div className="relative overflow-hidden py-14 md:py-28 lg:py-36">
+        {/* Gold rising particles — embers behind CTA */}
+        <div className="cta-particles">
+          <span /><span /><span /><span />
+          <span /><span /><span /><span />
+        </div>
         {/* Large ambient glow — top center */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -149,25 +154,33 @@ const Footer: React.FC = () => {
             {stats.map(({ value, label, icon: Icon }) => (
               <div
                 key={label}
-                className="group relative flex flex-col items-center gap-2.5 py-6 px-5 rounded-2xl transition-all duration-300 overflow-hidden"
+                className="group relative flex flex-col items-center gap-2.5 py-6 px-5 rounded-2xl transition-all duration-300 overflow-hidden stat-card-tilt"
                 style={{
                   background: 'color-mix(in srgb, var(--accent-primary) 4%, var(--bg-main))',
                   border: '1px solid color-mix(in srgb, var(--accent-primary) 15%, transparent)',
                 }}
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = ((e.clientX - rect.left) / rect.width) * 100;
+                  const y = ((e.clientY - rect.top) / rect.height) * 100;
+                  const rotateX = ((y - 50) / 50) * -8;
+                  const rotateY = ((x - 50) / 50) * 8;
+                  e.currentTarget.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                  e.currentTarget.style.setProperty('--mouse-x', `${x}%`);
+                  e.currentTarget.style.setProperty('--mouse-y', `${y}%`);
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'rotateX(0deg) rotateY(0deg)';
+                }}
               >
+                {/* Magnetic spotlight follow */}
+                <div className="stat-highlight" />
                 {/* Left accent stripe */}
                 <div
                   className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full"
                   style={{
                     background: 'linear-gradient(180deg, transparent, var(--accent-primary), transparent)',
                     opacity: 0.5,
-                  }}
-                />
-                {/* Hover glow */}
-                <div
-                  className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                  style={{
-                    background: 'radial-gradient(ellipse at center, color-mix(in srgb, var(--accent-primary) 10%, transparent), transparent 70%)',
                   }}
                 />
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-1 transition-colors duration-300"
@@ -401,21 +414,10 @@ const Footer: React.FC = () => {
       </div>
 
       {/* ═══════════════════════════════════════════════════
-          BOTTOM EDGE GLOW — Animated gradient border
+          BOTTOM EDGE — Shimmering signature line
       ═══════════════════════════════════════════════════ */}
-      <div
-        className="h-[2px] w-full"
-        style={{
-          background: 'linear-gradient(90deg, transparent 0%, var(--accent-primary) 20%, var(--accent-secondary) 40%, var(--accent-primary) 60%, var(--accent-secondary) 80%, transparent 100%)',
-          opacity: 0.7,
-        }}
-      />
-      <div
-        className="h-6 w-full pointer-events-none"
-        style={{
-          background: 'linear-gradient(0deg, color-mix(in srgb, var(--accent-primary) 8%, transparent), transparent)',
-        }}
-      />
+      <div className="footer-signature-line" />
+      <div className="footer-signature-glow" />
     </footer>
   );
 };

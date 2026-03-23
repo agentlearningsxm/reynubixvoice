@@ -63,23 +63,16 @@ const MarketingLayout: React.FC<{ children: React.ReactNode }> = ({
   </div>
 );
 
-const GridDivider = () => <div className="section-grid-divider" />;
-
 const HomePage: React.FC = () => (
   <>
     <Hero />
     <Calculator />
-    <GridDivider />
     <IndustrySlider />
-    <GridDivider />
     <Comparison />
-    <GridDivider />
     <Suspense fallback={<div className="min-h-[400px]" />}>
       <AutomationCards />
     </Suspense>
-    <GridDivider />
     <MentorCards />
-    <GridDivider />
     <ReferralSection />
   </>
 );
