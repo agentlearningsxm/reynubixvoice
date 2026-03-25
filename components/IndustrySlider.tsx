@@ -92,7 +92,7 @@ const IndustrySlider: React.FC = () => {
 
       {/* Carousel */}
       <div className="relative max-w-7xl mx-auto px-4">
-        {/* Prev / Next arrows — visible on ALL viewports */}
+        {/* Prev / Next arrowsvisible on ALL viewports */}
         <button
           type="button"
           onClick={() => emblaApi?.scrollPrev()}

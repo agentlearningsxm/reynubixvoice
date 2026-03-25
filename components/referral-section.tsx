@@ -98,7 +98,7 @@ export default function ReferralSection() {
           </p>
         </div>
 
-        {/* CardStack Component — using Ruixen UI original API */}
+        {/* CardStack Component -using Ruixen UI original API */}
         <div className="mx-auto w-full max-w-[1400px]">
           <CardStack
             items={referralCards}

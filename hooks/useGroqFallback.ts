@@ -126,7 +126,7 @@ export function useGroqFallback() {
         await speak(aiText);
       } catch (err) {
         console.error('[Reyna Groq] API error:', err);
-        const fallbackMsg = "I'm having a moment — please try again.";
+        const fallbackMsg = "I'm having a momentplease try again.";
         appendTranscript('ai', fallbackMsg);
         await speak(fallbackMsg);
       } finally {
@@ -172,7 +172,7 @@ export function useGroqFallback() {
       return;
     }
 
-    // Build system prompt — KNOWLEDGE_BASE will be injected by SYSTEM_INSTRUCTION after Agent A's changes
+    // Build system promptKNOWLEDGE_BASE will be injected by SYSTEM_INSTRUCTION after Agent A's changes
     const silenceMode = localStorage.getItem('reyna-silence-mode') || 'checkin';
     const silenceContext =
       SILENCE_MODES[silenceMode as keyof typeof SILENCE_MODES] ??
@@ -194,7 +194,7 @@ export function useGroqFallback() {
     recognition.onspeechend = () => setIsUserSpeaking(false);
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      // Prevent feedback loop — ignore results while agent is speaking
+      // Prevent feedback loopignore results while agent is speaking
       if (isAgentSpeakingRef.current) return;
 
       const result = event.results[event.results.length - 1];
@@ -256,13 +256,13 @@ export function useGroqFallback() {
         await speak(greeting);
       }, 600);
     } catch (err) {
-      setError('Could not start voice input — please allow microphone access.');
+      setError('Could not start voice inputplease allow microphone access.');
       setIsConnecting(false);
     }
   }, [isConnecting, sendToGroq, speak, appendTranscript]);
 
   const disconnect = useCallback(() => {
-    // Fire endVoiceSession before clearing state — triggers sheet sync
+    // Fire endVoiceSession before clearing statetriggers sheet sync
     // Skip mock sessions (backend won't find them in Supabase)
     if (
       voiceSessionIdRef.current &&

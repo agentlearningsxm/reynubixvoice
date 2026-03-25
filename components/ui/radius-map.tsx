@@ -40,7 +40,7 @@ export function RadiusMap() {
         },
       ).addTo(map);
 
-      // Radius circle — 15km around Zwijndrecht
+      // Radius circle -15km around Zwijndrecht
       L.circle(CENTER, {
         radius: RADIUS_KM * 1000,
         color: '#b8956a',

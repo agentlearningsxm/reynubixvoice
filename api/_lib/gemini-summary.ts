@@ -33,7 +33,7 @@ export async function analyzeTranscript(
     const genai = getGeminiAdminClient();
 
     const response = await genai.models.generateContent({
-      model: 'gemini-2.5-pro',
+      model: 'gemini-3.0-flash',
       contents: [
         {
           role: 'user',
@@ -45,7 +45,7 @@ Analyze the transcript and return a JSON object with exactly these 7 fields:
 
 1. "summary": 2-3 sentence summary. Include: what the caller wanted, key discussion points, outcome, and any next steps or action items.
 
-2. "sentiment": Exactly one word — "positive", "neutral", "negative", or "frustrated". Based on the caller's tone throughout the conversation.
+2. "sentiment": Exactly one word -"positive", "neutral", "negative", or "frustrated". Based on the caller's tone throughout the conversation.
 
 3. "callQualityScore": Integer from 1-10. Score based on:
    - Accuracy of information provided (did Reyna give correct details?)
@@ -65,7 +65,7 @@ Analyze the transcript and return a JSON object with exactly these 7 fields:
    - Missed opportunities (caller showed interest but Reyna didn't follow up)
    If no errors found, write "None detected".
 
-5. "promptFixRecommendations": Specific, actionable changes to Reyna's system prompt that would fix the errors detected. Be precise — reference exact phrases or behaviors to add/remove/change. If no fixes needed, write "No changes needed".
+5. "promptFixRecommendations": Specific, actionable changes to Reyna's system prompt that would fix the errors detected. Be precise -reference exact phrases or behaviors to add/remove/change. If no fixes needed, write "No changes needed".
 
 6. "failureSource": Which part of the call flow had the biggest issue. Use exactly one of: "greeting", "qualification", "calculator", "booking", "transfer", "closing", or "none". Pick "none" if the call went smoothly overall.
 
@@ -102,7 +102,7 @@ Respond with ONLY the raw JSON object. No markdown, no code fences, no extra tex
   } catch (error) {
     console.error('Gemini transcript analysis failed:', error);
     return {
-      summary: 'Analysis failed — check logs',
+      summary: 'Analysis failed -check logs',
       sentiment: 'unknown',
       callQualityScore: 0,
       errorsDetected: 'Analysis failed',

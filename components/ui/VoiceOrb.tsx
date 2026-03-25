@@ -2,7 +2,7 @@ import type React from 'react';
 import { useEffect, useRef } from 'react';
 
 /**
- * 3D Particle Sphere Orb — rectangleworld.com algorithm adapted for React
+ * 3D Particle Sphere Orb -rectangleworld.com algorithm adapted for React
  *
  * States:
  * - Dormant (!isActive)       : dim gold, slow rotation
@@ -17,7 +17,7 @@ interface VoiceOrbProps {
   isActive: boolean;
   isSpeaking: boolean;
   isUserSpeaking?: boolean;
-  /** When false the orb dissolves — used to hide during live transcription */
+  /** When false the orb dissolves -used to hide during live transcription */
   isVisible?: boolean;
   hasError?: boolean;
 }
@@ -53,7 +53,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
 
-  // All smoothly animated state lives here — readable from the RAF loop without recreating it
+  // All smoothly animated state lives here -readable from the RAF loop without recreating it
   const anim = useRef({
     hue: 42,
     targetHue: 42,
@@ -96,7 +96,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
       a.targetPulseMag = 0.012;
       a.targetPulseFreq = 1.4;
     } else if (isSpeaking) {
-      // Agent speaking — vibrant green
+      // Agent speaking -vibrant green
       a.targetHue = 142;
       a.targetHue2 = 168;
       a.targetSat = 90;
@@ -105,7 +105,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
       a.targetPulseMag = 0.22;
       a.targetPulseFreq = 7.5;
     } else if (isUserSpeaking) {
-      // User speaking — warm amber, listening contraction
+      // User speaking -warm amber, listening contraction
       a.targetHue = 36;
       a.targetHue2 = 44;
       a.targetSat = 94;
@@ -114,7 +114,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
       a.targetPulseMag = 0.055;
       a.targetPulseFreq = 3.2;
     } else {
-      // Connected idle — warm gold
+      // Connected idle -warm gold
       a.targetHue = 42;
       a.targetHue2 = 48;
       a.targetSat = 84;
@@ -126,7 +126,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
     a.targetGlobalAlpha = isVisible ? 1 : 0;
   }, [isActive, isSpeaking, isUserSpeaking, isVisible, hasError]);
 
-  // Main render loop — runs once, reads from anim ref
+  // Main render loop -runs once, reads from anim ref
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -366,7 +366,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
         const depthF = Math.max(0, Math.min(1, 1 - rz / ZERO_ALPHA_Z));
         const fa = depthF * p.alpha * a.globalAlpha;
 
-        // Slight hue shift by depth for chromatic depth — front particles hue2, back particles hue
+        // Slight hue shift by depth for chromatic depth -front particles hue2, back particles hue
         const hueBlend = a.hue + (a.hue2 - a.hue) * Math.max(0, rz / -200);
 
         ctx.fillStyle = `hsla(${hueBlend},${a.sat}%,${a.lit}%,${fa})`;

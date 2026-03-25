@@ -83,7 +83,7 @@ const Hero: React.FC = () => {
       ? '0 0 24px rgba(245,158,11,0.45), 0 4px 12px rgba(0,0,0,0.3)'
       : '0 0 22px rgba(34,197,94,0.45), 0 4px 12px rgba(0,0,0,0.3)';
 
-  // Edge glow — bleeds through phone bezels
+  // Edge glow -bleeds through phone bezels
   const glowColor = error
     ? '239,68,68'
     : isAgentSpeaking
@@ -142,7 +142,7 @@ const Hero: React.FC = () => {
       className="relative pt-32 pb-28 lg:pt-44 lg:pb-32 overflow-x-clip"
       id="receptionist"
     >
-      {/* Grid provided by full-page square-grid in App.tsx — no local grid needed */}
+      {/* Grid provided by full-page square-grid in App.tsx -no local grid needed */}
 
       <div
         className="absolute inset-x-0 top-0 h-[700px] pointer-events-none"
@@ -159,7 +159,7 @@ const Hero: React.FC = () => {
       />
 
       <div className="page-container relative z-10">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* ── Left: copy ── */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -225,7 +225,7 @@ const Hero: React.FC = () => {
               </Button>
             </div>
 
-            {/* ── Mobile stat strip — visible below md ── */}
+            {/* ── Mobile stat strip -visible below md ── */}
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -320,9 +320,9 @@ const Hero: React.FC = () => {
               ease: [0.25, 0.46, 0.45, 0.94],
             }}
             className="relative flex items-center justify-center"
-            style={{ height: 'clamp(420px, 45vw, 600px)' }}
+            style={{ height: 'clamp(360px, 45vw, 600px)' }}
           >
-            {/* ─── Floating card — Appointment ─── */}
+            {/* ─── Floating card -Appointment ─── */}
             <motion.div
               animate={{ y: [0, -12, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
@@ -360,7 +360,7 @@ const Hero: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* ─── Floating card — Revenue saved ─── */}
+            {/* ─── Floating card -Revenue saved ─── */}
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{
@@ -387,7 +387,7 @@ const Hero: React.FC = () => {
               </div>
             </motion.div>
 
-            {/* ─── Floating card — Answer rate ─── */}
+            {/* ─── Floating card -Answer rate ─── */}
             <motion.div
               animate={{ y: [0, -8, 0] }}
               transition={{
@@ -411,9 +411,9 @@ const Hero: React.FC = () => {
             <motion.div
               animate={{ y: [0, -16, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative"
+              className="relative scale-[0.78] md:scale-100 origin-top"
             >
-              {/* Edge glow behind phone — the "backlit through edges" effect */}
+              {/* Edge glow behind phone -the "backlit through edges" effect */}
               <div
                 className="absolute pointer-events-none transition-all duration-700"
                 style={{

@@ -29,15 +29,15 @@ const Footer: React.FC = () => {
   return (
     <footer id="footer" className="relative border-t border-border section-grid-bg overflow-hidden">
       {/* ═══════════════════════════════════════════════════
-          CTA BANNER — Dramatic, Premium
+          CTA BANNERDramatic, Premium
       ═══════════════════════════════════════════════════ */}
       <div className="relative overflow-hidden py-14 md:py-28 lg:py-36">
-        {/* Gold rising particles — embers behind CTA */}
+        {/* Gold rising particlesembers behind CTA */}
         <div className="cta-particles">
           <span /><span /><span /><span />
           <span /><span /><span /><span />
         </div>
-        {/* Large ambient glow — top center */}
+        {/* Large ambient glowtop center */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -45,7 +45,7 @@ const Footer: React.FC = () => {
               'radial-gradient(ellipse 80% 60% at 50% 30%, color-mix(in srgb, var(--accent-primary) 14%, transparent), transparent 70%)',
           }}
         />
-        {/* Bottom glow — warm uplight effect */}
+        {/* Bottom glowwarm uplight effect */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -74,7 +74,7 @@ const Footer: React.FC = () => {
             </span>
           </div>
 
-          {/* Headline — larger, more dramatic */}
+          {/* Headlinelarger, more dramatic */}
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-display tracking-[-0.03em] text-text-primary mb-5 leading-[1.08]">
             Every missed call is a
             <br />
@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
             Your AI receptionist answers 24/7 before your competitor does.
           </p>
 
-          {/* CTA Button — enhanced glow */}
+          {/* CTA Buttonenhanced glow */}
           <a
             data-cal-link="reynubix-voice/let-s-talk"
             data-cal-namespace="let-s-talk"
@@ -133,7 +133,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* ═══════════════════════════════════════════════════
-          PREMIUM DIVIDER — Gradient line with glow
+          PREMIUM DIVIDERGradient line with glow
       ═══════════════════════════════════════════════════ */}
       <div className="relative">
         <div className="absolute inset-x-0 top-0 h-px" style={{
@@ -146,7 +146,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* ═══════════════════════════════════════════════════
-          TRUST STATS BAR — With icons, glass cards
+          TRUST STATS BARWith icons, glass cards
       ═══════════════════════════════════════════════════ */}
       <div className="relative py-12 md:py-16">
         <div className="page-container">
@@ -208,7 +208,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* ═══════════════════════════════════════════════════
-          MAIN FOOTER — Premium glass panel
+          MAIN FOOTERPremium glass panel
       ═══════════════════════════════════════════════════ */}
       <div className="relative">
         {/* Top divider */}
@@ -220,7 +220,7 @@ const Footer: React.FC = () => {
           <div className="page-container">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
 
-              {/* Brand Column — wider */}
+              {/* Brand Columnwider */}
               <div className="md:col-span-5">
                 <div className="flex items-center gap-2.5 mb-4">
                   <div
@@ -378,7 +378,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* ═══════════════════════════════════════════════════
-          BOTTOM BAR — Copyright + Back to top
+          BOTTOM BARCopyright + Back to top
       ═══════════════════════════════════════════════════ */}
       <div className="relative">
         {/* Separator */}
@@ -414,7 +414,7 @@ const Footer: React.FC = () => {
       </div>
 
       {/* ═══════════════════════════════════════════════════
-          BOTTOM EDGE — Shimmering signature line
+          BOTTOM EDGEShimmering signature line
       ═══════════════════════════════════════════════════ */}
       <div className="footer-signature-line" />
       <div className="footer-signature-glow" />

@@ -106,7 +106,7 @@ async function _handler(req: VercelRequest, res: VercelResponse) {
       .update({ delivery_status: 'failed' })
       .eq('lead_id', leadId)
       .eq('session_id', sessionDbId);
-    // Email failure must never block form submission — lead is already saved
+    // Email failure must never block form submission -lead is already saved
   }
 
   await recordEvent({
@@ -124,7 +124,7 @@ async function _handler(req: VercelRequest, res: VercelResponse) {
     },
   });
 
-  // Fire n8n webhook — never block the form response
+  // Fire n8n webhook -never block the form response
   if (process.env.N8N_WEBHOOK_URL) {
     try {
       await fetch(process.env.N8N_WEBHOOK_URL, {
@@ -142,7 +142,7 @@ async function _handler(req: VercelRequest, res: VercelResponse) {
       });
     } catch (err) {
       console.error('[n8n webhook] failed to notify:', err);
-      // never rethrow — form submission must succeed regardless
+      // never rethrow -form submission must succeed regardless
     }
   }
 

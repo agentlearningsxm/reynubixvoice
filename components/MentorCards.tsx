@@ -225,7 +225,7 @@ const SECTION_COPY: Record<
     title: 'The World-Class AI Experts',
     highlight: 'Powering Every System We Build.',
     description:
-      'We stay plugged into the top AI operators on the planet and turn their proven frameworks into real results for your business — more calls answered, more leads booked, more revenue captured. Enterprise-level AI at a fraction of the price.',
+      'We stay plugged into the top AI operators on the planet and turn their proven frameworks into real results for your business -more calls answered, more leads booked, more revenue captured. Enterprise-level AI at a fraction of the price.',
     cta: 'View My Skool Profile',
   },
   fr: {

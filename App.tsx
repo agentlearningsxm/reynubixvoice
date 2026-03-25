@@ -39,13 +39,13 @@ const MarketingLayout: React.FC<{ children: React.ReactNode }> = ({
         style={{ animationDelay: '2s' }}
       />
     </div>
-    {/* Full-page square grid — Cowork-inspired background texture, above glow blobs */}
+    {/* Full-page square gridCowork-inspired background texture, above glow blobs */}
     <div className="fixed inset-0 z-1 pointer-events-none square-grid" />
 
     <div className="relative z-10">
       <Navbar />
       <main className="relative">
-        {/* Scrolling ambient orbs — visual flow between sections */}
+        {/* Scrolling ambient orbsvisual flow between sections */}
         <div
           className="absolute inset-0 pointer-events-none overflow-hidden"
           style={{ zIndex: 0 }}

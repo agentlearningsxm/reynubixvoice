@@ -1,5 +1,5 @@
 /**
- * Google Sheets REST API wrapper — zero extra npm packages.
+ * Google Sheets REST API wrapper -zero extra npm packages.
  * Uses OAuth2 refresh token to get access tokens on the fly.
  */
 

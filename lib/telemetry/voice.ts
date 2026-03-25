@@ -83,7 +83,7 @@ export async function uploadVoiceAudio(
       dataUrl,
       metadata,
     }),
-    // NOTE: no keepalive — base64 audio payloads exceed Chrome's 64KB keepalive limit
+    // NOTE: no keepalive -base64 audio payloads exceed Chrome's 64KB keepalive limit
   });
 
   if (!resp.ok) {

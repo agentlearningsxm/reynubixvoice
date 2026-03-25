@@ -272,7 +272,7 @@ export function useGeminiLive() {
         status = 'unknown_tool_' + fc.name;
     }
 
-    // Enrich response with context anchor — prevents the model from
+    // Enrich response with context anchor -prevents the model from
     // resetting its conversation state and re-greeting after tool calls.
     return {
       status,
@@ -374,7 +374,7 @@ export function useGeminiLive() {
         console.log('[Reyna] Uploading recording:', audioBlob.size, 'bytes');
         const upload = uploadVoiceAudio(sessionId, 'recording', audioBlob)
           .catch((e) => console.warn('[Reyna] Audio upload failed:', e));
-        // Cap wait at 15s — prevents dangling sessions on slow networks
+        // Cap wait at 15s -prevents dangling sessions on slow networks
         await Promise.race([
           upload,
           new Promise<void>((r) => setTimeout(() => {
@@ -388,20 +388,20 @@ export function useGeminiLive() {
     };
 
     if (recorder && recorder.state !== 'inactive') {
-      // Recorder is still running — stop it and upload in the onstop callback
+      // Recorder is still running -stop it and upload in the onstop callback
       recorder.ondataavailable = (e) => {
         if (e.data.size) chunks.push(e.data);
       };
       recorder.onstop = () => { uploadAndEnd(); };
       recorder.stop();
     } else {
-      // Recorder already stopped (auto-stop when audio tracks ended) —
+      // Recorder already stopped (auto-stop when audio tracks ended)
       // chunks were already collected via ondataavailable during the session.
       // Upload them directly instead of skipping.
       uploadAndEnd();
     }
 
-    // Clean up audio resources synchronously — safe because recorder.stop()
+    // Clean up audio resources synchronously -safe because recorder.stop()
     // already captured all data, and uploadAndEnd uses only captured locals.
     closeSession();
     cleanupAudio();
@@ -433,7 +433,7 @@ export function useGeminiLive() {
 
     if (attempt > MAX_RECONNECT_ATTEMPTS) {
       console.error(
-        '[Reyna] Max reconnection attempts reached — switching to Groq fallback',
+        '[Reyna] Max reconnection attempts reached -switching to Groq fallback',
       );
       closeSession();
       cleanupAudio();
@@ -455,7 +455,7 @@ export function useGeminiLive() {
     const delay = RECONNECT_BASE_DELAY_MS * attempt;
     reconnectTimeoutRef.current = setTimeout(() => {
       if (!intentionalDisconnectRef.current) {
-        // connectToGemini is called directly — it's hoisted
+        // connectToGemini is called directly -it's hoisted
         void connectToGemini(true);
       }
     }, delay);
@@ -481,9 +481,9 @@ export function useGeminiLive() {
         return;
       }
 
-      // Connection timeout — if onopen doesn't fire in time, retry
+      // Connection timeout -if onopen doesn't fire in time, retry
       connectionTimeoutRef.current = setTimeout(() => {
-        console.warn('[Reyna] Connection timeout — attempting reconnect');
+        console.warn('[Reyna] Connection timeout -attempting reconnect');
         closeSession();
         cleanupAudio();
         setIsConnecting(false);
@@ -516,7 +516,7 @@ export function useGeminiLive() {
       const fullInstruction = SYSTEM_INSTRUCTION + '\n\n' + silenceContext;
 
       const sessionPromise = ai.live.connect({
-        model: 'gemini-2.5-flash-native-audio-preview-12-2025',
+        model: 'gemini-3.0-flash-native-audio',
         config: {
           responseModalities: [Modality.AUDIO],
           systemInstruction: fullInstruction,
@@ -530,7 +530,7 @@ export function useGeminiLive() {
         callbacks: {
           onopen: () => {
             try {
-              // Clear connection timeout — we're in
+              // Clear connection timeout -we're in
               if (connectionTimeoutRef.current) {
                 clearTimeout(connectionTimeoutRef.current);
                 connectionTimeoutRef.current = null;
@@ -633,7 +633,7 @@ export function useGeminiLive() {
                     media: blob,
                   });
                 } catch (_) {
-                  // Session may have closed — ignore
+                  // Session may have closed -ignore
                 }
               };
 
@@ -718,7 +718,7 @@ export function useGeminiLive() {
                       role: 'user',
                       parts: [
                         {
-                          text: `[System note: ${toolNames} executed successfully. The visitor can see the result on screen. Continue the conversation from where you left off. You already introduced yourself — do NOT greet again.]`,
+                          text: `[System note: ${toolNames} executed successfully. The visitor can see the result on screen. Continue the conversation from where you left off. You already introduced yourself -do NOT greet again.]`,
                         },
                       ],
                     },
@@ -799,7 +799,7 @@ export function useGeminiLive() {
                 console.warn(
                   '[Reyna] GREETING LOOP DETECTED after tool call:',
                   lastToolCallNameRef.current,
-                  '— sendClientContent context anchor may not be working',
+                  'sendClientContent context anchor may not be working',
                 );
               }
               setTranscript((prev) => {
@@ -891,7 +891,7 @@ export function useGeminiLive() {
             // Auto-reconnect unless user pressed end call
             if (!intentionalDisconnectRef.current) {
               console.warn(
-                '[Reyna] Connection closed unexpectedly — reconnecting',
+                '[Reyna] Connection closed unexpectedly -reconnecting',
               );
               reconnect();
             }
@@ -903,9 +903,9 @@ export function useGeminiLive() {
             setIsConnecting(false);
             resolvedSessionRef.current = null;
 
-            // Don't hard-disconnect — try to reconnect
+            // Don't hard-disconnect -try to reconnect
             if (!intentionalDisconnectRef.current) {
-              console.warn('[Reyna] Error received — attempting reconnect');
+              console.warn('[Reyna] Error received -attempting reconnect');
               reconnect();
             } else {
               setError(`Connection failed: ${msg}`);

@@ -126,7 +126,7 @@ export async function syncSessionToSheet(voiceSessionPublicId: string) {
     ? Math.round((session.duration_ms as number) / 1000)
     : 0;
 
-  // ── Recording URL (signed — bucket is private) ──────────────
+  // ── Recording URL (signed -bucket is private) ──────────────
   const storagePath = audioAssets?.[0]?.storage_path;
   let recordingUrl = 'N/A';
   if (storagePath) {

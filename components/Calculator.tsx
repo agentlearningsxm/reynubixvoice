@@ -104,7 +104,7 @@ const Calculator: React.FC = () => {
       }
       alreadyScrolledRef.current = true;
 
-      // Stage 1: Revenue slider (600ms delay — allows scroll to settle)
+      // Stage 1: Revenue slider (600ms delayallows scroll to settle)
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(1);
@@ -237,7 +237,7 @@ const Calculator: React.FC = () => {
     { label: `${t.calculator.scenarios.dental} (2k)`, val: 2000, calls: 2 },
   ];
 
-  // Inner content (JSX variable, not a component — avoids remount on re-render)
+  // Inner content (JSX variable, not a componentavoids remount on re-render)
   const calculatorContent = (
     <div className="grid lg:grid-cols-2 gap-14 relative z-10">
       {/* Controls */}
