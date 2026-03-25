@@ -1,354 +1,182 @@
 import type React from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 import { useLanguage } from '../contexts/LanguageContext';
+import { cn } from '../lib/utils';
+
+const industryImages: Record<string, string> = {
+  hvac: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop',
+  dental: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=800&auto=format&fit=crop',
+  roofing: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?q=80&w=800&auto=format&fit=crop',
+  tree: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=800&auto=format&fit=crop',
+  auto: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=800&auto=format&fit=crop',
+};
+
+const fallbackImage = 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop';
 
 const IndustrySlider: React.FC = () => {
   const { t } = useLanguage();
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // State for drag interaction
-  const [rotate, setRotate] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const velocityRef = useRef(0);
-  const lastXRef = useRef(0);
-  const lastTimeRef = useRef(0);
-  const animFrameRef = useRef<number>(0);
+  const prefersReducedMotion =
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Mapping of industry IDs to high-quality specific images
-  const industryImages: Record<string, string> = {
-    hvac: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop',
-    dental:
-      'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=800&auto=format&fit=crop',
-    roofing:
-      'https://images.unsplash.com/photo-1632759145351-1d592919f522?q=80&w=800&auto=format&fit=crop',
-    tree: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=800&auto=format&fit=crop',
-    auto: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=800&auto=format&fit=crop',
-  };
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, align: 'center', skipSnaps: false, dragFree: false },
+    prefersReducedMotion
+      ? []
+      : [Autoplay({ delay: 4000, stopOnInteraction: true, stopOnMouseEnter: true })],
+  );
 
-  // Prepare industry data with overriding title for HVAC
   const industries = Object.entries(t.industries.items).map(([key, item]) => {
-    const data = item as any;
+    const data = item as { name: string; desc: string };
     return {
       id: key,
       title: key === 'hvac' ? 'Plumbing & AC' : data.name,
       description: data.desc,
-      image:
-        industryImages[key] ||
-        'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop',
+      image: industryImages[key] || fallbackImage,
     };
   });
 
-  const totalCards = 20;
-  const displayCards = Array.from({ length: totalCards }).map((_, i) => {
-    return industries[i % industries.length];
-  });
-
-  // Momentum animation after release
-  const animateMomentum = useCallback(() => {
-    const friction = 0.95;
-    const minVelocity = 0.00001;
-
-    const step = () => {
-      velocityRef.current *= friction;
-      if (Math.abs(velocityRef.current) < minVelocity) {
-        velocityRef.current = 0;
-        return;
-      }
-      setRotate((prev) => prev + velocityRef.current);
-      animFrameRef.current = requestAnimationFrame(step);
-    };
-    animFrameRef.current = requestAnimationFrame(step);
-  }, []);
-
-  // Drag Handlers
-  const handlePointerDown = (e: React.PointerEvent) => {
-    // Cancel any ongoing momentum
-    if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    velocityRef.current = 0;
-
-    setIsDragging(true);
-    setStartX(e.clientX);
-    lastXRef.current = e.clientX;
-    lastTimeRef.current = Date.now();
-    if (containerRef.current) {
-      containerRef.current.setPointerCapture(e.pointerId);
-    }
-  };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isDragging) return;
-    const delta = e.clientX - startX;
-    const now = Date.now();
-    const dt = now - lastTimeRef.current;
-    if (dt > 0) {
-      velocityRef.current = (e.clientX - lastXRef.current) / (dt * 50);
-    }
-    lastXRef.current = e.clientX;
-    lastTimeRef.current = now;
-    setRotate((prev) => prev + delta / 3000);
-    setStartX(e.clientX);
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    setIsDragging(false);
-    if (containerRef.current) {
-      containerRef.current.releasePointerCapture(e.pointerId);
-    }
-    // Trigger momentum
-    animateMomentum();
-  };
-
-  // Keyboard navigation — only when section is in viewport
-  const sectionVisibleRef = useRef(false);
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
 
   useEffect(() => {
-    const section = containerRef.current;
-    if (!section) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        sectionVisibleRef.current = entry.isIntersecting;
-      },
-      { threshold: 0.3 },
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!sectionVisibleRef.current) return;
-      if (e.key === 'ArrowLeft') {
-        setRotate((prev) => prev - 0.05);
-      } else if (e.key === 'ArrowRight') {
-        setRotate((prev) => prev + 0.05);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // Cleanup animation frame on unmount
-  useEffect(() => {
-    return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    };
-  }, []);
+    if (!emblaApi) return;
+    emblaApi.on('select', onSelect);
+    onSelect();
+    return () => { emblaApi.off('select', onSelect); };
+  }, [emblaApi, onSelect]);
 
   // Voice agent carousel navigation
   useEffect(() => {
     const handler = (e: Event) => {
-      const { carousel, action } = (e as CustomEvent).detail;
-      if (carousel !== 'industry') return;
-      const step = 1 / totalCards; // 0.05
-      if (action === 'next') {
-        setRotate((prev) => prev + step);
-      } else if (action === 'prev') {
-        setRotate((prev) => prev - step);
-      } else {
-        const index = parseInt(action, 10);
-        if (!Number.isNaN(index)) {
-          setRotate(-(index / totalCards));
+      const detail = (e as CustomEvent).detail;
+      if (!emblaApi) return;
+      if (detail?.index !== undefined) {
+        emblaApi.scrollTo(detail.index);
+      } else if (detail?.carousel === 'industry') {
+        if (detail.action === 'next') emblaApi.scrollNext();
+        else if (detail.action === 'prev') emblaApi.scrollPrev();
+        else {
+          const idx = parseInt(detail.action, 10);
+          if (!Number.isNaN(idx)) emblaApi.scrollTo(idx);
         }
       }
     };
     window.addEventListener('navigateCarousel', handler);
     return () => window.removeEventListener('navigateCarousel', handler);
-  }, []);
+  }, [emblaApi]);
 
   return (
     <section
-      className="relative w-full h-[700px] md:h-[850px] lg:h-[1000px] overflow-hidden section-grid-bg text-[var(--text-primary)]"
       id="solutions"
-      ref={containerRef}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-      onContextMenu={(e) => e.preventDefault()}
-      style={{
-        cursor: isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
-      }}
+      className="relative w-full py-16 md:py-24 section-grid-bg text-(--text-primary)"
+      style={{ minHeight: '600px' }}
     >
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        @import url('https://fonts.bunny.net/css?family=just-me-again-down-here:400');
-
-        /* ALL classes scoped under #solutions to prevent collision with AutomationCards */
-        #solutions .industry-wrapper {
-          --card-border-radius: 16px;
-          --card-width: 20rem;
-          --card-height: calc(var(--card-width) * 1.4);
-          --radius: calc(var(--card-width) * var(--cards) / (2 * 3.1416));
-
-          top: 60%;
-          left: 50%;
-          transform-origin: center center;
-          transform: translateX(-50%) rotate(calc(var(--rotate) * 360deg));
-          will-change: transform;
-          position: absolute;
-          width: calc(var(--radius) * 2);
-          height: calc(var(--radius) * 2);
-        }
-
-        #solutions .industry-wrapper > .industry-card {
-          --card-offset-radius: circle(var(--radius) at 50% 50%);
-          --card-offset-distance: calc((var(--card-i) - 1) / var(--cards) * 100%);
-          --card-phase: calc((var(--card-i) - 1) / var(--cards) - 0.75);
-          --card-pos: mod(calc(var(--card-phase) + var(--rotate) + 1), 1);
-          --card-dist: min(var(--card-pos),calc(1 - var(--card-pos)));
-
-          --card-grayscale: clamp(0, calc(var(--card-dist) * var(--cards)), 1);
-          --card-opacity: calc(1 - (var(--card-dist) / 0.15 ));
-          --card-scale: calc(1 - (var(--card-dist) * 0.5));
-
-          position: absolute;
-          width: var(--card-width);
-          aspect-ratio: 5/7;
-          border-radius: var(--card-border-radius);
-          container-type: inline-size;
-
-          offset-path: var(--card-offset-radius);
-          offset-distance: var(--card-offset-distance);
-          offset-rotate: auto;
-          offset-anchor: 50% 100%;
-
-          transform-origin: center calc(var(--card-height) * 2 * -1);
-          transform: scale(var(--card-scale));
-
-          transition: transform 0.1s linear, box-shadow 0.3s ease;
-          box-shadow: 0 20px 50px -10px rgba(0,0,0,0.5);
-          overflow: hidden;
-          pointer-events: auto;
-
-          z-index: calc(100 - (var(--card-dist) * 1000));
-        }
-
-        /* Image Styles - SCOPED */
-        #solutions .industry-card > img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: inherit;
-          transition: transform 0.5s ease;
-          pointer-events: none;
-          -webkit-user-drag: none;
-        }
-
-        /* Hover Effect - SCOPED */
-        #solutions .industry-card:hover > img {
-          transform: scale(1.1);
-          filter: blur(3px) brightness(0.4);
-        }
-
-        /* Content Overlay - SCOPED with unique class name */
-        #solutions .industry-card-overlay {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          padding: clamp(0.75rem, 4cqi, 1.5rem);
-          text-align: center;
-          opacity: 0;
-          transition: opacity 0.4s ease;
-          background: rgba(0, 0, 0, 0.4);
-          color: white;
-          z-index: 2;
-          pointer-events: none;
-          overflow-y: auto;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-        }
-
-        #solutions .industry-card-overlay::-webkit-scrollbar {
-          display: none;
-        }
-
-        #solutions .industry-card:hover .industry-card-overlay {
-          opacity: 1;
-        }
-
-        #solutions .industry-card-title {
-          font-family: var(--font-display, sans-serif);
-          font-size: clamp(1.3rem, 8cqi, 2rem);
-          font-weight: 700;
-          margin-bottom: 0.6rem;
-          letter-spacing: -0.01em;
-          text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-          transform: translateY(10px);
-          transition: transform 0.4s ease;
-          word-break: break-word;
-        }
-
-        #solutions .industry-card-desc {
-          font-size: clamp(0.95rem, 5.5cqi, 1.25rem);
-          line-height: 1.5;
-          opacity: 0.92;
-          transform: translateY(20px);
-          transition: transform 0.4s ease 0.1s;
-        }
-
-        #solutions .industry-card:hover .industry-card-title,
-        #solutions .industry-card:hover .industry-card-desc {
-          transform: translateY(0);
-        }
-
-        @property --rotate {
-          syntax: "<number>";
-          inherits: true;
-          initial-value: 0;
-        }
-      `,
-        }}
-      />
-
-      <div
-        className="industry-wrapper"
-        style={
-          {
-            '--cards': totalCards,
-            '--rotate': rotate,
-          } as React.CSSProperties
-        }
-      >
-        {displayCards.map((card, index) => (
-          <div
-            key={index}
-            className="industry-card"
-            data-title={card.title}
-            style={{ '--card-i': index + 1 } as React.CSSProperties}
-            onDragStart={(e) => e.preventDefault()}
-          >
-            <img src={card.image} alt={card.title} draggable={false} />
-
-            <div className="industry-card-overlay">
-              <h3 className="industry-card-title">{card.title}</h3>
-              <p className="industry-card-desc">{card.description}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Hero text below the cards */}
-      <div className="absolute bottom-10 left-0 right-0 z-[1] pointer-events-none text-center px-6">
+      {/* Header */}
+      <div className="text-center px-6 mb-10 md:mb-14">
         <div className="flex justify-center mb-4">
           <span className="section-eyebrow">Industries We Serve</span>
         </div>
         <h2 className="text-3xl sm:text-5xl lg:text-7xl font-display font-bold leading-tight tracking-[-0.02em] mb-3">
           <span className="text-text-primary">{t.industries.title} </span>
-          <span className="text-brand-primary">
-            {t.industries.titleHighlight}
-          </span>
+          <span className="text-brand-primary">{t.industries.titleHighlight}</span>
           <span className="text-text-primary"> {t.industries.titleSuffix}</span>
         </h2>
-        <p className="text-text-secondary text-lg opacity-70">
-          {t.industries.subtitle}
-        </p>
+        <p className="text-text-secondary text-lg opacity-70">{t.industries.subtitle}</p>
+      </div>
+
+      {/* Carousel */}
+      <div className="relative max-w-7xl mx-auto px-4">
+        {/* Prev / Next arrows — visible on ALL viewports */}
+        <button
+          type="button"
+          onClick={() => emblaApi?.scrollPrev()}
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[var(--bg-glass)] border border-[var(--border)] flex items-center justify-center text-text-primary backdrop-blur-sm transition-colors hover:bg-[var(--accent-subtle)] cursor-pointer"
+          aria-label="Previous industry"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M15 18l-6-6 6-6" /></svg>
+        </button>
+        <button
+          type="button"
+          onClick={() => emblaApi?.scrollNext()}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[var(--bg-glass)] border border-[var(--border)] flex items-center justify-center text-text-primary backdrop-blur-sm transition-colors hover:bg-[var(--accent-subtle)] cursor-pointer"
+          aria-label="Next industry"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M9 18l6-6-6-6" /></svg>
+        </button>
+
+        {/* Embla viewport */}
+        <div className="overflow-hidden mx-8 md:mx-14" ref={emblaRef}>
+          <div className="flex">
+            {industries.map((card, i) => {
+              const isActive = i === selectedIndex;
+              return (
+                <div
+                  key={card.id}
+                  className="flex-[0_0_80%] md:flex-[0_0_33.333%] min-w-0 pl-4"
+                >
+                  <div
+                    className={cn(
+                      'relative rounded-2xl overflow-hidden aspect-[5/7] group transition-all duration-300',
+                      isActive
+                        ? 'scale-100 md:scale-105 shadow-2xl z-10 opacity-100'
+                        : 'scale-95 shadow-lg opacity-70',
+                    )}
+                  >
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      draggable={false}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:blur-[3px] group-hover:brightness-40 pointer-events-none select-none"
+                    />
+                    {/* Gradient scrim for title readability */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                    {/* Always-visible title at bottom */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-[1]">
+                      <h3 className="font-display font-bold text-xl md:text-2xl text-white drop-shadow-lg">
+                        {card.title}
+                      </h3>
+                    </div>
+                    {/* Hover overlay with description */}
+                    <div className="absolute inset-0 bg-black/50 flex flex-col justify-center items-center p-4 md:p-6 text-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-400 z-[2] overflow-y-auto scrollbar-none">
+                      <h3 className="font-display font-bold text-xl md:text-2xl mb-3 drop-shadow-lg">
+                        {card.title}
+                      </h3>
+                      <p className="text-sm md:text-base leading-relaxed opacity-90">
+                        {card.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Dots */}
+        <div className="flex justify-center gap-2 mt-8" role="tablist" aria-label="Industry slides">
+          {industries.map((card, i) => (
+            <button
+              key={card.id}
+              type="button"
+              role="tab"
+              aria-selected={i === selectedIndex}
+              aria-label={card.title}
+              onClick={() => emblaApi?.scrollTo(i)}
+              className={cn(
+                'w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer',
+                i === selectedIndex
+                  ? 'bg-[var(--accent-primary)] scale-125'
+                  : 'bg-[var(--text-secondary)] opacity-40 hover:opacity-70',
+              )}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );

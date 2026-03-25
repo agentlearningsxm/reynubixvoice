@@ -225,6 +225,52 @@ const Hero: React.FC = () => {
               </Button>
             </div>
 
+            {/* ── Mobile stat strip — visible below md ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="flex md:hidden gap-3 mt-6 overflow-x-auto pb-2 scrollbar-hide justify-center"
+            >
+              {[
+                {
+                  icon: (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-brand-primary" aria-hidden="true">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                  ),
+                  value: t.hero.widget.time,
+                  label: t.hero.widget.booked,
+                },
+                {
+                  icon: (
+                    <span className="text-sm font-bold text-green-400">{t.currency}</span>
+                  ),
+                  value: `${t.currency}12,450`,
+                  label: t.hero.widget.saved,
+                },
+                {
+                  icon: (
+                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                  ),
+                  value: '100%',
+                  label: 'Answer Rate',
+                },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-bg-glass/80 backdrop-blur-sm border border-border-subtle text-sm"
+                >
+                  <span className="flex items-center justify-center">{stat.icon}</span>
+                  <span className="font-semibold text-text-primary whitespace-nowrap">{stat.value}</span>
+                  <span className="text-text-secondary whitespace-nowrap text-xs">{stat.label}</span>
+                </div>
+              ))}
+            </motion.div>
+
             <div className="mt-8 flex items-center justify-center lg:justify-start gap-3">
               <div className="flex -space-x-2.5">
                 {[

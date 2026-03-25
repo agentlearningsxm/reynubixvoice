@@ -139,13 +139,16 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
     const cx = SIZE / 2;
     const cy = SIZE / 2;
 
+    // --- Mobile detection ---
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
     // --- Sphere constants (from rectangleworld.com approach) ---
-    const SPHERE_R = 66; // sphere radius in px
+    const SPHERE_R = isMobile ? 50 : 66; // sphere radius in px (smaller on mobile)
     const F_LEN = 250; // focal length (distance viewer → z=0)
     const SPH_CZ = -3 - SPHERE_R; // sphere center Z (keeps it in view)
     const ZERO_ALPHA_Z = -580; // depth at which alpha → 0
     const P_RAD = 1.9; // base particle draw radius
-    const NUM_ADD = 5; // particles added per frame
+    const PARTICLE_RATE = isMobile ? 2 : 5; // particles added per frame (fewer on mobile)
     const BASE_TURN = (2 * Math.PI) / 1400; // one full rotation per 1400 frames
     const RAND_ACCEL = 0.075;
 
@@ -258,7 +261,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
       const sr = SPHERE_R * pulse;
 
       // Spawn new particles on sphere surface
-      for (let i = 0; i < NUM_ADD; i++) {
+      for (let i = 0; i < PARTICLE_RATE; i++) {
         const theta = Math.random() * 2 * Math.PI;
         const phi = Math.acos(Math.random() * 2 - 1);
         const x0 = sr * Math.sin(phi) * Math.cos(theta);

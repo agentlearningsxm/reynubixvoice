@@ -1,296 +1,150 @@
-import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
-import type React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import clsx from 'clsx';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const IMAGES = [
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80', // Tech/Abstract
-  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80', // Meeting/Handshake -> Man with headset/meeting
-  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=80', // Strategy/Board
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80', // Growth/Chart
-  'https://images.unsplash.com/photo-1590650153855-d9e808231d41?w=600&q=80', // Professional blonde woman stressed
-  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&q=80', // Empty/Void
+  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80',
+  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80',
+  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=80',
+  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80',
+  'https://images.unsplash.com/photo-1590650153855-d9e808231d41?w=600&q=80',
+  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&q=80',
 ];
 
-const Comparison: React.FC = () => {
+const Comparison = () => {
   const { t } = useLanguage();
+  const cards = t.comparison.gallery.map((card, i) => ({ ...card, image: IMAGES[i] }));
+
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, align: 'center' },
+    [Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })],
+  );
+
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const sceneRef = useRef<HTMLDivElement>(null);
-  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Use gallery from translations
-  const cards = t.comparison.gallery.map((card, index) => ({
-    ...card,
-    image: IMAGES[index],
-  }));
-
-  const cellCount = cards.length;
-  // Dynamic radius — scales with the .scene element width
-  const [radius, setRadius] = useState(340);
-  const theta = 360 / cellCount;
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
 
   useEffect(() => {
-    const updateRadius = () => {
-      const sceneW = sceneRef.current?.offsetWidth || 300;
-      // ratio: 340px radius for a 300px scene
-      setRadius(Math.round(sceneW * 1.13));
-    };
-    updateRadius();
-    window.addEventListener('resize', updateRadius);
-    return () => window.removeEventListener('resize', updateRadius);
-  }, []);
+    if (!emblaApi) return;
+    emblaApi.on('select', onSelect);
+    onSelect();
+    return () => { emblaApi.off('select', onSelect); };
+  }, [emblaApi, onSelect]);
 
-  const rotateCarousel = (index: number) => {
-    if (carouselRef.current) {
-      const angle = index * -theta;
-      carouselRef.current.style.transform = `translateZ(-${radius}px) rotateY(${angle}deg)`;
-    }
-  };
-
-  useEffect(() => {
-    rotateCarousel(selectedIndex);
-  }, [selectedIndex, rotateCarousel]);
-
-  const nextSlide = () => {
-    setSelectedIndex((prev) => (prev + 1) % cellCount);
-  };
-
-  const prevSlide = () => {
-    setSelectedIndex((prev) => (prev - 1 + cellCount) % cellCount);
-  };
-
-  const toggleAutoPlay = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  useEffect(() => {
-    if (isPlaying) {
-      autoPlayRef.current = setInterval(nextSlide, 3000);
-    } else {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    }
-    return () => {
-      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
-    };
-  }, [isPlaying, nextSlide]);
-
-  // Keyboard Navigation — only when section is in viewport
-  const sectionRef = useRef<HTMLElement>(null);
-  const isVisibleRef = useRef(false);
-
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        isVisibleRef.current = entry.isIntersecting;
-      },
-      { threshold: 0.3 },
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isVisibleRef.current) return;
-      if (e.key === 'ArrowLeft') prevSlide();
-      if (e.key === 'ArrowRight') nextSlide();
-      if (e.key === ' ') {
-        e.preventDefault();
-        toggleAutoPlay();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [nextSlide, prevSlide, toggleAutoPlay]);
-
-  // Voice agent carousel navigation
+  // Voice agent carousel navigation (custom event)
   useEffect(() => {
     const handler = (e: Event) => {
       const { carousel, action } = (e as CustomEvent).detail;
-      if (carousel !== 'comparison') return;
-      if (action === 'next') {
-        setSelectedIndex((prev) => (prev + 1) % cellCount);
-      } else if (action === 'prev') {
-        setSelectedIndex((prev) => (prev - 1 + cellCount) % cellCount);
-      } else {
-        const index = parseInt(action, 10);
-        if (!Number.isNaN(index) && index >= 0 && index < cellCount) {
-          setSelectedIndex(index);
-        }
+      if (carousel !== 'comparison' || !emblaApi) return;
+      if (action === 'next') emblaApi.scrollNext();
+      else if (action === 'prev') emblaApi.scrollPrev();
+      else {
+        const idx = parseInt(action, 10);
+        if (!Number.isNaN(idx) && idx >= 0 && idx < cards.length) emblaApi.scrollTo(idx);
       }
     };
     window.addEventListener('navigateCarousel', handler);
     return () => window.removeEventListener('navigateCarousel', handler);
-  }, [cellCount]);
-
-  // Drag / Swipe Logic
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [dragDiff, setDragDiff] = useState(0);
-
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    setIsDragging(true);
-    setStartX('touches' in e ? e.touches[0].clientX : e.clientX);
-
-    // Disable transition during drag for direct 1:1 feel
-    if (carouselRef.current) {
-      carouselRef.current.style.transition = 'none';
-    }
-  };
-
-  const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDragging) return;
-
-    const currentX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const diff = currentX - startX;
-    setDragDiff(diff);
-
-    // Rotate visually while dragging
-    if (carouselRef.current) {
-      const currentAngle = selectedIndex * -theta;
-      const dragRotation = (diff / window.innerWidth) * 360; // Map drag to rotation
-      carouselRef.current.style.transform = `translateZ(-${radius}px) rotateY(${currentAngle + dragRotation}deg)`;
-    }
-  };
-
-  const handleDragEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-
-    // Re-enable transition smoothly
-    if (carouselRef.current) {
-      carouselRef.current.style.transition =
-        'transform 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
-    }
-
-    // Determine swipe direction threshold (small flick is enough)
-    if (dragDiff > 50) {
-      prevSlide();
-    } else if (dragDiff < -50) {
-      nextSlide();
-    } else {
-      // Snap back if threshold not met
-      rotateCarousel(selectedIndex);
-    }
-    setDragDiff(0);
-  };
+  }, [emblaApi, cards.length]);
 
   return (
     <section
-      ref={sectionRef}
-      className="py-14 md:py-28 section-grid-bg overflow-hidden relative min-h-[650px] md:min-h-[750px] lg:min-h-[850px] flex flex-col items-center justify-center select-none"
+      className="py-14 md:py-28 section-grid-bg overflow-hidden relative min-h-[550px] md:min-h-[650px] flex flex-col items-center justify-center"
       id="comparison"
     >
-      {/* Background Ambience */}
       <div className="absolute inset-0 bg-gradient pointer-events-none" />
 
       <div className="page-container relative z-10 flex flex-col items-center">
-        <header className="text-center mb-14">
+        {/* Header */}
+        <header className="text-center mb-10 md:mb-14">
           <div className="flex justify-center mb-4">
             <span className="section-eyebrow">Interactive Showcase</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold font-display tracking-[-0.02em] text-text-primary">
+          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold font-display tracking-[-0.02em] text-text-primary">
             {t.comparison.title}{' '}
-            <span className="text-brand-primary">
-              {t.comparison.titleHighlight}
-            </span>
-          </h1>
+            <span className="text-brand-primary">{t.comparison.titleHighlight}</span>
+            {t.comparison.titleSuffix ? ` ${t.comparison.titleSuffix}` : ''}
+          </h2>
         </header>
 
-        <div
-          className="main-content w-full flex justify-center perspective-container cursor-grab active:cursor-grabbing"
-          onMouseDown={handleDragStart}
-          onMouseMove={handleDragMove}
-          onMouseUp={handleDragEnd}
-          onMouseLeave={handleDragEnd}
-          onTouchStart={handleDragStart}
-          onTouchMove={handleDragMove}
-          onTouchEnd={handleDragEnd}
-        >
-          <div className="scene" ref={sceneRef}>
-            <div className="light-sphere" />
-            <div className="carousel" ref={carouselRef}>
+        {/* Carousel */}
+        <div className="relative w-full max-w-5xl mx-auto">
+          {/* Prev button */}
+          <button
+            onClick={() => emblaApi?.scrollPrev()}
+            className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full bg-bg-glass/80 backdrop-blur-sm border border-border-subtle flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+            aria-label="Previous comparison"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+
+          {/* Next button */}
+          <button
+            onClick={() => emblaApi?.scrollNext()}
+            className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full bg-bg-glass/80 backdrop-blur-sm border border-border-subtle flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+            aria-label="Next comparison"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+
+          {/* Embla viewport */}
+          <div className="overflow-hidden" ref={emblaRef}>
+            <div className="flex touch-pan-y">
               {cards.map((card, i) => (
                 <div
                   key={i}
-                  className="carousel__cell"
-                  style={{
-                    transform: `rotateY(${i * theta}deg) translateZ(${radius}px)`,
-                  }}
+                  className="flex-[0_0_90%] md:flex-[0_0_70%] lg:flex-[0_0_60%] min-w-0 pl-4"
                 >
                   <div
-                    className="cell__image"
-                    style={{ backgroundImage: `url(${card.image})` }}
-                  />
-                  <div className="cell__content">
-                    <div className="cell__number">
-                      0{i + 1} / 0{cellCount}
+                    className={clsx(
+                      'relative rounded-2xl overflow-hidden border transition-all duration-500 ease-out motion-reduce:transition-none',
+                      i === selectedIndex
+                        ? 'scale-100 opacity-100 shadow-2xl border-brand-primary/30'
+                        : 'scale-95 opacity-60 shadow-md border-border-subtle',
+                    )}
+                  >
+                    {/* Card image */}
+                    <div
+                      className="h-40 md:h-52 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${card.image})` }}
+                    />
+                    {/* Card content */}
+                    <div className="p-5 md:p-6 bg-bg-glass/60 backdrop-blur-md">
+                      <div className="text-xs text-text-secondary mb-1">
+                        0{i + 1} / 0{cards.length}
+                      </div>
+                      <h3 className="text-lg md:text-xl font-bold text-text-primary">{card.title}</h3>
+                      <p className="text-sm text-brand-primary font-medium mt-1">{card.subtitle}</p>
+                      <p className="text-xs md:text-sm text-text-secondary/80 mt-2 line-clamp-3">
+                        {card.description}
+                      </p>
                     </div>
-                    <div className="cell__title">{card.title}</div>
-                    <div className="cell__subtitle">{card.subtitle}</div>
-                    <p className="cell__description mt-2 text-xs text-text-secondary/80">
-                      {card.description}
-                    </p>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="reflection" />
           </div>
         </div>
 
-        {/* Controls */}
-        <div className="absolute top-[50%] -translate-y-[50%] left-[8%] hidden md:flex flex-col items-center gap-4 z-20 pointer-events-none">
-          <button onClick={prevSlide} className="nav-btn pointer-events-auto">
-            <ChevronLeft size={24} />
-          </button>
-          <div className="hint text-center">
-            <span>
-              <kbd>←</kbd> Prev
-            </span>
-          </div>
-        </div>
-
-        <div className="absolute top-[50%] -translate-y-[50%] right-[8%] hidden md:flex flex-col items-center gap-4 z-20 pointer-events-none">
-          <button onClick={nextSlide} className="nav-btn pointer-events-auto">
-            <ChevronRight size={24} />
-          </button>
-          <div className="hint text-center">
-            <span>
-              <kbd>→</kbd> Next
-            </span>
-          </div>
-        </div>
-
-        <div className="mt-20 flex flex-col items-center gap-6 z-20">
-          <div className="flex gap-2">
-            {cards.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setSelectedIndex(i)}
-                className={`indicator__dot ${i === selectedIndex ? 'active' : ''}`}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={toggleAutoPlay}
-            className={`play-btn ${isPlaying ? 'playing' : ''}`}
-          >
-            {isPlaying ? (
-              <span className="flex items-center gap-2">
-                <Pause size={12} /> Pause
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <Play size={12} /> Auto Play
-              </span>
-            )}
-          </button>
+        {/* Dot navigation */}
+        <div className="flex justify-center gap-2 mt-6">
+          {cards.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => emblaApi?.scrollTo(i)}
+              className={clsx(
+                'h-2.5 rounded-full transition-all duration-300',
+                i === selectedIndex ? 'bg-brand-primary w-8' : 'bg-border-subtle hover:bg-text-secondary w-2.5',
+              )}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
         </div>
       </div>
     </section>

@@ -102,8 +102,8 @@ export function CardStack<T extends CardStackItem>({
   activeScale = 1.03,
   inactiveScale = 0.94,
 
-  springStiffness = 280,
-  springDamping = 28,
+  springStiffness = 200,
+  springDamping = 32,
 
   loop = true,
   autoAdvance = false,
@@ -293,6 +293,7 @@ export function CardStack<T extends CardStackItem>({
                     height: cardHeight,
                     zIndex,
                     transformStyle: 'preserve-3d',
+                    touchAction: 'pan-y',
                   }}
                   initial={
                     reduceMotion

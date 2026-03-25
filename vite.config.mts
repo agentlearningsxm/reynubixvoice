@@ -40,7 +40,6 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks: {
-            three: ['three'],
             'framer-motion': ['framer-motion'],
             'react-vendor': ['react', 'react-dom', 'react-router-dom'],
             'groq-sdk': ['groq-sdk'],

@@ -835,6 +835,12 @@ main > section {
   );
 }
 
+/* Carousel section — soft top fade for clean card entry */
+main > section#solutions {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 5%, black 100%);
+}
+
 /* Hero section — no top fade (first thing users see), keep bottom fade */
 main > section:first-child {
   -webkit-mask-image: linear-gradient(
@@ -2215,4 +2221,54 @@ main > section:nth-last-child(-n+2)::after {
 }
 .drag-hint-right {
   animation: dragHintRight 1.6s ease-in-out infinite;
+}
+
+/* Scrollbar hide utility — used for horizontal scroll strips */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* AutomationCards — CSS glow + scanner (replaces Three.js particles) */
+@keyframes glow-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.automation-glow {
+  background: radial-gradient(ellipse at 30% 50%, var(--color-brand-primary-alpha, rgba(255,170,0,0.08)) 0%, transparent 70%),
+              radial-gradient(ellipse at 70% 50%, var(--color-brand-secondary-alpha, rgba(34,197,94,0.06)) 0%, transparent 70%);
+  background-size: 200% 200%;
+  animation: glow-shift 8s ease-in-out infinite;
+}
+
+@keyframes scan-sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.automation-scanner {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.automation-scanner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+  animation: scan-sweep 6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .automation-glow { animation: none; }
+  .automation-scanner::after { animation: none; }
 }
