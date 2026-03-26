@@ -17,7 +17,7 @@
     "analyze": "vite build --mode analyze"
   },
   "dependencies": {
-    "@google/genai": "^1.41.0",
+    "@google/genai": "^1.46.0",
     "@sentry/react": "^10.42.0",
     "@supabase/supabase-js": "^2.97.0",
     "@types/leaflet": "^1.9.21",

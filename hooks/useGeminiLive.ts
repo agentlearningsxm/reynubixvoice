@@ -114,6 +114,7 @@ export function useGeminiLive() {
   // Session Refs
   const sessionRef = useRef<any>(null);
   const resolvedSessionRef = useRef<any>(null);
+  const liveSetupCompleteRef = useRef(false);
 
   // Resilience Refs
   const intentionalDisconnectRef = useRef(false);
@@ -276,7 +277,10 @@ export function useGeminiLive() {
       }
 
       case 'update_calculator': {
-        const { revenue, missedCalls } = (fc.args ?? {}) as { revenue: number; missedCalls: number };
+        const { revenue, missedCalls } = (fc.args ?? {}) as {
+          revenue: number;
+          missedCalls: number;
+        };
         window.dispatchEvent(
           new CustomEvent('updateCalculator', {
             detail: { revenue, missedCalls },
@@ -288,7 +292,11 @@ export function useGeminiLive() {
 
       case 'open_cal_popup': {
         // Cal.com is loaded globally by Navbar.tsx
-        const calApi = (window as unknown as { Cal?: { ns?: Record<string, (cmd: string) => void> } }).Cal;
+        const calApi = (
+          window as unknown as {
+            Cal?: { ns?: Record<string, (cmd: string) => void> };
+          }
+        ).Cal;
         if (calApi && calApi.ns && calApi.ns['let-s-talk']) {
           calApi.ns['let-s-talk']('openModal');
           status = 'cal_popup_opened';
@@ -315,7 +323,8 @@ export function useGeminiLive() {
     // resetting its conversation state and re-greeting after tool calls.
     return {
       status,
-      context: 'IMPORTANT: The tool executed successfully. You are mid-conversation. Your greeting was already delivered. Continue naturally from where you left off. Do NOT re-introduce yourself.',
+      context:
+        'IMPORTANT: The tool executed successfully. You are mid-conversation. Your greeting was already delivered. Continue naturally from where you left off. Do NOT re-introduce yourself.',
     };
   };
 
@@ -351,6 +360,7 @@ export function useGeminiLive() {
 
   // ─── Close Session ─────────────────────────────────────────────
   const closeSession = useCallback(() => {
+    liveSetupCompleteRef.current = false;
     resolvedSessionRef.current = null;
     if (sessionRef.current) {
       sessionRef.current
@@ -397,9 +407,7 @@ export function useGeminiLive() {
         status: 'completed',
         durationMs,
         transcriptText: transcriptText || undefined,
-      }).catch((err) =>
-        console.warn('[Reyna] endVoiceSession failed:', err),
-      );
+      }).catch((err) => console.warn('[Reyna] endVoiceSession failed:', err));
     };
 
     // Upload recording BEFORE ending session so sheet sync finds the audio.
@@ -409,17 +417,26 @@ export function useGeminiLive() {
     const uploadAndEnd = async () => {
       const audioBlob = new window.Blob(chunks, { type: 'audio/webm' });
 
-      if (sessionId && !sessionId.startsWith('vs_mock_') && audioBlob.size > 0) {
+      if (
+        sessionId &&
+        !sessionId.startsWith('vs_mock_') &&
+        audioBlob.size > 0
+      ) {
         console.log('[Reyna] Uploading recording:', audioBlob.size, 'bytes');
-        const upload = uploadVoiceAudio(sessionId, 'recording', audioBlob)
-          .catch((e) => console.warn('[Reyna] Audio upload failed:', e));
+        const upload = uploadVoiceAudio(
+          sessionId,
+          'recording',
+          audioBlob,
+        ).catch((e) => console.warn('[Reyna] Audio upload failed:', e));
         // Cap wait at 15s -prevents dangling sessions on slow networks
         await Promise.race([
           upload,
-          new Promise<void>((r) => setTimeout(() => {
-            console.warn('[Reyna] Upload timed out after 15s, proceeding');
-            r();
-          }, 15_000)),
+          new Promise<void>((r) =>
+            setTimeout(() => {
+              console.warn('[Reyna] Upload timed out after 15s, proceeding');
+              r();
+            }, 15_000),
+          ),
         ]);
       }
 
@@ -431,7 +448,9 @@ export function useGeminiLive() {
       recorder.ondataavailable = (e) => {
         if (e.data.size) chunks.push(e.data);
       };
-      recorder.onstop = () => { uploadAndEnd(); };
+      recorder.onstop = () => {
+        uploadAndEnd();
+      };
       recorder.stop();
     } else {
       // Recorder already stopped (auto-stop when audio tracks ended)
@@ -506,6 +525,7 @@ export function useGeminiLive() {
       if (!isReconnect) {
         intentionalDisconnectRef.current = false;
         reconnectAttemptsRef.current = 0;
+        liveSetupCompleteRef.current = false;
         setFallbackMode(false);
         setError(null);
         setTranscript([]);
@@ -634,29 +654,6 @@ export function useGeminiLive() {
                 resolvedSessionRef.current = session;
               });
 
-              // Short hum to wake the model
-              const humRate = 16000;
-              const duration = 0.2;
-              const numSamples = humRate * duration;
-              const humData = new Float32Array(numSamples);
-              for (let i = 0; i < numSamples; i++) {
-                const envelope =
-                  i < 500
-                    ? i / 500
-                    : i > numSamples - 500
-                      ? (numSamples - i) / 500
-                      : 1;
-                humData[i] =
-                  Math.sin((2 * Math.PI * 150 * i) / humRate) * 0.1 * envelope;
-              }
-              const humBlob = createBlob(humData);
-
-              setTimeout(() => {
-                resolvedSessionRef.current?.sendRealtimeInput({
-                  media: humBlob,
-                });
-              }, 500);
-
               // Setup Mic Stream
               if (!audioContextRef.current) return;
               const source =
@@ -697,9 +694,13 @@ export function useGeminiLive() {
                 const blob = createBlob(downsampledData);
 
                 // Use resolved session ref instead of promise chain
+                if (!liveSetupCompleteRef.current) {
+                  return;
+                }
+
                 try {
                   resolvedSessionRef.current?.sendRealtimeInput({
-                    media: blob,
+                    audio: blob,
                   });
                 } catch (_) {
                   // Session may have closed -ignore
@@ -715,7 +716,9 @@ export function useGeminiLive() {
                   outputAudioContextRef.current!.createMediaStreamDestination();
                 outputNodeRef.current!.connect(mixDest);
                 const micForMix =
-                  outputAudioContextRef.current!.createMediaStreamSource(stream);
+                  outputAudioContextRef.current!.createMediaStreamSource(
+                    stream,
+                  );
                 micForMix.connect(mixDest);
                 micSourceForMixRef.current = micForMix;
 
@@ -724,7 +727,9 @@ export function useGeminiLive() {
                 )
                   ? 'audio/webm;codecs=opus'
                   : 'audio/webm';
-                const recorder = new MediaRecorder(mixDest.stream, { mimeType });
+                const recorder = new MediaRecorder(mixDest.stream, {
+                  mimeType,
+                });
                 const chunks: BlobPart[] = [];
                 recorder.ondataavailable = (e) => {
                   if (e.data.size) chunks.push(e.data);
@@ -748,6 +753,33 @@ export function useGeminiLive() {
           },
 
           onmessage: async (msg: LiveServerMessage) => {
+            if (msg.setupComplete && !liveSetupCompleteRef.current) {
+              liveSetupCompleteRef.current = true;
+
+              const humRate = 16000;
+              const duration = 0.2;
+              const numSamples = humRate * duration;
+              const humData = new Float32Array(numSamples);
+              for (let i = 0; i < numSamples; i++) {
+                const envelope =
+                  i < 500
+                    ? i / 500
+                    : i > numSamples - 500
+                      ? (numSamples - i) / 500
+                      : 1;
+                humData[i] =
+                  Math.sin((2 * Math.PI * 150 * i) / humRate) * 0.1 * envelope;
+              }
+
+              try {
+                resolvedSessionRef.current?.sendRealtimeInput({
+                  audio: createBlob(humData),
+                });
+              } catch (_) {
+                // Session may have closed
+              }
+            }
+
             // Handle Tool Calls
             if (msg.toolCall) {
               const responses = [];
@@ -822,7 +854,10 @@ export function useGeminiLive() {
             if (aiTranscription && aiTranscription.text) {
               // Track greeting delivery for anti-loop detection
               const aiText = (aiTranscription.text as string).toLowerCase();
-              if (!greetingDeliveredRef.current && aiText.includes("i'm reyna")) {
+              if (
+                !greetingDeliveredRef.current &&
+                aiText.includes("i'm reyna")
+              ) {
                 greetingDeliveredRef.current = true;
               }
               // Detect greeting loop: if greeting pattern appears AFTER first delivery
@@ -922,6 +957,7 @@ export function useGeminiLive() {
           },
 
           onclose: () => {
+            liveSetupCompleteRef.current = false;
             setConnected(false);
             setIsAgentSpeaking(false);
             resolvedSessionRef.current = null;
@@ -938,6 +974,7 @@ export function useGeminiLive() {
           onerror: (e: ErrorEvent | Event) => {
             const msg = (e as ErrorEvent).message || 'Unknown WebSocket error';
             console.error('[Reyna] Live API error:', msg, e);
+            liveSetupCompleteRef.current = false;
             setIsConnecting(false);
             resolvedSessionRef.current = null;
 
@@ -954,7 +991,9 @@ export function useGeminiLive() {
       sessionRef.current = sessionPromise;
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
+      const errorName = e instanceof DOMException ? e.name : '';
       console.error('[Reyna] Connect error:', msg, e);
+      liveSetupCompleteRef.current = false;
       setIsConnecting(false);
 
       if (connectionTimeoutRef.current) {
@@ -968,10 +1007,43 @@ export function useGeminiLive() {
         msg.includes('key') ||
         msg.includes('401') ||
         msg.includes('403');
+      const isMicError =
+        [
+          'AbortError',
+          'NotAllowedError',
+          'NotFoundError',
+          'NotReadableError',
+          'NotSupportedError',
+          'SecurityError',
+        ].includes(errorName) ||
+        /microphone|permission|media|device|not supported/i.test(msg);
 
       if (isAuthError) {
         setIsReconnecting(false);
         setError(`API error: ${msg}`);
+      } else if (isMicError) {
+        setIsReconnecting(false);
+        closeSession();
+        cleanupAudio();
+        setConnected(false);
+        setIsAgentSpeaking(false);
+        setIsUserSpeaking(false);
+        voiceSessionIdRef.current = null;
+        sessionStartTimeRef.current = 0;
+
+        if (errorName === 'NotFoundError') {
+          setError(
+            'No microphone was found. Connect a microphone and try again.',
+          );
+        } else if (errorName === 'NotSupportedError') {
+          setError(
+            'This browser environment does not support live microphone capture.',
+          );
+        } else {
+          setError(
+            'Microphone access is required to start the live voice demo. Please allow mic access and try again.',
+          );
+        }
       } else if (!intentionalDisconnectRef.current) {
         reconnect();
       } else {
