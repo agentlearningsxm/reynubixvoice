@@ -222,6 +222,44 @@ export function useGeminiLive() {
     return buffer;
   };
 
+  const playAudioChunk = async (audioData: string) => {
+    if (!outputAudioContextRef.current || !outputNodeRef.current) {
+      return;
+    }
+
+    const buffer = await decodeAudioData(
+      audioData,
+      outputAudioContextRef.current,
+    );
+    const now = outputAudioContextRef.current.currentTime;
+    if (nextStartTimeRef.current < now) {
+      nextStartTimeRef.current = now;
+    }
+
+    const source = outputAudioContextRef.current.createBufferSource();
+    source.buffer = buffer;
+    source.connect(outputNodeRef.current);
+
+    const scheduledStart = nextStartTimeRef.current;
+    source.start(scheduledStart);
+    nextStartTimeRef.current += buffer.duration;
+    sourcesRef.current.add(source);
+
+    const delayUntilPlay = Math.max(0, (scheduledStart - now) * 1000);
+    setTimeout(() => {
+      if (sourcesRef.current.has(source)) {
+        setIsAgentSpeaking(true);
+      }
+    }, delayUntilPlay);
+
+    source.onended = () => {
+      sourcesRef.current.delete(source);
+      if (sourcesRef.current.size === 0) {
+        setIsAgentSpeaking(false);
+      }
+    };
+  };
+
   // ─── Tool Handlers ────────────────────────────────────────────
   // Returns enriched result with context anchor to prevent Gemini
   // from losing conversation state after tool responses.
@@ -475,10 +513,55 @@ export function useGeminiLive() {
 
       setIsConnecting(true);
 
-      if (!import.meta.env.VITE_GEMINI_API_KEY) {
-        setError('API Key is missing.');
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaStreamRef.current = stream;
+
+      sessionStartTimeRef.current = Date.now();
+
+      let sessionBootstrap: Awaited<ReturnType<typeof startVoiceSession>>;
+      try {
+        sessionBootstrap = await startVoiceSession(
+          {
+            accepted: true,
+            acceptedAt: new Date().toISOString(),
+            version: '1.0',
+          },
+          { includeToken: true },
+        );
+      } catch (bootstrapError) {
+        if (!import.meta.env.VITE_GEMINI_API_KEY) {
+          throw bootstrapError;
+        }
+
+        console.warn(
+          '[Reyna] Voice token bootstrap failed, falling back to legacy browser Gemini key.',
+          bootstrapError,
+        );
+
+        sessionBootstrap = await startVoiceSession({
+          accepted: true,
+          acceptedAt: new Date().toISOString(),
+          version: '1.0',
+        });
+      }
+
+      if (sessionBootstrap.voiceSessionId) {
+        voiceSessionIdRef.current = sessionBootstrap.voiceSessionId;
+      }
+
+      const liveAuthToken =
+        sessionBootstrap.token || import.meta.env.VITE_GEMINI_API_KEY;
+
+      if (!liveAuthToken) {
         setIsConnecting(false);
         setIsReconnecting(false);
+        stream.getTracks().forEach((track) => {
+          track.stop();
+        });
+        mediaStreamRef.current = null;
+        voiceSessionIdRef.current = null;
+        sessionStartTimeRef.current = 0;
+        setError('Gemini Live auth token is missing.');
         return;
       }
 
@@ -492,11 +575,10 @@ export function useGeminiLive() {
       }, CONNECTION_TIMEOUT_MS);
 
       const ai = new GoogleGenAI({
-        apiKey: import.meta.env.VITE_GEMINI_API_KEY,
+        apiKey: liveAuthToken,
+        httpOptions: { apiVersion: 'v1alpha' },
       });
 
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaStreamRef.current = stream;
       audioContextRef.current = new (
         window.AudioContext || (window as any).webkitAudioContext
       )();
@@ -517,7 +599,7 @@ export function useGeminiLive() {
       const fullInstruction = SYSTEM_INSTRUCTION + '\n\n' + silenceContext;
 
       const sessionPromise = ai.live.connect({
-        model: 'gemini-3.0-flash-native-audio',
+        model: 'gemini-3.1-flash-live-preview',
         config: {
           responseModalities: [Modality.AUDIO],
           systemInstruction: fullInstruction,
@@ -551,20 +633,6 @@ export function useGeminiLive() {
               sessionPromise.then((session) => {
                 resolvedSessionRef.current = session;
               });
-
-              // Start telemetry session → gets voiceSessionId for sheet sync
-              sessionStartTimeRef.current = Date.now();
-              startVoiceSession({
-                accepted: true,
-                acceptedAt: new Date().toISOString(),
-                version: '1.0',
-              })
-                .then(({ voiceSessionId }) => {
-                  voiceSessionIdRef.current = voiceSessionId;
-                })
-                .catch((err) =>
-                  console.warn('[Reyna] Telemetry session start failed:', err),
-                );
 
               // Short hum to wake the model
               const humRate = 16000;
@@ -723,40 +791,18 @@ export function useGeminiLive() {
             }
 
             // Handle Audio Output
-            const audioData =
-              msg.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
-            if (audioData && outputAudioContextRef.current) {
-              const buffer = await decodeAudioData(
-                audioData,
-                outputAudioContextRef.current,
-              );
-              const now = outputAudioContextRef.current.currentTime;
-              if (nextStartTimeRef.current < now) {
-                nextStartTimeRef.current = now;
+            const modelTurnParts = msg.serverContent?.modelTurn?.parts ?? [];
+            for (const part of modelTurnParts) {
+              if (!part.inlineData?.data) {
+                continue;
               }
 
-              const source = outputAudioContextRef.current.createBufferSource();
-              source.buffer = buffer;
-              source.connect(outputNodeRef.current!);
+              const mimeType = part.inlineData.mimeType ?? '';
+              if (mimeType && !mimeType.startsWith('audio/')) {
+                continue;
+              }
 
-              const scheduledStart = nextStartTimeRef.current;
-              source.start(scheduledStart);
-              nextStartTimeRef.current += buffer.duration;
-              sourcesRef.current.add(source);
-
-              const delayUntilPlay = Math.max(0, (scheduledStart - now) * 1000);
-              setTimeout(() => {
-                if (sourcesRef.current.has(source)) {
-                  setIsAgentSpeaking(true);
-                }
-              }, delayUntilPlay);
-
-              source.onended = () => {
-                sourcesRef.current.delete(source);
-                if (sourcesRef.current.size === 0) {
-                  setIsAgentSpeaking(false);
-                }
-              };
+              await playAudioChunk(part.inlineData.data);
             }
 
             // Handle Interruptions

@@ -8,10 +8,28 @@ import type {
   TranscriptTurnPayload,
   VoiceConsentPayload,
   VoiceErrorPayload,
+  VoiceTokenResponse,
 } from './shared';
 
-export async function startVoiceSession(consent: VoiceConsentPayload) {
+export async function issueVoiceToken(
+  voiceSessionId: string,
+): Promise<VoiceTokenResponse> {
+  return postJsonWithContext<VoiceTokenResponse>('/api/voice/token', {
+    voiceSessionId,
+  });
+}
+
+export async function startVoiceSession(
+  consent: VoiceConsentPayload,
+  options: {
+    includeToken?: boolean;
+  } = {},
+) {
   let voiceSessionId = `vs_mock_${Date.now()}`;
+  let token = '';
+  let expiresAt: string | undefined;
+  let newSessionExpiresAt: string | undefined;
+
   try {
     const session = await postJsonWithContext<{ voiceSessionId: string }>(
       '/api/voice/session/start',
@@ -24,15 +42,27 @@ export async function startVoiceSession(consent: VoiceConsentPayload) {
       },
     );
     voiceSessionId = session.voiceSessionId;
+
+    if (options.includeToken) {
+      const tokenResponse = await issueVoiceToken(voiceSessionId);
+      token = tokenResponse.token;
+      expiresAt = tokenResponse.expiresAt;
+      newSessionExpiresAt = tokenResponse.newSessionExpiresAt;
+    }
   } catch (error) {
     console.warn(
-      'Backend session start failed, using mock session ID for demo',
+      options.includeToken
+        ? 'Voice session/token bootstrap failed'
+        : 'Backend session start failed, using mock session ID for demo',
       error,
     );
-    // If we're local, we can continue with a mock ID
-  }
 
-  const token = import.meta.env.VITE_GEMINI_API_KEY || '';
+    if (options.includeToken) {
+      throw error;
+    }
+
+    // If we're local, we can continue with a mock ID for non-Live fallback paths.
+  }
 
   trackEventFireAndForget('voice_session_initialized', {
     voiceSessionId,
@@ -41,8 +71,8 @@ export async function startVoiceSession(consent: VoiceConsentPayload) {
   return {
     voiceSessionId,
     token,
-    expiresAt: undefined,
-    newSessionExpiresAt: undefined,
+    expiresAt,
+    newSessionExpiresAt,
   };
 }
 

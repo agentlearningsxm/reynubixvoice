@@ -29,6 +29,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     });
 
+    if (!token.name) {
+      throw new Error('Gemini Live token response was missing a token name.');
+    }
+
     await updateVoiceSession(payload.voiceSessionId, {
       status: 'token_issued',
       updated_at: new Date().toISOString(),
@@ -45,7 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     const responseBody: VoiceTokenResponse = {
-      token: token.name ?? '',
+      token: token.name,
       expiresAt,
       newSessionExpiresAt,
     };

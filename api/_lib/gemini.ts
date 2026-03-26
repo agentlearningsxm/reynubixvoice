@@ -1,10 +1,12 @@
 import { GoogleGenAI } from '@google/genai';
 
 export function getGeminiAdminClient() {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
-    throw new Error('Gemini API key is not configured.');
+    throw new Error(
+      'GEMINI_API_KEY is required for Gemini Live token issuance.',
+    );
   }
 
   return new GoogleGenAI({
