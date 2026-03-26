@@ -1,68 +1,8 @@
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
 import { motion } from 'framer-motion';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
-// Automation tools data with logos and descriptions
-const AUTOMATION_TOOLS = [
-  {
-    name: 'Claude Code',
-    description:
-      'Builds and updates your website, apps, and digital tools automatically, saving you thousands in developer costs every month.',
-    logo: '/claude-logo-light.png',
-    color: '#D97706',
-  },
-  {
-    name: 'n8n',
-    description:
-      'Connects all your business apps together so data flows automatically. No more copying and pasting between your CRM, email, calendar, and billing.',
-    logo: '/n8n-logo.webp',
-    color: '#EA4B71',
-  },
-  {
-    name: 'Antigravity',
-    description:
-      'Your 24/7 digital employee that handles research, planning, and complex tasks while you sleep, scaling your team without adding headcount.',
-    logo: '/Antigravity-logo.webp',
-    color: '#a07d4f',
-  },
-  {
-    name: 'Airtable',
-    description:
-      'Replaces your messy spreadsheets with a smart database your whole team loves. Track projects, clients, and inventory without hiring a developer.',
-    logo: '/airtable-logo.webp',
-    color: '#FCB400',
-  },
-  {
-    name: 'OpenAI',
-    description:
-      'Writes your marketing copy, analyzes customer feedback, and creates business strategies on demand. Like having an expert consultant always on call.',
-    logo: '/chatgpt-logo.webp',
-    color: '#00A67E',
-  },
-  {
-    name: 'Retell AI',
-    description:
-      'Answers every customer call instantly with a natural human voice, books appointments, and never misses a lead. Your 24/7 AI receptionist.',
-    logo: '/retell-logo-light.png',
-    color: '#c8a960',
-  },
-  {
-    name: 'LiveKit',
-    description:
-      'Powers real-time voice and video conversations with your customers. Qualify leads and provide instant support right on your website.',
-    logo: '/livekit-logo.webp',
-    color: '#FF6B6B',
-  },
-  {
-    name: 'Perplexity',
-    description:
-      'Delivers instant market research and competitor analysis with verified sources. Make confident business decisions in minutes, not weeks.',
-    logo: '/Perplexity-logo.webp',
-    color: '#20B2AA',
-  },
-];
+import { AUTOMATION_TOOLS } from '../data/automation-tools';
+import { useAutoplayCarousel } from '../hooks/useAutoplayCarousel';
 
 // Generate code text for ASCII card effect
 const generateCode = (width: number, height: number): string => {
@@ -429,28 +369,13 @@ const DesktopCardStream: React.FC = () => {
 
 // ─── Mobile: Embla carousel ───
 const MobileCarousel: React.FC = () => {
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: 'center', dragFree: false },
-    [Autoplay({ delay: 3000, stopOnInteraction: true })],
-  );
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', onSelect);
-    onSelect();
-    return () => { emblaApi.off('select', onSelect); };
-  }, [emblaApi, onSelect]);
-
-  const scrollTo = useCallback(
-    (index: number) => emblaApi?.scrollTo(index),
-    [emblaApi],
-  );
+  const { emblaRef, emblaApi, selectedIndex, scrollTo } = useAutoplayCarousel({
+    delay: 3000,
+    loop: true,
+    align: 'center',
+    dragFree: false,
+    stopOnMouseEnter: false,
+  });
 
   // Voice agent carousel navigation
   useEffect(() => {

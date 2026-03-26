@@ -1,5 +1,6 @@
 import {
   type Blob,
+  type FunctionCall,
   GoogleGenAI,
   type LiveServerMessage,
   Modality,
@@ -224,9 +225,9 @@ export function useGeminiLive() {
   // ─── Tool Handlers ────────────────────────────────────────────
   // Returns enriched result with context anchor to prevent Gemini
   // from losing conversation state after tool responses.
-  const handleToolCall = (fc: any): Record<string, unknown> => {
+  const handleToolCall = (fc: FunctionCall): Record<string, unknown> => {
     toolCallCountRef.current += 1;
-    lastToolCallNameRef.current = fc.name;
+    lastToolCallNameRef.current = fc.name ?? '';
     let status = 'ok';
 
     switch (fc.name) {
@@ -237,7 +238,7 @@ export function useGeminiLive() {
       }
 
       case 'update_calculator': {
-        const { revenue, missedCalls } = fc.args as any;
+        const { revenue, missedCalls } = (fc.args ?? {}) as { revenue: number; missedCalls: number };
         window.dispatchEvent(
           new CustomEvent('updateCalculator', {
             detail: { revenue, missedCalls },
@@ -249,7 +250,7 @@ export function useGeminiLive() {
 
       case 'open_cal_popup': {
         // Cal.com is loaded globally by Navbar.tsx
-        const calApi = (window as any).Cal;
+        const calApi = (window as unknown as { Cal?: { ns?: Record<string, (cmd: string) => void> } }).Cal;
         if (calApi && calApi.ns && calApi.ns['let-s-talk']) {
           calApi.ns['let-s-talk']('openModal');
           status = 'cal_popup_opened';
@@ -269,7 +270,7 @@ export function useGeminiLive() {
       }
 
       default:
-        status = 'unknown_tool_' + fc.name;
+        status = 'unknown_tool_' + (fc.name ?? 'unnamed');
     }
 
     // Enrich response with context anchor -prevents the model from
@@ -315,7 +316,7 @@ export function useGeminiLive() {
     resolvedSessionRef.current = null;
     if (sessionRef.current) {
       sessionRef.current
-        .then((session: any) => session.close())
+        .then((session: { close: () => void }) => session.close())
         .catch(() => {});
       sessionRef.current = null;
     }
@@ -709,22 +710,13 @@ export function useGeminiLive() {
                 resolvedSessionRef.current?.sendToolResponse({
                   functionResponses: responses,
                 });
-                // Anti-loop: inject a context anchor after tool response
-                // to prevent Gemini from resetting and re-greeting.
-                const toolNames = responses.map((r: any) => r.name).join(', ');
-                resolvedSessionRef.current?.sendClientContent({
-                  turns: [
-                    {
-                      role: 'user',
-                      parts: [
-                        {
-                          text: `[System note: ${toolNames} executed successfully. The visitor can see the result on screen. Continue the conversation from where you left off. You already introduced yourself -do NOT greet again.]`,
-                        },
-                      ],
-                    },
-                  ],
-                  turnComplete: true,
-                });
+                // NOTE: We no longer send sendClientContent here.
+                // Sending turnComplete:true immediately after sendToolResponse
+                // causes Gemini to interpret it as a user interruption, which
+                // cuts off Reyna's audio response mid-sentence. The tool
+                // response result already contains the anti-loop context anchor
+                // (added in handleToolCall), so the model has the information
+                // it needs to continue without re-greeting.
               } catch (_) {
                 // Session may have closed
               }
@@ -914,8 +906,8 @@ export function useGeminiLive() {
         },
       });
       sessionRef.current = sessionPromise;
-    } catch (e: any) {
-      const msg = e?.message || String(e);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
       console.error('[Reyna] Connect error:', msg, e);
       setIsConnecting(false);
 

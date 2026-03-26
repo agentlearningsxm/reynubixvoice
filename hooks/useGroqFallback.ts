@@ -28,7 +28,7 @@ export function useGroqFallback() {
 
   const conversationHistoryRef = useRef<GroqMessage[]>([]);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const groqClientRef = useRef<any>(null);
+  const groqClientRef = useRef<InstanceType<typeof import('groq-sdk').default> | null>(null);
   const isProcessingRef = useRef(false);
   const isAgentSpeakingRef = useRef(false); // ref for use inside callbacks
   const isConnectedRef = useRef(false); // ref for use inside recognition.onend

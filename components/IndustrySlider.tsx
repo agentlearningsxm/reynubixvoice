@@ -1,33 +1,23 @@
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
+import { useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { industryImages, fallbackImage } from '../data/industry-images';
+import { useAutoplayCarousel } from '../hooks/useAutoplayCarousel';
 import { cn } from '../lib/utils';
-
-const industryImages: Record<string, string> = {
-  hvac: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop',
-  dental: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=800&auto=format&fit=crop',
-  roofing: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?q=80&w=800&auto=format&fit=crop',
-  tree: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=800&auto=format&fit=crop',
-  auto: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=800&auto=format&fit=crop',
-};
-
-const fallbackImage = 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop';
 
 const IndustrySlider: React.FC = () => {
   const { t } = useLanguage();
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
   const prefersReducedMotion =
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: 'center', skipSnaps: false, dragFree: false },
-    prefersReducedMotion
-      ? []
-      : [Autoplay({ delay: 4000, stopOnInteraction: true, stopOnMouseEnter: true })],
-  );
+  const { emblaRef, emblaApi, selectedIndex } = useAutoplayCarousel({
+    delay: 4000,
+    loop: true,
+    align: 'center',
+    skipSnaps: false,
+    dragFree: false,
+    disableAutoplay: prefersReducedMotion,
+  });
 
   const industries = Object.entries(t.industries.items).map(([key, item]) => {
     const data = item as { name: string; desc: string };
@@ -38,18 +28,6 @@ const IndustrySlider: React.FC = () => {
       image: industryImages[key] || fallbackImage,
     };
   });
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', onSelect);
-    onSelect();
-    return () => { emblaApi.off('select', onSelect); };
-  }, [emblaApi, onSelect]);
 
   // Voice agent carousel navigation
   useEffect(() => {

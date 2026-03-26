@@ -9,6 +9,7 @@ import {
   Routes,
 } from 'react-router-dom';
 import Calculator from './components/Calculator';
+import ErrorBoundary from './components/ErrorBoundary';
 import Comparison from './components/Comparison';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
@@ -80,45 +81,47 @@ const HomePage: React.FC = () => (
 const App: React.FC = () => (
   <ThemeProvider>
     <LanguageProvider>
-      <Router>
-        <ScrollToTop />
-        <TelemetryManager />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <MarketingLayout>
-                <HomePage />
-              </MarketingLayout>
-            }
-          />
-          <Route
-            path="/contact"
-            element={
-              <MarketingLayout>
-                <PremiumContact />
-              </MarketingLayout>
-            }
-          />
-          <Route
-            path="/privacy"
-            element={
-              <MarketingLayout>
-                <Privacy />
-              </MarketingLayout>
-            }
-          />
-          <Route
-            path="/terms"
-            element={
-              <MarketingLayout>
-                <Terms />
-              </MarketingLayout>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Router>
+      <ErrorBoundary>
+        <Router>
+          <ScrollToTop />
+          <TelemetryManager />
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <MarketingLayout>
+                  <HomePage />
+                </MarketingLayout>
+              }
+            />
+            <Route
+              path="/contact"
+              element={
+                <MarketingLayout>
+                  <PremiumContact />
+                </MarketingLayout>
+              }
+            />
+            <Route
+              path="/privacy"
+              element={
+                <MarketingLayout>
+                  <Privacy />
+                </MarketingLayout>
+              }
+            />
+            <Route
+              path="/terms"
+              element={
+                <MarketingLayout>
+                  <Terms />
+                </MarketingLayout>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Router>
+      </ErrorBoundary>
       <Analytics />
       <SpeedInsights />
     </LanguageProvider>

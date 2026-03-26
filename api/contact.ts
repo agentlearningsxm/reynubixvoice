@@ -2,7 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
 import type { ContactSubmitPayload } from '../lib/telemetry/shared.js';
 import { normalizeEmail } from '../lib/telemetry/shared.js';
-import { readJsonBody, rejectMethod } from './_lib/http.js';
+import { getClientIp, readJsonBody, rejectMethod } from './_lib/http.js';
+import { checkRateLimit } from './_lib/rate-limit.js';
 import {
   attachLeadToSession,
   ensureTrackingEntities,
@@ -23,6 +24,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 async function _handler(req: VercelRequest, res: VercelResponse) {
   if (rejectMethod(req, res)) {
     return;
+  }
+
+  // Rate limit: 5 requests per 60 seconds per IP
+  const ip = getClientIp(req);
+  const { allowed, retryAfterMs } = checkRateLimit(ip, 60_000, 5);
+  if (!allowed) {
+    const retryAfterSec = Math.ceil((retryAfterMs ?? 0) / 1000);
+    res.setHeader('Retry-After', String(retryAfterSec));
+    return res.status(429).json({ error: 'Too many requests', retryAfter: retryAfterSec });
   }
 
   const payload = readJsonBody<ContactSubmitPayload>(req);
