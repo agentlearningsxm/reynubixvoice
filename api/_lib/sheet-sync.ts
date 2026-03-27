@@ -4,9 +4,9 @@
  *
  * Called fire-and-forget from the session-end endpoint.
  */
-import { getSupabaseAdmin } from './supabaseAdmin.js';
 import { appendSheetRow, ensureSheetHeaders } from './google-sheets.js';
-import { analyzeTranscript } from './gemini-summary.js';
+import { getSupabaseAdmin } from './supabaseAdmin.js';
+import { analyzeTranscript } from './transcript-analysis.js';
 
 type Json = Record<string, unknown>;
 
@@ -170,7 +170,5 @@ export async function syncSessionToSheet(voiceSessionPublicId: string) {
     analysis.callOutcome ?? 'N/A',
   ]);
 
-  console.log(
-    `[sheet-sync] Row appended for session ${voiceSessionPublicId}`,
-  );
+  console.log(`[sheet-sync] Row appended for session ${voiceSessionPublicId}`);
 }
