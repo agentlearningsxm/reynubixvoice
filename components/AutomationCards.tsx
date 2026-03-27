@@ -1,8 +1,22 @@
 import { motion } from 'framer-motion';
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AUTOMATION_TOOLS } from '../data/automation-tools';
 import { useAutoplayCarousel } from '../hooks/useAutoplayCarousel';
+
+// ─── Particle type for scanner obliteration effect ───
+interface ScanParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  opacity: number;
+  life: number;
+  maxLife: number;
+  hueShift: number;
+  kind: 'spark' | 'ember' | 'debris'; // visual variety
+}
 
 // Generate code text for ASCII card effect
 const generateCode = (width: number, height: number): string => {
@@ -59,6 +73,7 @@ const generateCode = (width: number, height: number): string => {
 const DesktopCardStream: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const cardLineRef = useRef<HTMLDivElement>(null);
+  const particleCanvasRef = useRef<HTMLCanvasElement>(null);
   const velocityDisplayRef = useRef<HTMLSpanElement>(null);
   const positionRef = useRef(0);
   const velocityRef = useRef(120);
@@ -69,14 +84,186 @@ const DesktopCardStream: React.FC = () => {
   const animationRef = useRef<number | undefined>(undefined);
   const cardWrappersRef = useRef<HTMLElement[]>([]);
   const lastTimeRef = useRef(0);
+  const particlesRef = useRef<ScanParticle[]>([]);
+  const prevCardEdgesRef = useRef<Map<number, { left: number; right: number }>>(new Map());
+  const canvasDprRef = useRef(1);
+
+  // Spawn particles at the laser intersection point
+  const spawnParticles = useCallback((laserScreenX: number, cardRect: DOMRect, count: number) => {
+    const canvas = particleCanvasRef.current;
+    if (!canvas) return;
+
+    const canvasRect = canvas.getBoundingClientRect();
+    const canvasX = laserScreenX - canvasRect.left;
+    const cardTopInCanvas = cardRect.top - canvasRect.top;
+    const cardBottomInCanvas = cardRect.bottom - canvasRect.top;
+
+    const kinds: Array<ScanParticle['kind']> = ['spark', 'ember', 'debris'];
+
+    for (let i = 0; i < count; i++) {
+      const y = cardTopInCanvas + Math.random() * (cardBottomInCanvas - cardTopInCanvas);
+      const kind = kinds[Math.floor(Math.random() * kinds.length)];
+
+      // Sparks: fast, small, spray sideways. Embers: slower, float up. Debris: medium, gravity-heavy.
+      let vx: number;
+      let vy: number;
+      let size: number;
+      let life: number;
+
+      if (kind === 'spark') {
+        const side = Math.random() > 0.5 ? 1 : -1;
+        vx = side * (2.5 + Math.random() * 4);
+        vy = -(1 + Math.random() * 3);
+        size = 1.5 + Math.random() * 2;
+        life = 20 + Math.random() * 25;
+      } else if (kind === 'ember') {
+        vx = (Math.random() - 0.5) * 2;
+        vy = -(2 + Math.random() * 3);
+        size = 2.5 + Math.random() * 3;
+        life = 35 + Math.random() * 30;
+      } else {
+        const side = Math.random() > 0.5 ? 1 : -1;
+        vx = side * (1 + Math.random() * 2.5);
+        vy = -(0.5 + Math.random() * 1.5);
+        size = 3 + Math.random() * 3;
+        life = 25 + Math.random() * 20;
+      }
+
+      const particle: ScanParticle = {
+        x: canvasX + (Math.random() - 0.5) * 8,
+        y,
+        vx,
+        vy,
+        size,
+        opacity: 0.8 + Math.random() * 0.2,
+        life,
+        maxLife: life,
+        hueShift: (Math.random() - 0.5) * 40,
+        kind,
+      };
+      particlesRef.current.push(particle);
+    }
+
+    // Performance cap — higher limit for dramatic effect
+    if (particlesRef.current.length > 180) {
+      particlesRef.current.splice(0, particlesRef.current.length - 180);
+    }
+  }, []);
+
+  // Render particles on canvas
+  const renderParticles = useCallback(() => {
+    const canvas = particleCanvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Resize canvas to match container dimensions (handle DPR)
+    const container = containerRef.current;
+    if (container) {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = container.getBoundingClientRect();
+      const w = Math.round(rect.width);
+      const h = Math.round(rect.height);
+      if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        canvasDprRef.current = dpr;
+      }
+    }
+
+    ctx.clearRect(0, 0, canvas.width / canvasDprRef.current, canvas.height / canvasDprRef.current);
+
+    const particles = particlesRef.current;
+    const alive: ScanParticle[] = [];
+
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Per-kind physics: sparks decelerate fast, embers float, debris falls
+      if (p.kind === 'spark') {
+        p.vx *= 0.97;
+        p.vy += 0.06;
+      } else if (p.kind === 'ember') {
+        p.vx *= 0.99;
+        p.vy += 0.02; // barely any gravity — floats upward
+      } else {
+        p.vy += 0.14; // heavier gravity for debris chunks
+      }
+
+      p.life -= 1;
+
+      const lifeRatio = p.life / p.maxLife;
+      p.opacity = lifeRatio * 0.95;
+      const currentSize = p.size * Math.max(lifeRatio, 0.1);
+
+      if (p.life <= 0 || p.opacity <= 0) continue;
+      alive.push(p);
+
+      // Gold/amber base color (200, 169, 96) with per-particle hue variation
+      const r = Math.min(255, Math.max(0, Math.round(200 + p.hueShift * 0.8)));
+      const g = Math.min(255, Math.max(0, Math.round(169 + p.hueShift * 0.3)));
+      const b = Math.min(255, Math.max(0, Math.round(96 - p.hueShift * 0.2)));
+
+      if (p.kind === 'spark') {
+        // Sparks: bright hot core + wide soft glow
+        ctx.globalAlpha = p.opacity * 0.25;
+        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, currentSize * 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = `rgb(${Math.min(255, r + 55)}, ${Math.min(255, g + 45)}, ${Math.min(255, b + 30)})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, currentSize, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.kind === 'ember') {
+        // Embers: warm glow, fading softly
+        ctx.globalAlpha = p.opacity * 0.4;
+        ctx.fillStyle = `rgb(${Math.min(255, r + 20)}, ${Math.min(255, g + 10)}, ${b})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, currentSize * 1.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = p.opacity * 0.9;
+        ctx.fillStyle = `rgb(${Math.min(255, r + 30)}, ${Math.min(255, g + 20)}, ${Math.min(255, b + 10)})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, currentSize, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Debris: solid chunks, minimal glow
+        ctx.globalAlpha = p.opacity * 0.15;
+        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, currentSize * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalAlpha = p.opacity;
+        ctx.fillStyle = `rgb(${Math.max(0, r - 30)}, ${Math.max(0, g - 20)}, ${Math.max(0, b - 10)})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, currentSize, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    ctx.globalAlpha = 1;
+    particlesRef.current = alive;
+  }, []);
 
   const updateCardClipping = useCallback(() => {
     const scannerX = window.innerWidth / 2;
     const scannerWidth = 8;
     const scannerLeft = scannerX - scannerWidth / 2;
     const scannerRight = scannerX + scannerWidth / 2;
+    const laserCenter = scannerX;
+    // Wider threshold so fast-moving edges are reliably detected
+    const edgeThreshold = 20;
 
-    cardWrappersRef.current.forEach((wrapper) => {
+    cardWrappersRef.current.forEach((wrapper, index) => {
       const rect = wrapper.getBoundingClientRect();
       const cardLeft = rect.left;
       const cardRight = rect.right;
@@ -95,15 +282,64 @@ const DesktopCardStream: React.FC = () => {
           normalCard.style.setProperty('--clip-right', `${normalClipRight}%`);
           asciiCard.style.setProperty('--clip-left', `${asciiClipLeft}%`);
         }
+
+        // ── Particle emission: detect card edge crossing the laser ──
+        const prevEdges = prevCardEdgesRef.current.get(index);
+        if (prevEdges) {
+          // Left edge: detect crossing (was on one side, now within threshold or crossed)
+          const leftDist = Math.abs(cardLeft - laserCenter);
+          const prevLeftDist = Math.abs(prevEdges.left - laserCenter);
+          const leftCrossed =
+            (prevEdges.left > laserCenter && cardLeft <= laserCenter) ||
+            (prevEdges.left < laserCenter && cardLeft >= laserCenter);
+
+          if (leftCrossed || (leftDist < edgeThreshold && prevLeftDist >= edgeThreshold)) {
+            // Big burst when edge crosses through the laser
+            spawnParticles(laserCenter, rect, 8 + Math.floor(Math.random() * 6));
+          } else if (leftDist < edgeThreshold) {
+            // Steady spray while edge lingers near laser
+            spawnParticles(laserCenter, rect, 2 + Math.floor(Math.random() * 3));
+          }
+
+          // Right edge: same crossing detection
+          const rightDist = Math.abs(cardRight - laserCenter);
+          const prevRightDist = Math.abs(prevEdges.right - laserCenter);
+          const rightCrossed =
+            (prevEdges.right > laserCenter && cardRight <= laserCenter) ||
+            (prevEdges.right < laserCenter && cardRight >= laserCenter);
+
+          if (rightCrossed || (rightDist < edgeThreshold && prevRightDist >= edgeThreshold)) {
+            spawnParticles(laserCenter, rect, 8 + Math.floor(Math.random() * 6));
+          } else if (rightDist < edgeThreshold) {
+            spawnParticles(laserCenter, rect, 2 + Math.floor(Math.random() * 3));
+          }
+        }
+        prevCardEdgesRef.current.set(index, { left: cardLeft, right: cardRight });
+
       } else if (cardRight < scannerLeft) {
         normalCard?.style.setProperty('--clip-right', '100%');
         asciiCard?.style.setProperty('--clip-left', '100%');
+        prevCardEdgesRef.current.set(index, { left: cardLeft, right: cardRight });
       } else if (cardLeft > scannerRight) {
         normalCard?.style.setProperty('--clip-right', '0%');
         asciiCard?.style.setProperty('--clip-left', '0%');
+        prevCardEdgesRef.current.set(index, { left: cardLeft, right: cardRight });
       }
     });
-  }, []);
+
+    // Continuous "sawing" emission: while ANY card body is being cut by the laser,
+    // keep spraying particles at the intersection line
+    for (const wrapper of cardWrappersRef.current) {
+      const rect = wrapper.getBoundingClientRect();
+      if (rect.left < laserCenter && rect.right > laserCenter) {
+        // 50% chance each frame — creates a steady sawdust-like stream
+        if (Math.random() < 0.5) {
+          spawnParticles(laserCenter, rect, 2 + Math.floor(Math.random() * 3));
+        }
+        break; // only emit for the first overlapping card (avoid doubling)
+      }
+    }
+  }, [spawnParticles]);
 
   // Animation loop
   useEffect(() => {
@@ -147,6 +383,9 @@ const DesktopCardStream: React.FC = () => {
         updateCardClipping();
       }
 
+      // Always render particles (even while dragging, so they animate out naturally)
+      renderParticles();
+
       animationRef.current = requestAnimationFrame(animate);
     };
 
@@ -156,7 +395,7 @@ const DesktopCardStream: React.FC = () => {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [updateCardClipping]);
+  }, [updateCardClipping, renderParticles]);
 
   // Voice agent carousel navigation
   useEffect(() => {
@@ -295,13 +534,20 @@ const DesktopCardStream: React.FC = () => {
         className="relative w-full h-[340px] flex items-center overflow-hidden"
         style={{ cursor: 'grab' }}
       >
-        {/* CSS scanner line (replaces Three.js canvas) */}
+        {/* CSS scanner line */}
         <div
           className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[8px] z-[15] pointer-events-none"
           style={{
             background: 'linear-gradient(180deg, transparent, rgba(200,169,96,0.6), transparent)',
             boxShadow: '0 0 30px rgba(200,169,96,0.3), 0 0 60px rgba(200,169,96,0.15)',
           }}
+        />
+
+        {/* Particle canvas overlay — sits above cards and scanner line */}
+        <canvas
+          ref={particleCanvasRef}
+          className="absolute inset-0 z-[20] pointer-events-none"
+          aria-hidden="true"
         />
 
         {/* Card stream */}
