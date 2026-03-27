@@ -6,13 +6,25 @@ const RADIUS_KM = 15;
 
 export function RadiusMap() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<unknown>(null);
+  const mapInstanceRef = useRef<{ remove: () => void } | null>(null);
 
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    const container = mapRef.current;
+    if (!container || mapInstanceRef.current) return;
+    let disposed = false;
 
     // Dynamically import leaflet to avoid SSR issues
     import('leaflet').then((L) => {
+      if (disposed || mapInstanceRef.current) return;
+
+      const leafletContainer = container as HTMLDivElement & {
+        _leaflet_id?: number;
+      };
+
+      if (leafletContainer._leaflet_id) {
+        delete leafletContainer._leaflet_id;
+      }
+
       // Fix default icon paths for bundlers
       // @ts-expect-error
       delete L.Icon.Default.prototype._getIconUrl;
@@ -24,7 +36,7 @@ export function RadiusMap() {
           'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       });
 
-      const map = L.map(mapRef.current!, {
+      const map = L.map(container, {
         center: CENTER,
         zoom: 10,
         zoomControl: true,
@@ -63,9 +75,16 @@ export function RadiusMap() {
     });
 
     return () => {
+      disposed = true;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
+      }
+      const leafletContainer = container as HTMLDivElement & {
+        _leaflet_id?: number;
+      };
+      if (leafletContainer._leaflet_id) {
+        delete leafletContainer._leaflet_id;
       }
     };
   }, []);

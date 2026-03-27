@@ -3,7 +3,7 @@ import { ExternalLink, GraduationCap, Users, X, Youtube } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { type Language, useLanguage } from '../contexts/LanguageContext';
-import { CATEGORIES, type Mentor, MENTORS } from '../data/mentors';
+import { CATEGORIES, MENTORS, type Mentor } from '../data/mentors';
 import { FocusRail, type FocusRailItem } from './ui/focus-rail';
 
 const USER_SKOOL = 'https://www.skool.com/@reynoso-anubis-8987';
@@ -21,27 +21,27 @@ const SECTION_COPY: Record<
   }
 > = {
   en: {
-    eyebrow: 'Battle-Tested AI Expertise',
-    title: 'The World-Class AI Experts',
-    highlight: 'Powering Every System We Build.',
+    eyebrow: 'Expert Network',
+    title: 'The Expert Network',
+    highlight: 'Behind Every System We Launch.',
     description:
-      'We stay plugged into the top AI operators on the planet and turn their proven frameworks into real results for your business -more calls answered, more leads booked, more revenue captured. Enterprise-level AI at a fraction of the price.',
+      'We learn from operators building with AI across automation, voice, web, and growth. Their frameworks sharpen how we design dependable systems for your business.',
     cta: 'View My Skool Profile',
   },
   fr: {
-    eyebrow: 'Expertise IA \u00c9prouv\u00e9e',
-    title: 'Les Experts IA de Classe Mondiale',
-    highlight: 'Qui Alimentent Chaque Syst\u00e8me Que Nous Construisons.',
+    eyebrow: 'R\u00e9seau d\u2019Experts',
+    title: 'Le R\u00e9seau d\u2019Experts',
+    highlight: 'Derri\u00e8re Chaque Syst\u00e8me Que Nous Lan\u00e7ons.',
     description:
-      'Nous restons branch\u00e9s sur les meilleurs op\u00e9rateurs IA et transformons leurs m\u00e9thodes prouv\u00e9es en r\u00e9sultats concrets pour votre entreprise \u2014 plus d\u2019appels r\u00e9pondus, plus de rendez-vous, plus de revenus.',
+      'Nous apprenons aupr\u00e8s d\u2019op\u00e9rateurs qui construisent avec l\u2019IA dans l\u2019automatisation, la voix, le web et la croissance. Leurs m\u00e9thodes renforcent la fiabilit\u00e9 des syst\u00e8mes que nous concevons pour votre entreprise.',
     cta: 'Voir Mon Profil Skool',
   },
   nl: {
-    eyebrow: 'Bewezen AI-Expertise',
-    title: 'De Wereldklasse AI-Experts',
-    highlight: 'Die Elk Systeem Dat We Bouwen Aandrijven.',
+    eyebrow: 'Expert Netwerk',
+    title: 'Het Expert Netwerk',
+    highlight: 'Achter Elk Systeem Dat We Lanceren.',
     description:
-      'We blijven verbonden met de beste AI-specialisten ter wereld en vertalen hun bewezen methoden naar echte resultaten voor jouw bedrijf \u2014 meer oproepen beantwoord, meer leads geboekt, meer omzet.',
+      'We leren van operators die met AI bouwen in automatisering, voice, web en groei. Hun frameworks helpen ons betrouwbaardere systemen voor jouw bedrijf te ontwerpen.',
     cta: 'Bekijk Mijn Skool Profiel',
   },
 };
@@ -109,8 +109,9 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
           >
             {/* Close Button */}
             <button
+              type="button"
               onClick={onClose}
-              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-bg-card/80 hover:bg-bg-card border border-border/50 flex items-center justify-center transition-colors backdrop-blur-sm"
+              className="absolute top-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-bg-glass/90 text-text-muted-strong backdrop-blur-md transition-colors hover:border-brand-primary/30 hover:text-text-primary"
             >
               <X className="w-4 h-4 text-text-primary" />
             </button>
@@ -124,7 +125,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
             <div className="px-7 -mt-12 relative pb-6">
               <div className="flex items-end gap-5 mb-5">
                 <div
-                  className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${mentor.gradient} flex items-center justify-center text-white text-2xl font-bold shadow-2xl border-4 border-bg-main shrink-0`}
+                  className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${mentor.gradient} flex items-center justify-center text-accent-ink text-2xl font-bold shadow-2xl border-4 border-bg-main shrink-0`}
                 >
                   {mentor.initials}
                 </div>
@@ -132,7 +133,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                   <h3 className="text-2xl font-bold text-text-primary font-display leading-tight">
                     {mentor.name}
                   </h3>
-                  <p className="text-sm text-text-secondary mt-0.5">
+                  <p className="mt-0.5 text-sm text-text-muted-strong">
                     {mentor.specialty}
                   </p>
                 </div>
@@ -152,7 +153,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
               <h4 className="text-xs font-semibold text-brand-primary uppercase tracking-widest mb-3">
                 What I Learned & How It Helps Your Business
               </h4>
-              <p className="text-base text-text-secondary leading-relaxed">
+              <p className="text-base leading-relaxed text-text-muted-strong">
                 {mentor.description}
               </p>
             </div>
@@ -180,7 +181,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                           loading="lazy"
                         />
                       </div>
-                      <p className="text-sm text-text-secondary mt-2">
+                      <p className="mt-2 text-sm text-text-muted-strong">
                         {video.title}
                       </p>
                     </div>
@@ -198,7 +199,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                 href={mentor.youtubeChannel}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors border border-red-500/20"
+                className="inline-flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/16"
               >
                 <Youtube className="w-4 h-4" />
                 Visit YouTube Channel
@@ -208,7 +209,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                   href={mentor.skoolLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 transition-colors border border-brand-primary/20"
+                  className="inline-flex items-center gap-2 rounded-xl border border-brand-primary/25 bg-brand-primary/10 px-4 py-2.5 text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary/16"
                 >
                   <Users className="w-4 h-4" />
                   Join Their Community
@@ -218,7 +219,13 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                 href={USER_SKOOL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors"
+                className="inline-flex items-center gap-2 rounded-full border border-brand-primary/25 px-5 py-3 text-sm font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+                style={{
+                  background:
+                    'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                  boxShadow:
+                    '0 12px 28px color-mix(in srgb, var(--accent-primary) 20%, transparent), 0 6px 20px rgba(0,0,0,0.2)',
+                }}
               >
                 <GraduationCap className="w-4 h-4" />
                 My Skool Profile
@@ -298,13 +305,7 @@ const MentorCards: React.FC = () => {
         {/* Section Header */}
         <div className="mb-14 text-center">
           <div className="flex justify-center mb-4">
-            <span className="section-eyebrow">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-primary" />
-              </span>
-              {copy.eyebrow}
-            </span>
+            <span className="section-eyebrow">{copy.eyebrow}</span>
           </div>
 
           <h2 className="mx-auto mb-5 max-w-5xl text-3xl font-bold font-display leading-tight tracking-[-0.02em] text-text-primary md:text-4xl lg:text-5xl">
@@ -313,7 +314,7 @@ const MentorCards: React.FC = () => {
             <span className="text-gradient">{copy.highlight}</span>
           </h2>
 
-          <p className="mx-auto max-w-4xl text-base leading-relaxed text-text-secondary md:text-lg">
+          <p className="mx-auto max-w-4xl text-base leading-relaxed text-text-muted-strong md:text-lg">
             {copy.description}
           </p>
         </div>
@@ -323,11 +324,12 @@ const MentorCards: React.FC = () => {
           {CATEGORIES.map((cat) => (
             <button
               key={cat.id}
+              type="button"
               onClick={() => setActiveCategory(cat.id)}
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border cursor-pointer ${
                 activeCategory === cat.id
-                  ? 'bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/25'
-                  : 'bg-transparent text-text-secondary border-slate-300 dark:border-border hover:border-brand-primary hover:text-text-primary'
+                  ? 'border-brand-primary bg-brand-primary text-accent-ink shadow-[0_12px_24px_var(--accent-glow)]'
+                  : 'bg-bg-glass/60 text-text-muted-strong border-border/80 hover:border-brand-primary/35 hover:text-text-primary'
               }`}
             >
               {cat.label}
@@ -338,7 +340,7 @@ const MentorCards: React.FC = () => {
         {/* FocusRail Carousel */}
         <div
           key={activeCategory}
-          className="rounded-3xl shadow-2xl shadow-slate-300/60 dark:shadow-none"
+          className="card-surface rounded-[32px] border-border/80 bg-bg-card/75 shadow-[0_18px_44px_rgba(0,0,0,0.14)]"
         >
           <FocusRail
             items={railItems}
@@ -358,7 +360,7 @@ const MentorCards: React.FC = () => {
                     href={mentor.youtubeChannel}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/16"
                   >
                     <Youtube className="w-4 h-4" />
                     YouTube
@@ -368,15 +370,20 @@ const MentorCards: React.FC = () => {
                       href={mentor.skoolLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border border-brand-primary/20 transition-colors"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-brand-primary/25 bg-brand-primary/10 px-3 py-2 text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary/16"
                     >
                       <Users className="w-4 h-4" />
                       Skool
                     </a>
                   )}
                   <button
+                    type="button"
                     onClick={() => setSelectedMentor(mentor)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-brand-primary/25 px-4 py-2 text-sm font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+                    style={{
+                      background:
+                        'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                    }}
                   >
                     <ExternalLink className="w-4 h-4" />
                     Learn More
@@ -395,21 +402,25 @@ const MentorCards: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-20 text-center"
         >
-          <div className="glass-card inline-flex flex-col sm:flex-row items-center gap-4 rounded-2xl p-8">
+          <div className="glass-card inline-flex flex-col items-center gap-4 rounded-[28px] bg-bg-glass/80 p-8 sm:flex-row">
             <div className="text-left">
               <p className="text-base font-semibold text-text-primary">
-                Want access to the same AI knowledge base?
+                Want access to the same expert network?
               </p>
-              <p className="text-sm text-text-secondary">
-                Connect with me on Skool and get direct access to proven AI
-                strategies that drive real revenue.
+              <p className="text-sm leading-relaxed text-text-muted-strong">
+                Connect with me on Skool for the playbooks, operators, and
+                practical AI strategies informing these builds.
               </p>
             </div>
             <a
               href={USER_SKOOL}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors shadow-lg shadow-brand-primary/25"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-brand-primary/25 px-6 py-3 text-sm font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+              style={{
+                background:
+                  'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+              }}
             >
               <GraduationCap className="w-4 h-4" />
               {copy.cta}

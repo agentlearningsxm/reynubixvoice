@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Globe, Menu, Moon, Palette, Pencil, Sun, X } from 'lucide-react';
+import { Check, Globe, Menu, Moon, Palette, Sun, X } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -247,11 +247,15 @@ const Navbar: React.FC = () => {
               {/* Language Selector */}
               <div className="control-item">
                 <button
+                  type="button"
                   onClick={() => {
                     setIsLangMenuOpen((prev) => !prev);
                     setIsThemeMenuOpen(false);
                   }}
                   className="control-btn"
+                  aria-label="Select language"
+                  aria-haspopup="menu"
+                  aria-expanded={isLangMenuOpen}
                 >
                   <Globe size={16} />
                   <span className="uppercase text-xs">{language}</span>
@@ -268,6 +272,7 @@ const Navbar: React.FC = () => {
                       {languages.map((lang) => (
                         <button
                           key={lang.code}
+                          type="button"
                           onClick={() => {
                             setLanguage(lang.code);
                             setIsLangMenuOpen(false);
@@ -288,6 +293,7 @@ const Navbar: React.FC = () => {
               {/* Dark/Light Mode Toggle */}
               <div className="control-item">
                 <button
+                  type="button"
                   onClick={toggleMode}
                   className="control-btn"
                   aria-label={
@@ -303,11 +309,15 @@ const Navbar: React.FC = () => {
               {/* Theme Toggle */}
               <div className="control-item">
                 <button
+                  type="button"
                   onClick={() => {
                     setIsThemeMenuOpen((prev) => !prev);
                     setIsLangMenuOpen(false);
                   }}
                   className="control-btn theme-btn"
+                  aria-label="Choose accent theme"
+                  aria-haspopup="menu"
+                  aria-expanded={isThemeMenuOpen}
                 >
                   <Palette size={16} />
                   <span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span>
@@ -325,6 +335,7 @@ const Navbar: React.FC = () => {
                         {themes.map((theme) => (
                           <button
                             key={theme.code}
+                            type="button"
                             onClick={() => {
                               setAccent(theme.code);
                               setIsThemeMenuOpen(false);
@@ -346,7 +357,11 @@ const Navbar: React.FC = () => {
 
                         <div className="divider"></div>
 
-                        <button onClick={toggleMode} className="dropdown-item">
+                        <button
+                          type="button"
+                          onClick={toggleMode}
+                          className="dropdown-item"
+                        >
                           <div className="flex items-center gap-2">
                             {mode === 'dark' ? (
                               <Moon size={14} />
@@ -386,13 +401,28 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Controls */}
           <div className="lg:hidden flex items-center gap-3">
-            <button onClick={toggleMode} className="mobile-icon-btn">
+            <button
+              type="button"
+              onClick={toggleMode}
+              className="mobile-icon-btn"
+              aria-label={
+                mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+              }
+            >
               {mode === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
 
             <button
+              type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="mobile-icon-btn"
+              aria-label={
+                isMobileMenuOpen
+                  ? 'Close navigation menu'
+                  : 'Open navigation menu'
+              }
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-navigation-menu"
             >
               {isMobileMenuOpen ? <X /> : <Menu />}
             </button>
@@ -402,7 +432,7 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="mobile-menu">
+        <div className="mobile-menu" id="mobile-navigation-menu">
           <div className="flex flex-col gap-3">
             {navItems.map((item) => (
               <a
@@ -430,6 +460,7 @@ const Navbar: React.FC = () => {
               {languages.map((lang) => (
                 <button
                   key={lang.code}
+                  type="button"
                   onClick={() => setLanguage(lang.code)}
                   className={`mobile-theme-btn ${language === lang.code ? 'active' : ''}`}
                 >
@@ -443,6 +474,7 @@ const Navbar: React.FC = () => {
               {themes.map((theme) => (
                 <button
                   key={theme.code}
+                  type="button"
                   onClick={() => setAccent(theme.code)}
                   className={`mobile-theme-btn ${accent === theme.code ? 'active' : ''}`}
                 >

@@ -5,7 +5,6 @@ import {
   MicOff,
   Phone,
   PhoneOff,
-  Play,
 } from 'lucide-react';
 import type * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -191,14 +190,14 @@ const Hero: React.FC = () => {
               .
             </h1>
 
-            <p className="text-base lg:text-lg text-text-secondary mb-10 max-w-[480px] mx-auto lg:mx-0 leading-[1.7]">
+            <p className="text-base lg:text-lg text-text-muted-strong mb-10 max-w-[480px] mx-auto lg:mx-0 leading-[1.7]">
               {t.hero.subheadline}
               <span className="text-text-primary font-medium block mt-2">
                 {t.hero.payoff}
               </span>
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+            <div className="flex items-center justify-center lg:justify-start">
               <Button
                 size="lg"
                 className="w-full sm:w-auto"
@@ -214,14 +213,6 @@ const Hero: React.FC = () => {
                 }
               >
                 {t.hero.bookDemo} <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
-              <Button
-                variant="secondary"
-                size="lg"
-                className="w-full sm:w-auto group"
-              >
-                <Play className="w-5 h-5 fill-current" />
-                {t.hero.listenSample}
               </Button>
             </div>
 
@@ -266,7 +257,7 @@ const Hero: React.FC = () => {
                 >
                   <span className="flex items-center justify-center">{stat.icon}</span>
                   <span className="font-semibold text-text-primary whitespace-nowrap">{stat.value}</span>
-                  <span className="text-text-secondary whitespace-nowrap text-xs">{stat.label}</span>
+                  <span className="text-text-muted-strong whitespace-nowrap text-xs">{stat.label}</span>
                 </div>
               ))}
             </motion.div>
@@ -303,7 +294,7 @@ const Hero: React.FC = () => {
                     </svg>
                   ))}
                 </div>
-                <p className="text-xs font-medium text-text-secondary">
+                <p className="text-xs font-medium text-text-muted-strong">
                   {t.hero.trustedBy}
                 </p>
               </div>
@@ -350,7 +341,7 @@ const Hero: React.FC = () => {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-text-secondary leading-tight">
+                  <p className="text-[10px] font-medium text-text-muted-strong leading-tight">
                     {t.hero.widget.booked}
                   </p>
                   <p className="text-sm font-bold text-text-primary leading-tight mt-0.5">
@@ -377,7 +368,7 @@ const Hero: React.FC = () => {
                   {t.currency}
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-text-secondary leading-tight">
+                  <p className="text-[10px] font-medium text-text-muted-strong leading-tight">
                     {t.hero.widget.saved}
                   </p>
                   <p className="text-base font-bold text-text-primary leading-tight mt-0.5">
@@ -449,7 +440,7 @@ const Hero: React.FC = () => {
                             : 'bg-[#c8a960]'
                       }`}
                     />
-                    <span className="text-[9px] uppercase tracking-[0.12em] text-white/70">
+                    <span className="text-[9px] uppercase tracking-[0.12em] text-white/78">
                       {isLiveSession ? t.hero.live.sessionLabel : t.hero.tag}
                     </span>
                   </div>
@@ -485,7 +476,7 @@ const Hero: React.FC = () => {
                       <h2 className="text-white text-xl font-bold text-center -mt-2 px-2">
                         {phoneTitle}
                       </h2>
-                      <p className="text-white/45 text-[11px] text-center mt-1 px-4 leading-relaxed">
+                      <p className="text-white/62 text-[11px] text-center mt-1 px-4 leading-relaxed">
                         {!error
                           ? phoneSubtitle
                           : `${phoneSubtitle} ${t.hero.live.retry}`}
@@ -517,7 +508,7 @@ const Hero: React.FC = () => {
                         {!isAgentSpeaking && !isUserSpeaking && (
                           <div className="flex items-center gap-1.5 rounded-full bg-white/[0.04] border border-white/10 px-3 py-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
-                            <span className="text-[10px] text-white/40 font-medium uppercase tracking-wider">
+                            <span className="text-[10px] text-white/58 font-medium uppercase tracking-wider">
                               {t.hero.live.connectedSubtitle}
                             </span>
                           </div>
@@ -551,7 +542,7 @@ const Hero: React.FC = () => {
                           })
                         ) : (
                           <div className="text-center">
-                            <p className="text-[11px] text-white/38 leading-relaxed">
+                            <p className="text-[11px] text-white/56 leading-relaxed">
                               {phoneSubtitle}
                             </p>
                           </div>
@@ -577,7 +568,7 @@ const Hero: React.FC = () => {
                         />
                         <span>{t.hero.live.consentLabel}</span>
                       </label>
-                      <p className="mt-2 text-[10px] text-white/50">
+                      <p className="mt-2 text-[10px] text-white/64">
                         {t.hero.live.consentHelp}
                       </p>
                       {consentError ? (
@@ -611,7 +602,7 @@ const Hero: React.FC = () => {
                       }
                       aria-busy={isConnecting ? 'true' : 'false'}
                       aria-pressed={connected ? 'true' : 'false'}
-                      className="w-16 h-16 rounded-full flex items-center justify-center text-white transition-transform duration-200 hover:scale-105 active:scale-95 disabled:cursor-wait disabled:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#05060b]"
+                      className="w-16 h-16 rounded-full flex items-center justify-center text-white transition-transform duration-200 hover:scale-105 active:scale-95 disabled:cursor-wait disabled:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[#05060b]"
                       style={{
                         background: centerBtnBg,
                         boxShadow: centerBtnShadow,

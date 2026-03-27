@@ -1,13 +1,18 @@
+import clsx from 'clsx';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useEffect } from 'react';
-import clsx from 'clsx';
-import { IMAGES } from '../data/comparison-images';
 import { useLanguage } from '../contexts/LanguageContext';
+import { IMAGES } from '../data/comparison-images';
 import { useAutoplayCarousel } from '../hooks/useAutoplayCarousel';
 
 const Comparison = () => {
   const { t } = useLanguage();
-  const cards = t.comparison.gallery.map((card, i) => ({ ...card, image: IMAGES[i] }));
+  const cards = t.comparison.gallery.map((card, i) => ({
+    ...card,
+    image: IMAGES[i],
+  }));
+  const navButtonClassName =
+    'absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary';
 
   const { emblaRef, emblaApi, selectedIndex } = useAutoplayCarousel({
     delay: 5000,
@@ -24,7 +29,8 @@ const Comparison = () => {
       else if (action === 'prev') emblaApi.scrollPrev();
       else {
         const idx = parseInt(action, 10);
-        if (!Number.isNaN(idx) && idx >= 0 && idx < cards.length) emblaApi.scrollTo(idx);
+        if (!Number.isNaN(idx) && idx >= 0 && idx < cards.length)
+          emblaApi.scrollTo(idx);
       }
     };
     window.addEventListener('navigateCarousel', handler);
@@ -46,7 +52,9 @@ const Comparison = () => {
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold font-display tracking-[-0.02em] text-text-primary">
             {t.comparison.title}{' '}
-            <span className="text-brand-primary">{t.comparison.titleHighlight}</span>
+            <span className="text-brand-primary">
+              {t.comparison.titleHighlight}
+            </span>
             {t.comparison.titleSuffix ? ` ${t.comparison.titleSuffix}` : ''}
           </h2>
         </header>
@@ -55,8 +63,9 @@ const Comparison = () => {
         <div className="relative w-full max-w-[1400px] mx-auto">
           {/* Prev button */}
           <button
+            type="button"
             onClick={() => emblaApi?.scrollPrev()}
-            className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full bg-bg-glass/80 backdrop-blur-sm border border-border-subtle flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+            className={`${navButtonClassName} left-1 md:left-3`}
             aria-label="Previous comparison"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -64,8 +73,9 @@ const Comparison = () => {
 
           {/* Next button */}
           <button
+            type="button"
             onClick={() => emblaApi?.scrollNext()}
-            className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full bg-bg-glass/80 backdrop-blur-sm border border-border-subtle flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+            className={`${navButtonClassName} right-1 md:right-3`}
             aria-label="Next comparison"
           >
             <ChevronRight className="w-5 h-5" />
@@ -76,30 +86,37 @@ const Comparison = () => {
             <div className="flex touch-pan-y">
               {cards.map((card, i) => (
                 <div
-                  key={i}
+                  key={`comparison-card-${i}`}
                   className="flex-[0_0_85%] md:flex-[0_0_60%] lg:flex-[0_0_45%] min-w-0 pl-5"
                 >
                   <div
                     className={clsx(
-                      'relative rounded-2xl overflow-hidden border transition-all duration-500 ease-out motion-reduce:transition-none',
+                      'card-surface relative overflow-hidden rounded-[28px] transition-all duration-500 ease-out motion-reduce:transition-none',
                       i === selectedIndex
-                        ? 'scale-100 opacity-100 shadow-2xl border-brand-primary/30'
-                        : 'scale-95 opacity-60 shadow-md border-border-subtle',
+                        ? 'scale-100 border-brand-primary/30 bg-bg-card/90 opacity-100 shadow-[0_24px_60px_rgba(0,0,0,0.24)]'
+                        : 'scale-[0.97] border-border/70 bg-bg-card/70 opacity-75 shadow-[0_12px_30px_rgba(0,0,0,0.14)]',
                     )}
                   >
                     {/* Card image */}
-                    <div
-                      className="h-40 md:h-52 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${card.image})` }}
-                    />
+                    <div className="relative h-40 overflow-hidden md:h-52">
+                      <div
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-500"
+                        style={{ backgroundImage: `url(${card.image})` }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-bg-main via-bg-main/15 to-transparent" />
+                    </div>
                     {/* Card content */}
-                    <div className="p-6 bg-bg-glass/60 backdrop-blur-md">
-                      <div className="text-xs text-text-secondary mb-1">
+                    <div className="bg-bg-glass/80 p-6 backdrop-blur-xl md:p-7">
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-text-secondary">
                         0{i + 1} / 0{cards.length}
                       </div>
-                      <h3 className="text-lg md:text-xl font-bold text-text-primary">{card.title}</h3>
-                      <p className="text-sm text-brand-primary font-medium mt-1">{card.subtitle}</p>
-                      <p className="text-xs md:text-sm text-text-secondary/80 mt-2 line-clamp-3">
+                      <h3 className="text-lg md:text-xl font-bold text-text-primary">
+                        {card.title}
+                      </h3>
+                      <p className="mt-1 text-sm font-semibold text-brand-primary">
+                        {card.subtitle}
+                      </p>
+                      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-text-secondary">
                         {card.description}
                       </p>
                     </div>
@@ -114,11 +131,14 @@ const Comparison = () => {
         <div className="flex justify-center gap-2 mt-6">
           {cards.map((_, i) => (
             <button
-              key={i}
+              key={`comparison-dot-${i}`}
+              type="button"
               onClick={() => emblaApi?.scrollTo(i)}
               className={clsx(
                 'h-2.5 rounded-full transition-all duration-300',
-                i === selectedIndex ? 'bg-brand-primary w-8' : 'bg-border-subtle hover:bg-text-secondary w-2.5',
+                i === selectedIndex
+                  ? 'w-8 bg-brand-primary'
+                  : 'w-2.5 bg-border/80 hover:bg-text-secondary/80',
               )}
               aria-label={`Go to slide ${i + 1}`}
             />

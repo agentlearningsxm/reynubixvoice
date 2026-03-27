@@ -253,7 +253,7 @@ export function FocusRail({
                   {activeItem.title}
                 </h2>
                 {activeItem.description && (
-                  <p className="max-w-xl text-sm text-text-secondary md:text-base">
+                  <p className="max-w-xl text-sm text-text-muted-strong md:text-base">
                     {activeItem.description}
                   </p>
                 )}
@@ -264,18 +264,20 @@ export function FocusRail({
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 rounded-full bg-bg-glass p-1 ring-1 ring-border backdrop-blur-md">
               <button
+                type="button"
                 onClick={handlePrev}
-                className="rounded-full p-3 text-text-secondary transition hover:bg-brand-subtle hover:text-text-primary active:scale-95"
+                className="rounded-full p-3 text-text-muted-strong transition hover:bg-brand-subtle hover:text-text-primary active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
                 aria-label="Previous"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
-              <span className="min-w-[56px] text-center text-xs font-mono text-text-secondary">
+              <span className="min-w-[56px] text-center text-xs font-mono text-text-muted-strong">
                 {activeIndex + 1} / {count}
               </span>
               <button
+                type="button"
                 onClick={handleNext}
-                className="rounded-full p-3 text-text-secondary transition hover:bg-brand-subtle hover:text-text-primary active:scale-95"
+                className="rounded-full p-3 text-text-muted-strong transition hover:bg-brand-subtle hover:text-text-primary active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
                 aria-label="Next"
               >
                 <ChevronRight className="h-5 w-5" />
@@ -289,7 +291,7 @@ export function FocusRail({
                     href={activeItem.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary px-5 py-3 text-sm font-semibold text-white transition-transform hover:scale-105 active:scale-95"
+                    className="group flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary px-5 py-3 text-sm font-semibold text-accent-ink transition-transform hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
                   >
                     Watch
                     <ArrowUpRight className="h-4 w-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

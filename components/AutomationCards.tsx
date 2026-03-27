@@ -49,7 +49,9 @@ const generateCode = (width: number, height: number): string => {
   ];
 
   for (let i = 0; i < 40; i++) {
-    library.push(`const v${i} = (${randInt(1, 9)} + ${randInt(10, 99)}) * 0.${randInt(1, 9)};`);
+    library.push(
+      `const v${i} = (${randInt(1, 9)} + ${randInt(10, 99)}) * 0.${randInt(1, 9)};`,
+    );
   }
 
   let flow = library.join(' ').replace(/\s+/g, ' ').trim();
@@ -85,70 +87,77 @@ const DesktopCardStream: React.FC = () => {
   const cardWrappersRef = useRef<HTMLElement[]>([]);
   const lastTimeRef = useRef(0);
   const particlesRef = useRef<ScanParticle[]>([]);
-  const prevCardEdgesRef = useRef<Map<number, { left: number; right: number }>>(new Map());
+  const prevCardEdgesRef = useRef<Map<number, { left: number; right: number }>>(
+    new Map(),
+  );
   const canvasDprRef = useRef(1);
 
   // Spawn particles at the laser intersection point
-  const spawnParticles = useCallback((laserScreenX: number, cardRect: DOMRect, count: number) => {
-    const canvas = particleCanvasRef.current;
-    if (!canvas) return;
+  const spawnParticles = useCallback(
+    (laserScreenX: number, cardRect: DOMRect, count: number) => {
+      const canvas = particleCanvasRef.current;
+      if (!canvas) return;
 
-    const canvasRect = canvas.getBoundingClientRect();
-    const canvasX = laserScreenX - canvasRect.left;
-    const cardTopInCanvas = cardRect.top - canvasRect.top;
-    const cardBottomInCanvas = cardRect.bottom - canvasRect.top;
+      const canvasRect = canvas.getBoundingClientRect();
+      const canvasX = laserScreenX - canvasRect.left;
+      const cardTopInCanvas = cardRect.top - canvasRect.top;
+      const cardBottomInCanvas = cardRect.bottom - canvasRect.top;
 
-    const kinds: Array<ScanParticle['kind']> = ['spark', 'ember', 'debris'];
+      const kinds: Array<ScanParticle['kind']> = ['spark', 'ember', 'debris'];
 
-    for (let i = 0; i < count; i++) {
-      const y = cardTopInCanvas + Math.random() * (cardBottomInCanvas - cardTopInCanvas);
-      const kind = kinds[Math.floor(Math.random() * kinds.length)];
+      for (let i = 0; i < count; i++) {
+        const y =
+          cardTopInCanvas +
+          Math.random() * (cardBottomInCanvas - cardTopInCanvas);
+        const kind = kinds[Math.floor(Math.random() * kinds.length)];
 
-      // Sparks: fast, small, spray sideways. Embers: slower, float up. Debris: medium, gravity-heavy.
-      let vx: number;
-      let vy: number;
-      let size: number;
-      let life: number;
+        // Sparks: fast, small, spray sideways. Embers: slower, float up. Debris: medium, gravity-heavy.
+        let vx: number;
+        let vy: number;
+        let size: number;
+        let life: number;
 
-      if (kind === 'spark') {
-        const side = Math.random() > 0.5 ? 1 : -1;
-        vx = side * (2.5 + Math.random() * 4);
-        vy = -(1 + Math.random() * 3);
-        size = 1.5 + Math.random() * 2;
-        life = 20 + Math.random() * 25;
-      } else if (kind === 'ember') {
-        vx = (Math.random() - 0.5) * 2;
-        vy = -(2 + Math.random() * 3);
-        size = 2.5 + Math.random() * 3;
-        life = 35 + Math.random() * 30;
-      } else {
-        const side = Math.random() > 0.5 ? 1 : -1;
-        vx = side * (1 + Math.random() * 2.5);
-        vy = -(0.5 + Math.random() * 1.5);
-        size = 3 + Math.random() * 3;
-        life = 25 + Math.random() * 20;
+        if (kind === 'spark') {
+          const side = Math.random() > 0.5 ? 1 : -1;
+          vx = side * (2.5 + Math.random() * 4);
+          vy = -(1 + Math.random() * 3);
+          size = 1.5 + Math.random() * 2;
+          life = 20 + Math.random() * 25;
+        } else if (kind === 'ember') {
+          vx = (Math.random() - 0.5) * 2;
+          vy = -(2 + Math.random() * 3);
+          size = 2.5 + Math.random() * 3;
+          life = 35 + Math.random() * 30;
+        } else {
+          const side = Math.random() > 0.5 ? 1 : -1;
+          vx = side * (1 + Math.random() * 2.5);
+          vy = -(0.5 + Math.random() * 1.5);
+          size = 3 + Math.random() * 3;
+          life = 25 + Math.random() * 20;
+        }
+
+        const particle: ScanParticle = {
+          x: canvasX + (Math.random() - 0.5) * 8,
+          y,
+          vx,
+          vy,
+          size,
+          opacity: 0.8 + Math.random() * 0.2,
+          life,
+          maxLife: life,
+          hueShift: (Math.random() - 0.5) * 40,
+          kind,
+        };
+        particlesRef.current.push(particle);
       }
 
-      const particle: ScanParticle = {
-        x: canvasX + (Math.random() - 0.5) * 8,
-        y,
-        vx,
-        vy,
-        size,
-        opacity: 0.8 + Math.random() * 0.2,
-        life,
-        maxLife: life,
-        hueShift: (Math.random() - 0.5) * 40,
-        kind,
-      };
-      particlesRef.current.push(particle);
-    }
-
-    // Performance cap — higher limit for dramatic effect
-    if (particlesRef.current.length > 180) {
-      particlesRef.current.splice(0, particlesRef.current.length - 180);
-    }
-  }, []);
+      // Performance cap — higher limit for dramatic effect
+      if (particlesRef.current.length > 180) {
+        particlesRef.current.splice(0, particlesRef.current.length - 180);
+      }
+    },
+    [],
+  );
 
   // Render particles on canvas
   const renderParticles = useCallback(() => {
@@ -174,7 +183,12 @@ const DesktopCardStream: React.FC = () => {
       }
     }
 
-    ctx.clearRect(0, 0, canvas.width / canvasDprRef.current, canvas.height / canvasDprRef.current);
+    ctx.clearRect(
+      0,
+      0,
+      canvas.width / canvasDprRef.current,
+      canvas.height / canvasDprRef.current,
+    );
 
     const particles = particlesRef.current;
     const alive: ScanParticle[] = [];
@@ -274,7 +288,10 @@ const DesktopCardStream: React.FC = () => {
 
       if (cardLeft < scannerRight && cardRight > scannerLeft) {
         const scannerIntersectLeft = Math.max(scannerLeft - cardLeft, 0);
-        const scannerIntersectRight = Math.min(scannerRight - cardLeft, cardWidth);
+        const scannerIntersectRight = Math.min(
+          scannerRight - cardLeft,
+          cardWidth,
+        );
         const normalClipRight = (scannerIntersectLeft / cardWidth) * 100;
         const asciiClipLeft = (scannerIntersectRight / cardWidth) * 100;
 
@@ -293,12 +310,23 @@ const DesktopCardStream: React.FC = () => {
             (prevEdges.left > laserCenter && cardLeft <= laserCenter) ||
             (prevEdges.left < laserCenter && cardLeft >= laserCenter);
 
-          if (leftCrossed || (leftDist < edgeThreshold && prevLeftDist >= edgeThreshold)) {
+          if (
+            leftCrossed ||
+            (leftDist < edgeThreshold && prevLeftDist >= edgeThreshold)
+          ) {
             // Big burst when edge crosses through the laser
-            spawnParticles(laserCenter, rect, 8 + Math.floor(Math.random() * 6));
+            spawnParticles(
+              laserCenter,
+              rect,
+              8 + Math.floor(Math.random() * 6),
+            );
           } else if (leftDist < edgeThreshold) {
             // Steady spray while edge lingers near laser
-            spawnParticles(laserCenter, rect, 2 + Math.floor(Math.random() * 3));
+            spawnParticles(
+              laserCenter,
+              rect,
+              2 + Math.floor(Math.random() * 3),
+            );
           }
 
           // Right edge: same crossing detection
@@ -308,22 +336,41 @@ const DesktopCardStream: React.FC = () => {
             (prevEdges.right > laserCenter && cardRight <= laserCenter) ||
             (prevEdges.right < laserCenter && cardRight >= laserCenter);
 
-          if (rightCrossed || (rightDist < edgeThreshold && prevRightDist >= edgeThreshold)) {
-            spawnParticles(laserCenter, rect, 8 + Math.floor(Math.random() * 6));
+          if (
+            rightCrossed ||
+            (rightDist < edgeThreshold && prevRightDist >= edgeThreshold)
+          ) {
+            spawnParticles(
+              laserCenter,
+              rect,
+              8 + Math.floor(Math.random() * 6),
+            );
           } else if (rightDist < edgeThreshold) {
-            spawnParticles(laserCenter, rect, 2 + Math.floor(Math.random() * 3));
+            spawnParticles(
+              laserCenter,
+              rect,
+              2 + Math.floor(Math.random() * 3),
+            );
           }
         }
-        prevCardEdgesRef.current.set(index, { left: cardLeft, right: cardRight });
-
+        prevCardEdgesRef.current.set(index, {
+          left: cardLeft,
+          right: cardRight,
+        });
       } else if (cardRight < scannerLeft) {
         normalCard?.style.setProperty('--clip-right', '100%');
         asciiCard?.style.setProperty('--clip-left', '100%');
-        prevCardEdgesRef.current.set(index, { left: cardLeft, right: cardRight });
+        prevCardEdgesRef.current.set(index, {
+          left: cardLeft,
+          right: cardRight,
+        });
       } else if (cardLeft > scannerRight) {
         normalCard?.style.setProperty('--clip-right', '0%');
         asciiCard?.style.setProperty('--clip-left', '0%');
-        prevCardEdgesRef.current.set(index, { left: cardLeft, right: cardRight });
+        prevCardEdgesRef.current.set(index, {
+          left: cardLeft,
+          right: cardRight,
+        });
       }
     });
 
@@ -364,13 +411,17 @@ const DesktopCardStream: React.FC = () => {
           velocityRef.current = Math.max(minVelocity, velocityRef.current);
         }
 
-        positionRef.current += velocityRef.current * directionRef.current * deltaTime;
+        positionRef.current +=
+          velocityRef.current * directionRef.current * deltaTime;
 
         if (velocityDisplayRef.current) {
-          velocityDisplayRef.current.textContent = String(Math.round(velocityRef.current));
+          velocityDisplayRef.current.textContent = String(
+            Math.round(velocityRef.current),
+          );
         }
 
-        const containerWidth = containerRef.current?.offsetWidth || window.innerWidth;
+        const containerWidth =
+          containerRef.current?.offsetWidth || window.innerWidth;
         const cardLineWidth = cardLine.scrollWidth;
 
         if (positionRef.current < -cardLineWidth) {
@@ -459,7 +510,11 @@ const DesktopCardStream: React.FC = () => {
       const codeContent = generateCode(w, h);
 
       return (
-        <div key={i} className="card-wrapper" data-index={i}>
+        <div
+          key={`${tool.name}-${i}`}
+          className="card-wrapper"
+          data-index={i}
+        >
           <div className="card card-normal">
             <div
               className="card-gradient bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
@@ -467,15 +522,22 @@ const DesktopCardStream: React.FC = () => {
             >
               <div
                 className="absolute top-0 left-0 right-0 h-1"
-                style={{ background: `linear-gradient(90deg, transparent, ${tool.color}, transparent)` }}
+                style={{
+                  background: `linear-gradient(90deg, transparent, ${tool.color}, transparent)`,
+                }}
               />
               <div
                 className="absolute inset-0 opacity-10"
-                style={{ background: `radial-gradient(circle at 50% 0%, ${tool.color}40, transparent 70%)` }}
+                style={{
+                  background: `radial-gradient(circle at 50% 0%, ${tool.color}40, transparent 70%)`,
+                }}
               />
               <div className="card-content relative z-10">
                 <div className="card-logo-wrapper">
-                  <div className="card-logo-glow" style={{ backgroundColor: tool.color }} />
+                  <div
+                    className="card-logo-glow"
+                    style={{ backgroundColor: tool.color }}
+                  />
                   <div className="card-logo">
                     <img
                       src={tool.logo}
@@ -519,9 +581,12 @@ const DesktopCardStream: React.FC = () => {
     <>
       {/* Speed indicator */}
       <div className="absolute top-4 right-4 z-50">
-        <div className="glass-card px-4 py-2 rounded-full text-sm text-text-secondary">
+        <div className="glass-card rounded-full bg-bg-glass/90 px-4 py-2 text-xs font-medium text-text-secondary">
           Speed:{' '}
-          <span ref={velocityDisplayRef} className="text-brand-primary font-mono">
+          <span
+            ref={velocityDisplayRef}
+            className="text-brand-primary font-mono"
+          >
             120
           </span>{' '}
           px/s
@@ -538,8 +603,10 @@ const DesktopCardStream: React.FC = () => {
         <div
           className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[8px] z-[15] pointer-events-none"
           style={{
-            background: 'linear-gradient(180deg, transparent, rgba(200,169,96,0.6), transparent)',
-            boxShadow: '0 0 30px rgba(200,169,96,0.3), 0 0 60px rgba(200,169,96,0.15)',
+            background:
+              'linear-gradient(180deg, transparent, rgba(200,169,96,0.6), transparent)',
+            boxShadow:
+              '0 0 30px rgba(200,169,96,0.3), 0 0 60px rgba(200,169,96,0.15)',
           }}
         />
 
@@ -547,14 +614,18 @@ const DesktopCardStream: React.FC = () => {
         <canvas
           ref={particleCanvasRef}
           className="absolute inset-0 z-[20] pointer-events-none"
-          aria-hidden="true"
         />
 
         {/* Card stream */}
-        <div className="card-stream absolute w-full flex items-center overflow-visible" style={{ height: '180px' }}>
-          <div
+        <div
+          className="card-stream absolute w-full flex items-center overflow-visible"
+          style={{ height: '180px' }}
+        >
+          <motion.button
+            type="button"
             ref={cardLineRef}
-            className="card-line flex items-center whitespace-nowrap select-none"
+            className="card-line appearance-none border-0 bg-transparent p-0 text-left flex items-center whitespace-nowrap select-none"
+            aria-label="Automation card stream"
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -579,33 +650,70 @@ const DesktopCardStream: React.FC = () => {
             onTouchEnd={handleMouseUp}
           >
             {cards}
-          </div>
+          </motion.button>
         </div>
       </div>
 
       {/* Instructions */}
       <div className="flex justify-center mt-10 relative z-20">
         <div
-          className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full border"
+          className="glass-card inline-flex items-center gap-3 rounded-full bg-bg-glass/90 px-5 py-2.5"
           style={{
-            background: 'rgba(200, 169, 96, 0.06)',
-            borderColor: 'rgba(200, 169, 96, 0.25)',
+            borderColor:
+              'color-mix(in srgb, var(--accent-primary) 22%, var(--border))',
           }}
         >
-          <span className="flex items-center gap-1 text-brand-primary" aria-hidden="true">
-            <svg className="w-4 h-4 opacity-50 drag-hint-left" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M10 3L5 8l5 5" strokeLinecap="round" strokeLinejoin="round" />
+          <span
+            className="flex items-center gap-1 text-brand-primary"
+            aria-hidden="true"
+          >
+            <svg
+              className="w-4 h-4 opacity-50 drag-hint-left"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M10 3L5 8l5 5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+              focusable="false"
+            >
               <path d="M9 3a1 1 0 0 1 1 1v5.268l.724-.434A1 1 0 0 1 12 10v3a5 5 0 0 1-5 5H6a5 5 0 0 1-5-5v-2.5a1 1 0 0 1 1.5-.866L4 10.732V4a1 1 0 0 1 1-1zm6 0a1 1 0 0 1 1 1v6.732l1.5-.998A1 1 0 0 1 19 10.5V13a5 5 0 0 1-5 5h-1a5 5 0 0 1-.276-.008A6.001 6.001 0 0 0 14 13v-3a3 3 0 0 0-.684-1.898L13 7.732V4a1 1 0 0 1 1-1z" />
             </svg>
-            <svg className="w-4 h-4 opacity-50 drag-hint-right" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 3l5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
+            <svg
+              className="w-4 h-4 opacity-50 drag-hint-right"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M6 3l5 5-5 5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </span>
-          <span className="text-sm font-medium text-text-primary">Drag to explore</span>
-          <span className="h-3.5 w-px bg-border/60" aria-hidden="true" />
-          <span className="text-xs text-text-secondary">Cards reveal code when scanned</span>
+          <span className="text-sm font-medium text-text-primary">
+            Drag to explore
+          </span>
+          <span className="h-3.5 w-px bg-border/80" aria-hidden="true" />
+          <span className="text-xs text-text-secondary">
+            Cards reveal code as the scanner passes
+          </span>
         </div>
       </div>
     </>
@@ -643,17 +751,21 @@ const MobileCarousel: React.FC = () => {
             {AUTOMATION_TOOLS.map((tool) => (
               <div className="flex-[0_0_85%] min-w-0 pl-5" key={tool.name}>
                 <div
-                  className="relative rounded-2xl overflow-hidden h-[320px]"
+                  className="card-surface relative h-[320px] overflow-hidden rounded-[28px] border-border/80 bg-bg-card/80"
                   style={{ '--brand-color': tool.color } as React.CSSProperties}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
                   <div
                     className="absolute top-0 left-0 right-0 h-1"
-                    style={{ background: `linear-gradient(90deg, transparent, ${tool.color}, transparent)` }}
+                    style={{
+                      background: `linear-gradient(90deg, transparent, ${tool.color}, transparent)`,
+                    }}
                   />
                   <div
                     className="absolute inset-0 opacity-10"
-                    style={{ background: `radial-gradient(circle at 50% 0%, ${tool.color}40, transparent 70%)` }}
+                    style={{
+                      background: `radial-gradient(circle at 50% 0%, ${tool.color}40, transparent 70%)`,
+                    }}
                   />
                   <div className="relative z-10 p-6 flex flex-col h-full">
                     <div className="relative w-14 h-14 flex-shrink-0">
@@ -674,8 +786,12 @@ const MobileCarousel: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <h3 className="text-lg font-bold text-white mt-2.5 leading-tight">{tool.name}</h3>
-                    <p className="text-xs text-white/75 mt-1.5 leading-relaxed line-clamp-4 flex-grow">{tool.description}</p>
+                    <h3 className="text-lg font-bold text-white mt-2.5 leading-tight">
+                      {tool.name}
+                    </h3>
+                    <p className="mt-1.5 flex-grow line-clamp-4 text-xs leading-relaxed text-white/82">
+                      {tool.description}
+                    </p>
                     <div className="flex justify-between items-center mt-auto pt-2">
                       <span
                         className="text-[11px] px-2.5 py-1 rounded-full font-medium"
@@ -687,7 +803,10 @@ const MobileCarousel: React.FC = () => {
                       >
                         AI Automation
                       </span>
-                      <span className="text-[11px] font-medium" style={{ color: tool.color }}>
+                      <span
+                        className="text-[11px] font-medium"
+                        style={{ color: tool.color }}
+                      >
                         ● Active
                       </span>
                     </div>
@@ -700,7 +819,11 @@ const MobileCarousel: React.FC = () => {
       </div>
 
       {/* Navigation dots */}
-      <div className="flex justify-center gap-2 mt-6 relative z-20" role="tablist" aria-label="Carousel navigation">
+      <div
+        className="flex justify-center gap-2 mt-6 relative z-20"
+        role="tablist"
+        aria-label="Carousel navigation"
+      >
         {AUTOMATION_TOOLS.map((tool, i) => (
           <button
             key={tool.name}
@@ -719,7 +842,9 @@ const MobileCarousel: React.FC = () => {
       </div>
 
       <div className="flex justify-center mt-4 relative z-20">
-        <span className="text-xs text-text-secondary">Swipe or drag to explore</span>
+        <span className="text-xs text-text-secondary">
+          Swipe or drag to explore
+        </span>
       </div>
     </>
   );
@@ -744,23 +869,17 @@ const AutomationCards: React.FC = () => {
           className="text-center mb-8 md:mb-16"
         >
           <div className="flex justify-center mb-4">
-            <span className="section-eyebrow">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-primary" />
-              </span>
-              And we're not done yet...
-            </span>
+            <span className="section-eyebrow">Automation Layer</span>
           </div>
 
           <h2 className="text-4xl lg:text-5xl font-bold font-display tracking-[-0.02em] mb-4 text-text-primary">
-            You Also Get <span className="text-gradient">Automations</span> to
-            Speed Up Your Productivity
+            Automations That Keep{' '}
+            <span className="text-gradient">Work Moving</span>
           </h2>
 
-          <p className="text-lg text-text-secondary max-w-2xl mx-auto">
-            Leverage pre-built automation templates and configure them to fit
-            your unique workflow requirements
+          <p className="mx-auto max-w-2xl text-base leading-relaxed text-text-secondary md:text-lg">
+            Pre-built workflows handle follow-up, routing, and admin tasks so
+            your team spends less time on manual handoffs.
           </p>
         </motion.div>
       </div>
