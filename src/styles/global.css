@@ -62,6 +62,18 @@
   --accent-secondary: #ddb872;
   --accent-glow: rgba(200, 169, 96, 0.28);
   --accent-subtle: rgba(200, 169, 96, 0.07);
+
+  /* ===== Unified Card System Tokens ===== */
+  --card-radius-inner: 1rem;
+  --card-radius-outer: 1.5rem;
+  --card-padding: 1.5rem;
+  --card-padding-lg: 2rem;
+  --card-carousel-gap: 1.25rem;
+  --card-shadow: 0 1px 0 0 rgba(255,255,255,0.04) inset,
+                 0 8px 32px rgba(0,0,0,0.3);
+  --card-shadow-hover: 0 1px 0 0 rgba(255,255,255,0.06) inset,
+                       0 12px 40px rgba(0,0,0,0.35),
+                       0 0 24px var(--accent-glow);
 }
 
 /* Light Mode Overrides - High Contrast & Premium Feel */
@@ -479,9 +491,7 @@ body::after {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border);
-  box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
-    0 4px 24px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--card-shadow);
   transition:
     border-color 0.25s ease,
     box-shadow 0.25s ease;
@@ -489,10 +499,7 @@ body::after {
 
 .glass-card:hover {
   border-color: rgba(200, 169, 96, 0.35);
-  box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
-    0 4px 24px rgba(0, 0, 0, 0.3),
-    0 0 28px var(--accent-glow);
+  box-shadow: var(--card-shadow-hover);
 }
 
 /* Unified card surface — consistent bg for all card types */
@@ -502,9 +509,7 @@ body::after {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(200, 169, 96, 0.12);
   border-radius: 16px;
-  box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.03) inset,
-    0 8px 32px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--card-shadow);
   transition:
     border-color 0.3s ease,
     box-shadow 0.3s ease,
@@ -512,10 +517,7 @@ body::after {
 }
 .card-surface:hover {
   border-color: rgba(200, 169, 96, 0.28);
-  box-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
-    0 12px 40px rgba(0, 0, 0, 0.4),
-    0 0 20px rgba(200, 169, 96, 0.08);
+  box-shadow: var(--card-shadow-hover);
 }
 .light .card-surface {
   background: rgba(255, 255, 255, 0.82);
@@ -1522,7 +1524,7 @@ main > section:nth-last-child(-n+2)::after {
 .card-line {
   display: flex;
   align-items: center;
-  gap: 80px;
+  gap: 60px;
   white-space: nowrap;
   cursor: grab;
   user-select: none;

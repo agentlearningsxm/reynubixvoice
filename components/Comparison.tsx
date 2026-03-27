@@ -1,41 +1,19 @@
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import clsx from 'clsx';
+import { IMAGES } from '../data/comparison-images';
 import { useLanguage } from '../contexts/LanguageContext';
-
-const IMAGES = [
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80',
-  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80',
-  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=80',
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80',
-  'https://images.unsplash.com/photo-1590650153855-d9e808231d41?w=600&q=80',
-  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&q=80',
-];
+import { useAutoplayCarousel } from '../hooks/useAutoplayCarousel';
 
 const Comparison = () => {
   const { t } = useLanguage();
   const cards = t.comparison.gallery.map((card, i) => ({ ...card, image: IMAGES[i] }));
 
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: 'center' },
-    [Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })],
-  );
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', onSelect);
-    onSelect();
-    return () => { emblaApi.off('select', onSelect); };
-  }, [emblaApi, onSelect]);
+  const { emblaRef, emblaApi, selectedIndex } = useAutoplayCarousel({
+    delay: 5000,
+    loop: true,
+    align: 'center',
+  });
 
   // Voice agent carousel navigation (custom event)
   useEffect(() => {
@@ -74,7 +52,7 @@ const Comparison = () => {
         </header>
 
         {/* Carousel */}
-        <div className="relative w-full max-w-5xl mx-auto">
+        <div className="relative w-full max-w-[1400px] mx-auto">
           {/* Prev button */}
           <button
             onClick={() => emblaApi?.scrollPrev()}
@@ -99,7 +77,7 @@ const Comparison = () => {
               {cards.map((card, i) => (
                 <div
                   key={i}
-                  className="flex-[0_0_90%] md:flex-[0_0_70%] lg:flex-[0_0_60%] min-w-0 pl-4"
+                  className="flex-[0_0_85%] md:flex-[0_0_60%] lg:flex-[0_0_45%] min-w-0 pl-5"
                 >
                   <div
                     className={clsx(
@@ -115,7 +93,7 @@ const Comparison = () => {
                       style={{ backgroundImage: `url(${card.image})` }}
                     />
                     {/* Card content */}
-                    <div className="p-5 md:p-6 bg-bg-glass/60 backdrop-blur-md">
+                    <div className="p-6 bg-bg-glass/60 backdrop-blur-md">
                       <div className="text-xs text-text-secondary mb-1">
                         0{i + 1} / 0{cards.length}
                       </div>

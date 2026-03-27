@@ -458,7 +458,7 @@ function DefaultFanCard({ item }: { item: CardStackItem; active: boolean }) {
       )}
 
       {/* content */}
-      <div className="relative z-10 flex h-full flex-col justify-end p-5">
+      <div className="relative z-10 flex h-full flex-col justify-end p-6">
         <div className="truncate text-lg font-semibold text-white">
           {item.title}
         </div>

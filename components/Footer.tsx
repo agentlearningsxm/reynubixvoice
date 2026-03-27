@@ -5,6 +5,7 @@ import { trackEventFireAndForget } from '../lib/telemetry/browser';
 import Logo from './Logo';
 import {
   ArrowUp,
+  Mail,
   Phone,
   Zap,
   Clock,
@@ -370,6 +371,15 @@ const Footer: React.FC = () => {
                       </svg>
                     </a>
                   </div>
+
+                  {/* Email */}
+                  <a
+                    href="mailto:voice@reynubix.com"
+                    className="flex items-center gap-2 text-sm text-text-primary/60 hover:text-text-primary transition-colors duration-200 mt-3 md:justify-end"
+                  >
+                    <Mail className="w-4 h-4" />
+                    voice@reynubix.com
+                  </a>
                 </div>
               </div>
             </div>

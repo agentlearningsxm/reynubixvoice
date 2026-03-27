@@ -15,53 +15,9 @@ const referralCards: CardStackItem[] = [
     tag: '🏆 Founding Partner',
   },
 
-  // CARD 2: Invitation
+  // CARD 2: Direct CTA
   {
     id: 2,
-    title: 'Your Success Story Starts Here',
-    description:
-      'Imagine never missing another opportunity. Every call answered. Every client captured. Your business deserves this.',
-    imageSrc:
-      'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80',
-    tag: '✨ Your Spot Awaits',
-  },
-
-  // CARD 3: Invitation
-  {
-    id: 3,
-    title: 'Ready to Join the Family?',
-    description:
-      'One conversation could change everything. Let us show you how 24/7 AI reception transforms your business just like it did for Hair to Dreads.',
-    imageSrc:
-      'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80',
-    tag: '💡 Take the Leap',
-  },
-
-  // CARD 4: Invitation
-  {
-    id: 4,
-    title: 'Be the Next Success',
-    description:
-      "Every great partnership starts with one 'yes'. Your clients are calling let's make sure you're always there to answer.",
-    imageSrc:
-      'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80',
-    tag: '🚀 Your Turn',
-  },
-
-  // CARD 5: Invitation
-  {
-    id: 5,
-    title: 'Write Your Chapter',
-    description:
-      'Hair to Dreads was our first. You could be next. Real results. Real referrals. Real partnership.',
-    imageSrc:
-      'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800&q=80',
-    tag: '📖 Your Story',
-  },
-
-  // CARD 6: Direct CTA
-  {
-    id: 6,
     title: "Let's Make This Happen",
     description:
       'Book your demo today. See how we capture every missed call, every opportunity, every success. Join the family.',
