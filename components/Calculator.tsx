@@ -1,8 +1,10 @@
 import { motion, useAnimation } from 'framer-motion';
-import { AlertTriangle, DollarSign, Euro, Sparkles, X } from 'lucide-react';
+import { AlertTriangle, ChevronRight, DollarSign, Euro, Sparkles, X } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { trackEventFireAndForget } from '../lib/telemetry/browser';
+import Button from './ui/Button';
 
 const Calculator: React.FC = () => {
   const { t } = useLanguage();
@@ -239,7 +241,7 @@ const Calculator: React.FC = () => {
 
   // Inner content (JSX variable, not a componentavoids remount on re-render)
   const calculatorContent = (
-    <div className="grid lg:grid-cols-2 gap-14 relative z-10">
+    <div className="grid lg:grid-cols-2 gap-12 relative z-10">
       {/* Controls */}
       <div className="space-y-10">
         {/* Dramatic Border Toggle */}
@@ -347,7 +349,7 @@ const Calculator: React.FC = () => {
       <div className="flex flex-col justify-center gap-7" id="result-box">
         <motion.div
           animate={controls}
-          className="glass-card rounded-2xl p-7 text-center relative overflow-hidden"
+          className="glass-card rounded-2xl p-6 text-center relative overflow-hidden"
           style={{
             background: 'rgba(239,68,68,0.06)',
             borderColor: 'rgba(239,68,68,0.25)',
@@ -394,7 +396,7 @@ const Calculator: React.FC = () => {
           </h3>
         </motion.div>
 
-        <div className="bg-money-gain/10 border border-money-gain/20 rounded-xl p-4 flex items-center gap-4">
+        <div className="bg-money-gain/10 border border-money-gain/20 rounded-2xl p-6 flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-money-gain text-white flex items-center justify-center font-bold shrink-0">
             AI
           </div>
@@ -405,6 +407,26 @@ const Calculator: React.FC = () => {
             </span>
             .
           </p>
+        </div>
+
+        {/* Post-calculator CTA */}
+        <div className="mt-8 flex justify-center">
+          <Button
+            size="lg"
+            data-cal-link="reynubix-voice/let-s-talk"
+            data-cal-namespace="let-s-talk"
+            data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+            onClick={() =>
+              trackEventFireAndForget('cta_click', {
+                location: 'calculator_bottom',
+                target: 'cal.com',
+                cta: 'stop_losing_money',
+              })
+            }
+          >
+            Stop Losing {t.currency}{monthlyLoss.toLocaleString()}/mo — Book Your Free Demo
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
         </div>
       </div>
     </div>
@@ -438,7 +460,7 @@ const Calculator: React.FC = () => {
                   <div className="dramatic-border-animation"></div>
 
                   {/* Content Layer - Clearly visible */}
-                  <div className="relative z-10 p-4 sm:p-8 lg:p-14">
+                  <div className="relative z-10 p-4 sm:p-8 lg:p-12">
                     {/* Background Ambient Light */}
                     <div className="absolute top-0 right-0 w-96 h-96 bg-money-loss/10 rounded-full blur-[100px] pointer-events-none" />
                     {calculatorContent}
@@ -455,7 +477,7 @@ const Calculator: React.FC = () => {
           </div>
         ) : (
           /* Standard Glass Card (no dramatic border) */
-          <div id="calculator-card" className="glass-card rounded-3xl p-4 sm:p-8 lg:p-14 shadow-2xl relative overflow-hidden bg-white/80 dark:bg-bg-card">
+          <div id="calculator-card" className="glass-card rounded-3xl p-4 sm:p-8 lg:p-12 shadow-2xl relative overflow-hidden bg-white/80 dark:bg-bg-card">
             {/* Background Ambient Light */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-money-loss/10 rounded-full blur-[100px] pointer-events-none" />
 

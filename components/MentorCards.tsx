@@ -395,7 +395,7 @@ const MentorCards: React.FC = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-20 text-center"
         >
-          <div className="glass-card inline-flex flex-col sm:flex-row items-center gap-4 rounded-2xl px-8 py-6">
+          <div className="glass-card inline-flex flex-col sm:flex-row items-center gap-4 rounded-2xl p-8">
             <div className="text-left">
               <p className="text-base font-semibold text-text-primary">
                 Want access to the same AI knowledge base?

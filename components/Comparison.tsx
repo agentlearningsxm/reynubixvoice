@@ -52,7 +52,7 @@ const Comparison = () => {
         </header>
 
         {/* Carousel */}
-        <div className="relative w-full max-w-5xl mx-auto">
+        <div className="relative w-full max-w-[1400px] mx-auto">
           {/* Prev button */}
           <button
             onClick={() => emblaApi?.scrollPrev()}
@@ -77,7 +77,7 @@ const Comparison = () => {
               {cards.map((card, i) => (
                 <div
                   key={i}
-                  className="flex-[0_0_90%] md:flex-[0_0_70%] lg:flex-[0_0_60%] min-w-0 pl-4"
+                  className="flex-[0_0_85%] md:flex-[0_0_60%] lg:flex-[0_0_45%] min-w-0 pl-5"
                 >
                   <div
                     className={clsx(
@@ -93,7 +93,7 @@ const Comparison = () => {
                       style={{ backgroundImage: `url(${card.image})` }}
                     />
                     {/* Card content */}
-                    <div className="p-5 md:p-6 bg-bg-glass/60 backdrop-blur-md">
+                    <div className="p-6 bg-bg-glass/60 backdrop-blur-md">
                       <div className="text-xs text-text-secondary mb-1">
                         0{i + 1} / 0{cards.length}
                       </div>

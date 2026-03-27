@@ -11,7 +11,7 @@ export const translations = {
       calculator: 'Calculator',
       solutions: 'Solutions',
       comparison: 'Comparison',
-      reviews: 'Reviews',
+      reviews: 'Our Network',
       bookDemo: "Let's Talk",
     },
     hero: {
@@ -186,7 +186,7 @@ export const translations = {
       calculator: 'Calculatrice',
       solutions: 'Solutions',
       comparison: 'Comparaison',
-      reviews: 'Avis',
+      reviews: 'Notre Réseau',
       bookDemo: 'Réserver',
     },
     hero: {
@@ -364,7 +364,7 @@ export const translations = {
       calculator: 'Calculator',
       solutions: 'Oplossingen',
       comparison: 'Vergelijking',
-      reviews: 'Reviews',
+      reviews: 'Ons Netwerk',
       bookDemo: 'Boek Demo',
     },
     hero: {

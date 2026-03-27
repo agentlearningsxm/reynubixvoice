@@ -309,7 +309,6 @@ const DesktopCardStream: React.FC = () => {
           <div
             ref={cardLineRef}
             className="card-line flex items-center whitespace-nowrap select-none"
-            style={{ gap: '60px' }}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -396,7 +395,7 @@ const MobileCarousel: React.FC = () => {
         <div className="overflow-hidden w-full" ref={emblaRef}>
           <div className="flex">
             {AUTOMATION_TOOLS.map((tool) => (
-              <div className="flex-[0_0_85%] min-w-0 pl-4" key={tool.name}>
+              <div className="flex-[0_0_85%] min-w-0 pl-5" key={tool.name}>
                 <div
                   className="relative rounded-2xl overflow-hidden h-[320px]"
                   style={{ '--brand-color': tool.color } as React.CSSProperties}

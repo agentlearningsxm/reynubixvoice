@@ -69,7 +69,7 @@ const IndustrySlider: React.FC = () => {
       </div>
 
       {/* Carousel */}
-      <div className="relative max-w-7xl mx-auto px-4">
+      <div className="relative max-w-[1400px] mx-auto px-4">
         {/* Prev / Next arrowsvisible on ALL viewports */}
         <button
           type="button"
@@ -96,7 +96,7 @@ const IndustrySlider: React.FC = () => {
               return (
                 <div
                   key={card.id}
-                  className="flex-[0_0_80%] md:flex-[0_0_33.333%] min-w-0 pl-4"
+                  className="flex-[0_0_85%] md:flex-[0_0_33.333%] min-w-0 pl-5"
                 >
                   <div
                     className={cn(
