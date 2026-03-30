@@ -8,7 +8,7 @@ Converts missed calls into booked appointments for service businesses (HVAC, den
 - **Frontend:** React 19 + TypeScript 5.8 + Vite 6
 - **Styling:** CSS custom properties + Tailwind (CDN) + Framer Motion
 - **State:** Zustand + React Context (theme, language)
-- **Voice AI:** Google Gemini Real-Time API (`@google/genai`) + Groq fallback
+- **Voice AI:** Google Gemini Real-Time API (`@google/genai`)
 - **Backend:** Vercel serverless functions (`api/`)
 - **Database:** Supabase (PostgreSQL)
 - **Email:** Zoho SMTP via Nodemailer
@@ -22,7 +22,7 @@ App.tsx / index.tsx        — App bootstrap, routing, providers
 components/                — Landing page sections + UI primitives
   ui/                      — Reusable components (Button, VoiceOrb, etc.)
 contexts/                  — LanguageContext (en/fr/nl), ThemeContext
-hooks/                     — useGeminiLive, useGroqFallback
+hooks/                     — useGeminiLive
 lib/                       — Utilities (telemetry, supabase client, sentry)
   telemetry/               — Event tracking, shared types
   three/                   — Three.js particle system (AutomationCards)
@@ -92,7 +92,9 @@ See `.env.example` for all required variables. Never commit real credentials.
 
 **Server-side (api/ only):**
 - `GEMINI_API_KEY` — Google Gemini API
-- `GROQ_API_KEY` — Groq fallback API
+- `GROQ_API_KEY` — Groq server-side analysis API
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REFRESH_TOKEN` / `GOOGLE_SHEET_ID` — Required together for post-call Google Sheets sync
+- `GOOGLE_SHEET_NAME` — Optional sheet tab name override
 - `SUPABASE_SERVICE_ROLE_KEY` — Supabase admin access
 - `ZOHO_EMAIL` — Zoho SMTP sender
 - `ZOHO_APP_PASSWORD` — Zoho app password

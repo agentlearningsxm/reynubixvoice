@@ -8,9 +8,14 @@ import type {
   TranscriptTurnPayload,
   VoiceConsentPayload,
   VoiceErrorPayload,
+  VoiceTokenResponse,
 } from './shared';
 
-export async function startVoiceSession(consent: VoiceConsentPayload) {
+export async function startVoiceSession(
+  consent: VoiceConsentPayload,
+  options: { allowMockFallback?: boolean } = {},
+) {
+  const { allowMockFallback = true } = options;
   let voiceSessionId = `vs_mock_${Date.now()}`;
   try {
     const session = await postJsonWithContext<{ voiceSessionId: string }>(
@@ -25,6 +30,9 @@ export async function startVoiceSession(consent: VoiceConsentPayload) {
     );
     voiceSessionId = session.voiceSessionId;
   } catch (error) {
+    if (!allowMockFallback) {
+      throw error;
+    }
     console.warn(
       'Backend session start failed, using mock session ID for demo',
       error,
@@ -32,18 +40,29 @@ export async function startVoiceSession(consent: VoiceConsentPayload) {
     // If we're local, we can continue with a mock ID
   }
 
-  const token = import.meta.env.VITE_GEMINI_API_KEY || '';
-
   trackEventFireAndForget('voice_session_initialized', {
     voiceSessionId,
   });
 
   return {
     voiceSessionId,
-    token,
-    expiresAt: undefined,
-    newSessionExpiresAt: undefined,
   };
+}
+
+export async function issueVoiceToken(
+  voiceSessionId: string,
+): Promise<VoiceTokenResponse> {
+  const resp = await fetch('/api/voice/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ voiceSessionId }),
+  });
+
+  if (!resp.ok) {
+    throw new Error(`Token request failed: ${resp.status} ${resp.statusText}`);
+  }
+
+  return (await resp.json()) as VoiceTokenResponse;
 }
 
 export function syncVoiceTranscript(
@@ -148,3 +167,4 @@ export function endVoiceSession(input: {
     keepalive: true,
   });
 }
+

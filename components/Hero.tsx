@@ -10,7 +10,6 @@ import type * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useGeminiLive } from '../hooks/useGeminiLive';
-import { useGroqFallback } from '../hooks/useGroqFallback';
 import { trackEventFireAndForget } from '../lib/telemetry/browser';
 import Button from './ui/Button';
 import VoiceOrb from './ui/VoiceOrb';
@@ -18,35 +17,21 @@ import VoiceOrb from './ui/VoiceOrb';
 const Hero: React.FC = () => {
   const { t } = useLanguage();
   const gemini = useGeminiLive();
-  const groq = useGroqFallback();
-  const isGroqActive = gemini.fallbackMode;
-
-  const connected = isGroqActive ? groq.connected : gemini.connected;
-  const isConnecting = isGroqActive ? groq.isConnecting : gemini.isConnecting;
-  const isAgentSpeaking = isGroqActive
-    ? groq.isAgentSpeaking
-    : gemini.isAgentSpeaking;
-  const isUserSpeaking = isGroqActive
-    ? groq.isUserSpeaking
-    : gemini.isUserSpeaking;
-  const error = isGroqActive ? groq.error : gemini.error;
-  const transcript = isGroqActive ? groq.transcript : gemini.transcript;
+  const connected = gemini.connected;
+  const isConnecting = gemini.isConnecting;
+  const isAgentSpeaking = gemini.isAgentSpeaking;
+  const isUserSpeaking = gemini.isUserSpeaking;
+  const error = gemini.error;
+  const transcript = gemini.transcript;
 
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [consentError, setConsentError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (gemini.fallbackMode && !groq.connected && !groq.isConnecting) {
-      void groq.connect();
-    }
-  }, [gemini.fallbackMode, groq.connected, groq.isConnecting, groq.connect]);
-
-  useEffect(() => {
     return () => {
       gemini.disconnect();
-      groq.disconnect();
     };
-  }, [gemini.disconnect, groq.disconnect]);
+  }, [gemini.disconnect]);
 
   const latestTranscriptEntries = transcript
     .filter((entry) => entry.text.trim())
@@ -121,7 +106,6 @@ const Hero: React.FC = () => {
 
   const handlePhoneButtonClick = () => {
     if (connected) {
-      groq.disconnect();
       gemini.disconnect();
       return;
     }
@@ -226,7 +210,16 @@ const Hero: React.FC = () => {
               {[
                 {
                   icon: (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-brand-primary" aria-hidden="true">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="text-brand-primary"
+                      aria-hidden="true"
+                    >
                       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                       <line x1="16" y1="2" x2="16" y2="6" />
                       <line x1="8" y1="2" x2="8" y2="6" />
@@ -238,7 +231,9 @@ const Hero: React.FC = () => {
                 },
                 {
                   icon: (
-                    <span className="text-sm font-bold text-green-400">{t.currency}</span>
+                    <span className="text-sm font-bold text-green-400">
+                      {t.currency}
+                    </span>
                   ),
                   value: `${t.currency}12,450`,
                   label: t.hero.widget.saved,
@@ -255,9 +250,15 @@ const Hero: React.FC = () => {
                   key={stat.label}
                   className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-bg-glass/80 backdrop-blur-sm border border-border-subtle text-sm"
                 >
-                  <span className="flex items-center justify-center">{stat.icon}</span>
-                  <span className="font-semibold text-text-primary whitespace-nowrap">{stat.value}</span>
-                  <span className="text-text-muted-strong whitespace-nowrap text-xs">{stat.label}</span>
+                  <span className="flex items-center justify-center">
+                    {stat.icon}
+                  </span>
+                  <span className="font-semibold text-text-primary whitespace-nowrap">
+                    {stat.value}
+                  </span>
+                  <span className="text-text-muted-strong whitespace-nowrap text-xs">
+                    {stat.label}
+                  </span>
                 </div>
               ))}
             </motion.div>
@@ -283,9 +284,9 @@ const Hero: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-0.5 mb-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
+                  {[1, 2, 3, 4, 5].map((starNumber) => (
                     <svg
-                      key={i}
+                      key={`hero-star-${starNumber}`}
                       className="w-3.5 h-3.5 text-amber-400 fill-current"
                       viewBox="0 0 20 20"
                       aria-hidden="true"
@@ -445,11 +446,6 @@ const Hero: React.FC = () => {
                     </span>
                   </div>
 
-                  {isGroqActive && (
-                    <div className="mb-1 text-[9px] text-amber-400 font-medium tracking-wider uppercase text-center">
-                      Backup Mode Active
-                    </div>
-                  )}
                   {gemini.isReconnecting && (
                     <div className="mb-1 text-[9px] text-yellow-300/80 font-medium tracking-wider uppercase text-center animate-pulse">
                       Reconnecting...

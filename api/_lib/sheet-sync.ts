@@ -1,12 +1,16 @@
 /**
  * Orchestrator: pulls voice session data from Supabase,
- * summarises with Gemini, writes a row to Google Sheets.
+ * summarises with Groq, writes a row to Google Sheets.
  *
  * Called fire-and-forget from the session-end endpoint.
  */
+import {
+  appendSheetRow,
+  ensureSheetHeaders,
+  SHEET_HEADERS,
+} from './google-sheets.js';
+import { analyzeSessionData } from './groq-summary.js';
 import { getSupabaseAdmin } from './supabaseAdmin.js';
-import { appendSheetRow, ensureSheetHeaders } from './google-sheets.js';
-import { analyzeTranscript } from './gemini-summary.js';
 
 type Json = Record<string, unknown>;
 
@@ -95,11 +99,6 @@ export async function syncSessionToSheet(voiceSessionPublicId: string) {
     .map((t) => `${t.speaker === 'ai' ? 'Reyna' : 'Guest'}: ${t.text}`)
     .join('\n');
 
-  // ── Gemini analysis ──────────────────────────────────────────
-  const analysis = await analyzeTranscript(
-    transcriptText || (session.summary as string) || '',
-  );
-
   // ── Extract tool call info ───────────────────────────────────
   const calculatorCall = (toolCalls || []).find(
     (tc) => tc.tool_name === 'update_calculator',
@@ -126,6 +125,21 @@ export async function syncSessionToSheet(voiceSessionPublicId: string) {
     ? Math.round((session.duration_ms as number) / 1000)
     : 0;
 
+  // ── Groq analysis ────────────────────────────────────────────
+  const analysis = await analyzeSessionData({
+    transcript: transcriptText || (session.summary as string) || '',
+    language,
+    durationSec,
+    calculatorUsed: !!calculatorCall,
+    revenueEntered:
+      (calcArgs.revenue as string | number | null | undefined) ?? null,
+    missedCalls:
+      (calcArgs.missedCalls as string | number | null | undefined) ?? null,
+    bookingRequested: !!bookingCall,
+    errorLog,
+    sessionId: voiceSessionPublicId,
+  });
+
   // ── Recording URL (signed -bucket is private) ──────────────
   const storagePath = audioAssets?.[0]?.storage_path;
   let recordingUrl = 'N/A';
@@ -145,7 +159,7 @@ export async function syncSessionToSheet(voiceSessionPublicId: string) {
   await ensureSheetHeaders();
 
   // ── Append the row ───────────────────────────────────────────
-  await appendSheetRow([
+  const row = [
     date,
     time,
     durationSec,
@@ -168,9 +182,15 @@ export async function syncSessionToSheet(voiceSessionPublicId: string) {
     analysis.promptFixRecommendations ?? 'N/A',
     analysis.failureSource ?? 'N/A',
     analysis.callOutcome ?? 'N/A',
-  ]);
+  ];
 
-  console.log(
-    `[sheet-sync] Row appended for session ${voiceSessionPublicId}`,
-  );
+  if (row.length !== SHEET_HEADERS.length) {
+    throw new Error(
+      `[sheet-sync] Row/header mismatch: ${row.length} values for ${SHEET_HEADERS.length} headers`,
+    );
+  }
+
+  await appendSheetRow(row);
+
+  console.log(`[sheet-sync] Row appended for session ${voiceSessionPublicId}`);
 }

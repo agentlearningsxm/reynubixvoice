@@ -517,7 +517,7 @@ git commit -m "feat: add PhoneDemo component with progressive idle/connected lay
 - From the imports: `MicOff`, `Phone`, `PhoneOff`, `LoaderCircle` (only if they are not used anywhere else in Hero.tsx)
 
 **KEEP** (untouched):
-- All hook calls (`useGeminiLive`, `useGroqFallback`)
+- All hook calls (`useGeminiLive`)
 - Lines 25–53: the unified interface variables (`connected`, `isConnecting`, etc.)
 - Lines 111–132: `handlePhoneButtonClick`
 - Lines 32–33: `consentAccepted` / `consentError` state
@@ -719,9 +719,9 @@ git commit -m "fix: add any missing hero phone translation keys"
   - [ ] `Mic` icon (filled) shown when user is speaking
   - [ ] `MicOff` shown when silent
 
-- [ ] **Groq fallback** (optional — needs `VITE_GROQ_API_KEY` set in `.env.local`):
-  - [ ] After 3 Gemini failures, "Backup" appears in status bar
-  - [ ] Voice interaction still works via Groq + browser speech synthesis
+- [ ] **Reconnect recovery**:
+  - [ ] After repeated Gemini failures, session backup remains available for recovery
+  - [ ] Voice interaction resumes through the Gemini live reconnection path when the connection returns
 
 - [ ] **Final commit**
 
@@ -741,6 +741,6 @@ git commit -m "feat: Reyna phone redesign — constellation orb + progressive la
 | `components/Hero.tsx` | **MODIFY** | Remove ~300 lines of inline phone JSX, import PhoneDemo |
 | `contexts/LanguageContext.tsx` | **MAYBE MODIFY** | Ensure `consentHelp` + other keys exist in all locales |
 | `hooks/useGeminiLive.ts` | **ALREADY DONE** | Fixed model: `gemini-2.0-flash` → `gemini-2.0-flash-live-001` |
-| `.env.local` | **ALREADY DONE** | `VITE_GROQ_API_KEY` placeholder added |
+| `.env.local` | **ALREADY DONE** | Gemini live + server-side Groq analysis envs documented |
 
 **No new npm dependencies.** Uses: React 19, Framer Motion, Tailwind CSS, Lucide React — all already installed.

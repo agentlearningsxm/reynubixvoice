@@ -18,5 +18,12 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "exclude": ["node_modules", "ai-studio-phone", "dist"]
+  "exclude": [
+    "node_modules",
+    "ai-studio-phone",
+    "dist",
+    ".agent",
+    ".claude",
+    ".vercel"
+  ]
 }

@@ -1,6 +1,7 @@
 import { waitUntil } from '@vercel/functions';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { VoiceSessionEndPayload } from '../../../lib/telemetry/shared.js';
+import { hasPostCallSheetSyncConfig } from '../../_lib/google-sheets.js';
 import { readJsonBody, rejectMethod } from '../../_lib/http.js';
 import { syncSessionToSheet } from '../../_lib/sheet-sync.js';
 import { recordEvent, updateVoiceSession } from '../../_lib/telemetry.js';
@@ -42,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Sync session data to Google Sheet in the background.
     // waitUntil() keeps the Vercel function alive until the promise resolves,
     // so the sheet sync completes even after the response is sent.
-    if (process.env.GOOGLE_REFRESH_TOKEN) {
+    if (hasPostCallSheetSyncConfig()) {
       waitUntil(
         syncSessionToSheet(payload.voiceSessionId).catch((err) =>
           console.error('[sheet-sync] Failed:', err),
