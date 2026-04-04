@@ -82,12 +82,16 @@ describe('ensureSheetHeaders', () => {
 
     vi.stubGlobal('fetch', fetchMock);
 
-    const { ensureSheetHeaders } = await import('../../api/_lib/google-sheets.js');
+    const { ensureSheetHeaders } = await import(
+      '../../api/_lib/google-sheets.js'
+    );
 
     await ensureSheetHeaders();
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(fetchMock.mock.calls[1]?.[0]).toContain('/values/reyna%20web!A1%3AS1');
+    expect(fetchMock.mock.calls[1]?.[0]).toContain(
+      '/values/reyna%20web!A1%3AS1',
+    );
   });
 
   it('rewrites headers when the existing columns are out of order', async () => {
@@ -126,7 +130,9 @@ describe('ensureSheetHeaders', () => {
 
     vi.stubGlobal('fetch', fetchMock);
 
-    const { ensureSheetHeaders } = await import('../../api/_lib/google-sheets.js');
+    const { ensureSheetHeaders } = await import(
+      '../../api/_lib/google-sheets.js'
+    );
 
     await ensureSheetHeaders();
 

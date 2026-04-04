@@ -54,14 +54,14 @@ const IndustrySlider: React.FC = () => {
     <section
       id="solutions"
       className="relative w-full py-16 md:py-24 section-grid-bg text-text-primary"
-      style={{ minHeight: '600px' }}
+      style={{ minHeight: '480px' }}
     >
       {/* Header */}
-      <div className="text-center px-6 mb-10 md:mb-14">
+      <div className="text-center px-4 sm:px-6 mb-8 md:mb-14">
         <div className="flex justify-center mb-4">
           <span className="section-eyebrow">Industries We Serve</span>
         </div>
-        <h2 className="text-3xl sm:text-5xl lg:text-7xl font-display font-bold leading-tight tracking-[-0.02em] mb-3">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold leading-tight tracking-[-0.02em] mb-3">
           <span className="text-text-primary">{t.industries.title} </span>
           <span className="text-brand-primary">
             {t.industries.titleHighlight}
@@ -79,7 +79,7 @@ const IndustrySlider: React.FC = () => {
         <button
           type="button"
           onClick={() => emblaApi?.scrollPrev()}
-          className="absolute left-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary md:h-12 md:w-12"
+          className="absolute left-2 sm:left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary"
           aria-label="Previous industry"
         >
           <svg
@@ -100,7 +100,7 @@ const IndustrySlider: React.FC = () => {
         <button
           type="button"
           onClick={() => emblaApi?.scrollNext()}
-          className="absolute right-0 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary md:h-12 md:w-12"
+          className="absolute right-2 sm:right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary"
           aria-label="Next industry"
         >
           <svg
@@ -120,7 +120,7 @@ const IndustrySlider: React.FC = () => {
         </button>
 
         {/* Embla viewport */}
-        <div className="overflow-hidden mx-8 md:mx-14" ref={emblaRef}>
+        <div className="overflow-hidden mx-1 sm:mx-6 md:mx-14" ref={emblaRef}>
           <div className="flex">
             {industries.map((card, i) => {
               const isActive = i === selectedIndex;
@@ -131,9 +131,9 @@ const IndustrySlider: React.FC = () => {
                 >
                   <div
                     className={cn(
-                      'card-surface group relative aspect-[5/7] overflow-hidden rounded-[28px] border-border/80 transition-all duration-300',
+                      'card-surface group relative aspect-[3/4] md:aspect-[5/7] overflow-hidden rounded-[28px] border-border/80 transition-all duration-300',
                       isActive
-                        ? 'z-10 scale-100 border-brand-primary/30 bg-bg-card/90 opacity-100 shadow-[0_24px_60px_rgba(0,0,0,0.24)] md:scale-[1.02]'
+                        ? 'z-10 scale-[1.02] border-brand-primary/30 bg-bg-card/90 opacity-100 shadow-[0_24px_60px_rgba(0,0,0,0.24)]'
                         : 'scale-[0.97] bg-bg-card/70 opacity-80 shadow-[0_12px_30px_rgba(0,0,0,0.14)]',
                     )}
                   >
@@ -154,15 +154,15 @@ const IndustrySlider: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/40 to-black/10" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_42%)] opacity-70" />
                     <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-[1]">
-                      <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72">
+                      <p className="mb-1 md:mb-2 text-[9px] md:text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72">
                         Use Case
                       </p>
-                      <h3 className="font-display font-bold text-xl md:text-2xl text-white drop-shadow-lg">
+                      <h3 className="font-display font-bold text-[clamp(0.875rem,3vw,1.5rem)] md:text-xl lg:text-2xl text-white drop-shadow-lg leading-tight">
                         {card.title}
                       </h3>
                       <p
                         className={cn(
-                          'mt-3 text-sm leading-relaxed text-white/88 transition-all duration-300 md:text-base',
+                          'mt-2 md:mt-4 text-[clamp(0.6875rem,2.5vw,0.875rem)] md:text-sm lg:text-base leading-relaxed text-white/88 transition-all duration-300 line-clamp-3',
                           isActive
                             ? 'translate-y-0 opacity-100'
                             : 'translate-y-4 opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100',
@@ -178,9 +178,16 @@ const IndustrySlider: React.FC = () => {
           </div>
         </div>
 
+        {/* Swipe hint - mobile only */}
+        <div className="flex justify-center mt-4 md:hidden">
+          <span className="text-xs text-text-secondary">
+            ← Swipe to explore →
+          </span>
+        </div>
+
         {/* Dots */}
         <div
-          className="flex justify-center gap-2 mt-8"
+          className="flex justify-center gap-2 mt-6 md:mt-8"
           role="tablist"
           aria-label="Industry slides"
         >
@@ -193,7 +200,7 @@ const IndustrySlider: React.FC = () => {
               aria-label={card.title}
               onClick={() => emblaApi?.scrollTo(i)}
               className={cn(
-                'w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer',
+                'w-2.5 h-2.5 p-2 rounded-full transition-all duration-300 cursor-pointer',
                 i === selectedIndex
                   ? 'bg-[var(--accent-primary)] scale-125'
                   : 'bg-text-secondary/55 hover:bg-text-secondary/80',

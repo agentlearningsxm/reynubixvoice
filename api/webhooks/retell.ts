@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import type { IncomingMessage } from 'node:http';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
@@ -94,10 +94,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       void forwardToN8n(body);
       break;
     case 'call_ended':
-      console.log('[retell] call_ended', (body.call as Record<string, unknown>)?.call_id);
+      console.log(
+        '[retell] call_ended',
+        (body.call as Record<string, unknown>)?.call_id,
+      );
       break;
     case 'call_started':
-      console.log('[retell] call_started', (body.call as Record<string, unknown>)?.call_id);
+      console.log(
+        '[retell] call_started',
+        (body.call as Record<string, unknown>)?.call_id,
+      );
       break;
     default:
       console.log('[retell] unknown event:', body.event);
@@ -107,7 +113,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 async function forwardToN8n(payload: unknown): Promise<void> {
   const webhookUrl = process.env.N8N_POST_CALL_WEBHOOK_URL;
   if (!webhookUrl) {
-    console.warn('[retell] N8N_POST_CALL_WEBHOOK_URL not set -skipping forward to n8n');
+    console.warn(
+      '[retell] N8N_POST_CALL_WEBHOOK_URL not set -skipping forward to n8n',
+    );
     return;
   }
   try {
@@ -117,7 +125,11 @@ async function forwardToN8n(payload: unknown): Promise<void> {
       body: JSON.stringify(payload),
     });
     if (!response.ok) {
-      console.error('[retell] n8n forward failed:', response.status, await response.text());
+      console.error(
+        '[retell] n8n forward failed:',
+        response.status,
+        await response.text(),
+      );
     } else {
       console.log('[retell] call_analyzed forwarded to n8n');
     }

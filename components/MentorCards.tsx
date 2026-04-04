@@ -111,14 +111,14 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
             <button
               type="button"
               onClick={onClose}
-              className="absolute top-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-border/70 bg-bg-glass/90 text-text-muted-strong backdrop-blur-md transition-colors hover:border-brand-primary/30 hover:text-text-primary"
+              className="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-bg-glass/90 text-text-muted-strong backdrop-blur-md transition-colors hover:border-brand-primary/30 hover:text-text-primary"
             >
               <X className="w-4 h-4 text-text-primary" />
             </button>
 
             {/* Gradient Header */}
             <div
-              className={`relative h-44 bg-gradient-to-br ${mentor.gradient} opacity-25 rounded-t-2xl`}
+              className={`relative h-32 sm:h-44 bg-gradient-to-br ${mentor.gradient} opacity-25 rounded-t-2xl`}
             />
 
             {/* Identity Row */}
@@ -199,7 +199,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                 href={mentor.youtubeChannel}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/16"
+                className="inline-flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-3 min-h-[44px] text-sm font-medium text-red-400 transition-colors hover:bg-red-500/16"
               >
                 <Youtube className="w-4 h-4" />
                 Visit YouTube Channel
@@ -209,7 +209,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                   href={mentor.skoolLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-brand-primary/25 bg-brand-primary/10 px-4 py-2.5 text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary/16"
+                  className="inline-flex items-center gap-2 rounded-xl border border-brand-primary/25 bg-brand-primary/10 px-4 py-3 min-h-[44px] text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary/16"
                 >
                   <Users className="w-4 h-4" />
                   Join Their Community
@@ -298,12 +298,12 @@ const MentorCards: React.FC = () => {
   }));
 
   return (
-    <section className="relative py-14 md:py-28 section-grid-bg" id="reviews">
+    <section className="relative py-10 sm:py-14 md:py-28 section-grid-bg" id="reviews">
       {/* Light mode subtle background layer */}
       <div className="absolute inset-0 dark:hidden bg-gradient-to-b from-transparent via-slate-100/50 to-transparent pointer-events-none" />
       <div className="page-container relative">
         {/* Section Header */}
-        <div className="mb-14 text-center">
+        <div className="mb-8 sm:mb-14 text-center">
           <div className="flex justify-center mb-4">
             <span className="section-eyebrow">{copy.eyebrow}</span>
           </div>
@@ -320,13 +320,13 @@ const MentorCards: React.FC = () => {
         </div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
+        <div className="flex flex-nowrap overflow-x-auto scrollbar-hide justify-start sm:justify-center gap-1.5 sm:gap-2 mb-8 sm:mb-12 px-2">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.id}
               type="button"
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border cursor-pointer ${
+              className={`px-4 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-300 border cursor-pointer ${
                 activeCategory === cat.id
                   ? 'border-brand-primary bg-brand-primary text-accent-ink shadow-[0_12px_24px_var(--accent-glow)]'
                   : 'bg-bg-glass/60 text-text-muted-strong border-border/80 hover:border-brand-primary/35 hover:text-text-primary'
@@ -360,7 +360,7 @@ const MentorCards: React.FC = () => {
                     href={mentor.youtubeChannel}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/16"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 min-h-[44px] text-sm font-medium text-red-400 transition-colors hover:bg-red-500/16"
                   >
                     <Youtube className="w-4 h-4" />
                     YouTube
@@ -370,7 +370,7 @@ const MentorCards: React.FC = () => {
                       href={mentor.skoolLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-brand-primary/25 bg-brand-primary/10 px-3 py-2 text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary/16"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-brand-primary/25 bg-brand-primary/10 px-3 py-2 min-h-[44px] text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary/16"
                     >
                       <Users className="w-4 h-4" />
                       Skool
@@ -379,7 +379,7 @@ const MentorCards: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSelectedMentor(mentor)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-brand-primary/25 px-4 py-2 text-sm font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-brand-primary/25 px-4 py-2.5 min-h-[44px] text-sm font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
                     style={{
                       background:
                         'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
@@ -400,7 +400,7 @@ const MentorCards: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-20 text-center"
+          className="mt-12 sm:mt-16 md:mt-20 text-center"
         >
           <div className="glass-card inline-flex flex-col items-center gap-4 rounded-[28px] bg-bg-glass/80 p-8 sm:flex-row">
             <div className="text-left">

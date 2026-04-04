@@ -1,5 +1,6 @@
 import { Activity, ArrowUp, Clock, Mail, Phone, Zap } from 'lucide-react';
 import type React from 'react';
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import { trackEventFireAndForget } from '../lib/telemetry/browser';
@@ -35,7 +36,7 @@ const Footer: React.FC = () => {
       {/* ═══════════════════════════════════════════════════
           CTA BANNERDramatic, Premium
       ═══════════════════════════════════════════════════ */}
-      <div className="relative overflow-hidden py-14 md:py-24 lg:py-28">
+      <div className="relative overflow-hidden py-10 sm:py-14 md:py-24 lg:py-28">
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -58,7 +59,7 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Headlinelarger, more dramatic */}
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold font-display tracking-[-0.03em] text-text-primary mb-5 leading-[1.08]">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-display tracking-[-0.03em] text-text-primary mb-5 leading-[1.08]">
             Every missed call is a
             <br />
             <span className="text-gradient">missed opportunity.</span>
@@ -133,13 +134,13 @@ const Footer: React.FC = () => {
       {/* ═══════════════════════════════════════════════════
           TRUST STATS BARWith icons, glass cards
       ═══════════════════════════════════════════════════ */}
-      <div className="relative py-12 md:py-16">
+      <div className="relative py-10 sm:py-12 md:py-16">
         <div className="page-container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {stats.map(({ value, label, icon: Icon }) => (
               <div
                 key={label}
-                className="glass-card flex flex-col items-center gap-2.5 rounded-[24px] bg-bg-glass/80 px-5 py-6 text-center"
+                className="glass-card flex flex-col items-center gap-2 rounded-[20px] bg-bg-glass/80 px-3 py-4 sm:px-5 sm:py-6 text-center"
                 style={{
                   borderColor:
                     'color-mix(in srgb, var(--accent-primary) 14%, var(--border))',
@@ -181,7 +182,7 @@ const Footer: React.FC = () => {
           }}
         />
 
-        <div className="py-16 md:py-20">
+          <div className="py-12 sm:py-16 md:py-20">
           <div className="page-container">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
               {/* Brand Columnwider */}
@@ -224,19 +225,19 @@ const Footer: React.FC = () => {
                 <nav className="flex flex-col gap-3">
                   <Link
                     to="/contact"
-                    className="w-fit text-sm text-text-muted-strong transition-colors duration-200 hover:text-text-primary"
+                    className="w-fit min-h-[44px] flex items-center text-sm text-text-muted-strong transition-colors duration-200 hover:text-text-primary"
                   >
                     {t.footer.contact}
                   </Link>
                   <Link
                     to="/privacy"
-                    className="w-fit text-sm text-text-muted-strong transition-colors duration-200 hover:text-text-primary"
+                    className="w-fit min-h-[44px] flex items-center text-sm text-text-muted-strong transition-colors duration-200 hover:text-text-primary"
                   >
                     {t.footer.privacy}
                   </Link>
                   <Link
                     to="/terms"
-                    className="w-fit text-sm text-text-muted-strong transition-colors duration-200 hover:text-text-primary"
+                    className="w-fit min-h-[44px] flex items-center text-sm text-text-muted-strong transition-colors duration-200 hover:text-text-primary"
                   >
                     {t.footer.terms}
                   </Link>
@@ -259,7 +260,7 @@ const Footer: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="LinkedIn"
-                      className="group flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 text-text-muted-strong transition-all duration-300 hover:border-[#0A66C2]/40 hover:text-[#0A66C2]"
+                      className="group flex h-11 w-11 items-center justify-center rounded-xl border border-border/80 text-text-muted-strong transition-all duration-300 hover:border-[#0A66C2]/40 hover:text-[#0A66C2]"
                       style={{ background: 'var(--bg-card)' }}
                     >
                       <span className="sr-only">LinkedIn</span>
@@ -279,7 +280,7 @@ const Footer: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="YouTube"
-                      className="group flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 text-text-muted-strong transition-all duration-300 hover:border-[#FF0000]/40 hover:text-[#FF0000]"
+                      className="group flex h-11 w-11 items-center justify-center rounded-xl border border-border/80 text-text-muted-strong transition-all duration-300 hover:border-[#FF0000]/40 hover:text-[#FF0000]"
                       style={{ background: 'var(--bg-card)' }}
                     >
                       <span className="sr-only">YouTube</span>
@@ -299,7 +300,7 @@ const Footer: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="WhatsApp"
-                      className="group flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 text-text-muted-strong transition-all duration-300 hover:border-[#25D366]/40 hover:text-[#25D366]"
+                      className="group flex h-11 w-11 items-center justify-center rounded-xl border border-border/80 text-text-muted-strong transition-all duration-300 hover:border-[#25D366]/40 hover:text-[#25D366]"
                       style={{ background: 'var(--bg-card)' }}
                     >
                       <span className="sr-only">WhatsApp</span>
@@ -319,7 +320,7 @@ const Footer: React.FC = () => {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="Skool"
-                      className="group flex h-10 w-10 items-center justify-center rounded-xl border border-border/80 transition-all duration-300 hover:border-[#1a237e]/40"
+                      className="group flex h-11 w-11 items-center justify-center rounded-xl border border-border/80 transition-all duration-300 hover:border-[#1a237e]/40"
                       style={{ background: 'var(--bg-card)' }}
                     >
                       <span className="sr-only">Skool</span>
@@ -350,7 +351,7 @@ const Footer: React.FC = () => {
                   {/* Email */}
                   <a
                     href="mailto:voice@reynubix.com"
-                    className="mt-3 flex items-center gap-2 text-sm text-text-muted-strong transition-colors duration-200 hover:text-text-primary md:justify-end"
+                    className="mt-3 flex items-center gap-2 min-h-[44px] text-sm text-text-muted-strong transition-colors duration-200 hover:text-text-primary md:justify-end"
                   >
                     <Mail className="w-4 h-4" />
                     voice@reynubix.com
@@ -408,4 +409,4 @@ const Footer: React.FC = () => {
   );
 };
 
-export default Footer;
+export default memo(Footer);

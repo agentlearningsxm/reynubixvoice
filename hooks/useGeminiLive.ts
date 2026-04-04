@@ -1,19 +1,20 @@
 import { type Blob, GoogleGenAI, type LiveServerMessage } from '@google/genai';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { SILENCE_MODES, SYSTEM_INSTRUCTION } from '../components/AgentPrompt';
 import {
-  startVoiceSession,
+  SILENCE_MODES,
+  SYSTEM_INSTRUCTION,
+} from '../components/AgentPrompt.v4';
+import {
   endVoiceSession,
   issueVoiceToken,
+  recordVoiceToolCall,
+  startVoiceSession,
   syncVoiceTranscript,
   uploadVoiceAudio,
-  recordVoiceToolCall,
 } from '../lib/telemetry/voice';
 import {
   buildGeminiLiveConfig,
   buildReconnectRestoreTurns,
-  LIVE_SESSION_BACKUP_STORAGE_KEY,
-  type LiveSessionBackup,
 } from '../lib/voice/liveConfig';
 import {
   extractModelAudioChunks,
@@ -23,12 +24,21 @@ import {
   GEMINI_LIVE_API_VERSION,
   GEMINI_LIVE_MODEL,
 } from '../lib/voice/models';
+import {
+  buildResumeContextNote,
+  compactTranscript,
+  inferGreetingDelivered,
+  type TranscriptLike,
+  toTranscriptTurnPayload,
+  VOICE_SESSION_BACKUP_KEY,
+  VOICE_SESSION_BACKUP_MAX_AGE_MS,
+  type VoiceSessionBackup,
+} from '../lib/voice/sessionMemory';
 
 // ─── Resilience Constants ───────────────────────────────────────────
 const MAX_RECONNECT_ATTEMPTS = 8;
 const RECONNECT_BASE_DELAY_MS = 2000;
 const CONNECTION_TIMEOUT_MS = 15000;
-const LIVE_SESSION_BACKUP_MAX_AGE_MS = 2 * 60 * 60 * 1000;
 
 // ─── Transcript types ───────────────────────────────────────────────
 export interface TranscriptEntry {
@@ -38,23 +48,46 @@ export interface TranscriptEntry {
   isFinal?: boolean;
 }
 
-function readLiveSessionBackup(): LiveSessionBackup | null {
+function normalizeLiveSessionBackup(parsed: any): VoiceSessionBackup | null {
+  const updatedAt = parsed?.updatedAt ?? parsed?.lastUpdatedAt;
+  if (!updatedAt || Date.now() - updatedAt > VOICE_SESSION_BACKUP_MAX_AGE_MS) {
+    return null;
+  }
+
+  const transcript = compactTranscript(
+    Array.isArray(parsed?.transcript)
+      ? (parsed.transcript as TranscriptLike[])
+      : [],
+  );
+
+  return {
+    voiceSessionId: parsed?.voiceSessionId ?? null,
+    sessionResumptionHandle:
+      parsed?.sessionResumptionHandle ?? parsed?.resumptionHandle ?? null,
+    transcript,
+    updatedAt,
+    sessionStartedAt:
+      parsed?.sessionStartedAt ?? parsed?.startedAt ?? Date.now(),
+    greetingDelivered:
+      parsed?.greetingDelivered ?? inferGreetingDelivered(transcript),
+    lastToolCallName: parsed?.lastToolCallName ?? null,
+  };
+}
+
+function readLiveSessionBackup(): VoiceSessionBackup | null {
   if (typeof window === 'undefined') {
     return null;
   }
 
   try {
-    const raw = window.sessionStorage.getItem(LIVE_SESSION_BACKUP_STORAGE_KEY);
+    const raw = window.sessionStorage.getItem(VOICE_SESSION_BACKUP_KEY);
     if (!raw) {
       return null;
     }
 
-    const parsed = JSON.parse(raw) as LiveSessionBackup;
-    if (
-      !parsed?.lastUpdatedAt ||
-      Date.now() - parsed.lastUpdatedAt > LIVE_SESSION_BACKUP_MAX_AGE_MS
-    ) {
-      window.sessionStorage.removeItem(LIVE_SESSION_BACKUP_STORAGE_KEY);
+    const parsed = normalizeLiveSessionBackup(JSON.parse(raw));
+    if (!parsed) {
+      window.sessionStorage.removeItem(VOICE_SESSION_BACKUP_KEY);
       return null;
     }
 
@@ -64,24 +97,47 @@ function readLiveSessionBackup(): LiveSessionBackup | null {
   }
 }
 
-function writeLiveSessionBackup(backup: LiveSessionBackup | null) {
+function writeLiveSessionBackup(backup: VoiceSessionBackup | null) {
   if (typeof window === 'undefined') {
     return;
   }
 
   try {
     if (!backup) {
-      window.sessionStorage.removeItem(LIVE_SESSION_BACKUP_STORAGE_KEY);
+      window.sessionStorage.removeItem(VOICE_SESSION_BACKUP_KEY);
       return;
     }
 
     window.sessionStorage.setItem(
-      LIVE_SESSION_BACKUP_STORAGE_KEY,
+      VOICE_SESSION_BACKUP_KEY,
       JSON.stringify(backup),
     );
   } catch {
     // Ignore storage quota or serialization issues.
   }
+}
+
+function parseGoAwayTimeLeftMs(value: unknown) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return Math.max(0, value);
+  }
+
+  if (typeof value !== 'string') {
+    return 0;
+  }
+
+  const secondsMatch = value.match(/^([0-9]+(?:\.[0-9]+)?)s$/);
+  if (secondsMatch) {
+    return Math.max(0, Number(secondsMatch[1]) * 1000);
+  }
+
+  const millisMatch = value.match(/^([0-9]+(?:\.[0-9]+)?)ms$/);
+  if (millisMatch) {
+    return Math.max(0, Number(millisMatch[1]));
+  }
+
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? Math.max(0, numeric) : 0;
 }
 
 // ─── Hook ───────────────────────────────────────────────────────────
@@ -122,6 +178,7 @@ export function useGeminiLive() {
   const reconnectAttemptsRef = useRef(0);
   const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const goAwayReconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Telemetry Refs
   const voiceSessionIdRef = useRef<string | null>(null);
@@ -138,6 +195,11 @@ export function useGeminiLive() {
   const recordingChunksRef = useRef<BlobPart[]>([]);
   const micSourceForMixRef = useRef<MediaStreamAudioSourceNode | null>(null);
 
+  // Connect ref (breaks circular dependency between reconnect and connectToGemini)
+  const connectToGeminiRef = useRef<
+    ((isReconnect?: boolean) => Promise<void>) | null
+  >(null);
+
   const syncSessionBackup = useCallback(
     (nextTranscript: TranscriptEntry[] = transcriptRef.current) => {
       const hasRecoverableState =
@@ -152,14 +214,12 @@ export function useGeminiLive() {
 
       writeLiveSessionBackup({
         voiceSessionId: voiceSessionIdRef.current,
-        transcript: nextTranscript.map((entry) => ({
-          speaker: entry.speaker,
-          text: entry.text,
-          isFinal: entry.isFinal,
-        })),
-        resumptionHandle: sessionResumptionHandleRef.current,
-        startedAt: sessionStartTimeRef.current || null,
-        lastUpdatedAt: Date.now(),
+        sessionResumptionHandle: sessionResumptionHandleRef.current,
+        transcript: compactTranscript(nextTranscript),
+        updatedAt: Date.now(),
+        sessionStartedAt: sessionStartTimeRef.current || Date.now(),
+        greetingDelivered: greetingDeliveredRef.current,
+        lastToolCallName: lastToolCallNameRef.current,
       });
     },
     [],
@@ -215,12 +275,14 @@ export function useGeminiLive() {
     if (backup.voiceSessionId) {
       voiceSessionIdRef.current = backup.voiceSessionId;
     }
-    if (backup.startedAt) {
-      sessionStartTimeRef.current = backup.startedAt;
+    if (backup.sessionStartedAt) {
+      sessionStartTimeRef.current = backup.sessionStartedAt;
     }
-    if (backup.resumptionHandle) {
-      sessionResumptionHandleRef.current = backup.resumptionHandle;
+    if (backup.sessionResumptionHandle) {
+      sessionResumptionHandleRef.current = backup.sessionResumptionHandle;
     }
+    greetingDeliveredRef.current = backup.greetingDelivered;
+    lastToolCallNameRef.current = backup.lastToolCallName;
     if (backup.transcript.length > 0) {
       const restoredTranscript = backup.transcript.map((entry, index) => ({
         speaker: entry.speaker,
@@ -230,11 +292,6 @@ export function useGeminiLive() {
       }));
       transcriptRef.current = restoredTranscript;
       _setTranscript(restoredTranscript);
-      greetingDeliveredRef.current = restoredTranscript.some(
-        (entry) =>
-          entry.speaker === 'ai' &&
-          entry.text.toLowerCase().includes("i'm reyna"),
-      );
     }
   }, []);
 
@@ -244,15 +301,11 @@ export function useGeminiLive() {
       return;
     }
 
-    const finalizedTurns = transcript
-      .filter((entry) => entry.isFinal && entry.text.trim().length > 0)
-      .map((entry, index) => ({
-        capturedAt: new Date().toISOString(),
-        isFinal: true,
-        speaker: entry.speaker,
-        text: entry.text.trim(),
-        turnIndex: index,
-      }));
+    const finalizedTurns = toTranscriptTurnPayload(
+      transcript.filter(
+        (entry) => entry.isFinal && entry.text.trim().length > 0,
+      ),
+    );
 
     if (finalizedTurns.length === 0) {
       return;
@@ -266,8 +319,7 @@ export function useGeminiLive() {
     }
 
     lastSyncedTranscriptHashRef.current = transcriptHash;
-    syncVoiceTranscript(sessionId, finalizedTurns).catch((syncError) => {
-      console.warn('[Reyna] Transcript sync failed:', syncError);
+    syncVoiceTranscript(sessionId, finalizedTurns).catch(() => {
       lastSyncedTranscriptHashRef.current = '';
     });
   }, [transcript]);
@@ -340,6 +392,7 @@ export function useGeminiLive() {
   const handleToolCall = (fc: any): Record<string, unknown> => {
     toolCallCountRef.current += 1;
     lastToolCallNameRef.current = fc.name;
+    syncSessionBackup();
     let status = 'ok';
 
     switch (fc.name) {
@@ -363,7 +416,7 @@ export function useGeminiLive() {
       case 'open_cal_popup': {
         // Cal.com is loaded globally by Navbar.tsx
         const calApi = (window as any).Cal;
-        if (calApi && calApi.ns && calApi.ns['let-s-talk']) {
+        if (calApi?.ns?.['let-s-talk']) {
           calApi.ns['let-s-talk']('openModal');
           status = 'cal_popup_opened';
         } else {
@@ -382,7 +435,7 @@ export function useGeminiLive() {
       }
 
       default:
-        status = 'unknown_tool_' + fc.name;
+        status = `unknown_tool_${fc.name}`;
     }
 
     // Enrich response with context anchor -prevents the model from
@@ -451,6 +504,10 @@ export function useGeminiLive() {
       clearTimeout(reconnectTimeoutRef.current);
       reconnectTimeoutRef.current = null;
     }
+    if (goAwayReconnectTimeoutRef.current) {
+      clearTimeout(goAwayReconnectTimeoutRef.current);
+      goAwayReconnectTimeoutRef.current = null;
+    }
 
     // Capture state before cleanup
     const sessionId = voiceSessionIdRef.current;
@@ -472,7 +529,7 @@ export function useGeminiLive() {
         status: 'completed',
         durationMs,
         transcriptText: transcriptText || undefined,
-      }).catch((err) => console.warn('[Reyna] endVoiceSession failed:', err));
+      }).catch(() => {});
     };
 
     // Upload recording BEFORE ending session so sheet sync finds the audio.
@@ -487,18 +544,16 @@ export function useGeminiLive() {
         !sessionId.startsWith('vs_mock_') &&
         audioBlob.size > 0
       ) {
-        console.log('[Reyna] Uploading recording:', audioBlob.size, 'bytes');
         const upload = uploadVoiceAudio(
           sessionId,
           'recording',
           audioBlob,
-        ).catch((e) => console.warn('[Reyna] Audio upload failed:', e));
+        ).catch(() => {});
         // Cap wait at 15s -prevents dangling sessions on slow networks
         await Promise.race([
           upload,
           new Promise<void>((r) =>
             setTimeout(() => {
-              console.warn('[Reyna] Upload timed out after 15s, proceeding');
               r();
             }, 15_000),
           ),
@@ -544,60 +599,72 @@ export function useGeminiLive() {
     setIsAgentSpeaking(false);
     setIsUserSpeaking(false);
     setTranscript([]);
-  }, [clearSessionBackup, closeSession, cleanupAudio]);
+  }, [
+    clearSessionBackup,
+    closeSession,
+    cleanupAudio,
+    connected,
+    isConnecting,
+    setTranscript,
+  ]);
 
   // ─── Reconnect (automatic recovery) ────────────────────────────
-  const reconnect = useCallback(() => {
-    if (intentionalDisconnectRef.current) return;
+  const reconnect = useCallback(
+    (countAttempt = true) => {
+      if (intentionalDisconnectRef.current) return;
+      if (reconnectTimeoutRef.current) return;
 
-    reconnectAttemptsRef.current += 1;
-    const attempt = reconnectAttemptsRef.current;
+      if (countAttempt) {
+        reconnectAttemptsRef.current += 1;
+      }
+      const attempt = Math.max(reconnectAttemptsRef.current, 1);
 
-    console.warn(
-      `[Reyna] Reconnection attempt ${attempt}/${MAX_RECONNECT_ATTEMPTS}`,
-    );
+      if (countAttempt && attempt > MAX_RECONNECT_ATTEMPTS) {
+        closeSession();
+        cleanupAudio();
+        setConnected(false);
+        setIsConnecting(false);
+        setIsReconnecting(false);
+        setIsAgentSpeaking(false);
+        setError(
+          'The live connection is still trying to recover. Your session memory is preserved, and the call will continue if the connection returns.',
+        );
+        return;
+      }
 
-    if (attempt > MAX_RECONNECT_ATTEMPTS) {
-      console.error(
-        '[Reyna] Max reconnection attempts reached -preserving session backup',
-      );
+      // Tear down current connection but keep transcript
+      if (goAwayReconnectTimeoutRef.current) {
+        clearTimeout(goAwayReconnectTimeoutRef.current);
+        goAwayReconnectTimeoutRef.current = null;
+      }
       closeSession();
       cleanupAudio();
       setConnected(false);
-      setIsConnecting(false);
-      setIsReconnecting(false);
       setIsAgentSpeaking(false);
-      setError(
-        'The live connection is still trying to recover. Your session memory is preserved, and the call will continue if the connection returns.',
-      );
-      return;
-    }
+      setIsReconnecting(true);
 
-    // Tear down current connection but keep transcript
-    closeSession();
-    cleanupAudio();
-    setConnected(false);
-    setIsAgentSpeaking(false);
-    setIsReconnecting(true);
-
-    const delay = RECONNECT_BASE_DELAY_MS * attempt;
-    reconnectTimeoutRef.current = setTimeout(() => {
-      if (!intentionalDisconnectRef.current) {
-        // connectToGemini is called directly -it's hoisted
-        void connectToGemini(true);
-      }
-    }, delay);
-  }, [closeSession, cleanupAudio]);
+      const delay = RECONNECT_BASE_DELAY_MS * attempt;
+      reconnectTimeoutRef.current = setTimeout(() => {
+        reconnectTimeoutRef.current = null;
+        if (!intentionalDisconnectRef.current) {
+          // connectToGemini is called directly -it's hoisted
+          void connectToGeminiRef.current?.(true);
+        }
+      }, delay);
+    },
+    [closeSession, cleanupAudio],
+  );
 
   // ─── Connect ──────────────────────────────────────────────────
   const connectToGemini = async (isReconnect = false) => {
+    connectToGeminiRef.current = connectToGemini;
     try {
       const persistedBackup = readLiveSessionBackup();
       const hasRecoverableSession =
         !!voiceSessionIdRef.current ||
         !!persistedBackup?.voiceSessionId ||
         !!sessionResumptionHandleRef.current ||
-        !!persistedBackup?.resumptionHandle;
+        !!persistedBackup?.sessionResumptionHandle;
       const shouldResumeSession = isReconnect || hasRecoverableSession;
 
       if (!shouldResumeSession) {
@@ -613,7 +680,6 @@ export function useGeminiLive() {
 
       // Connection timeout -if onopen doesn't fire in time, retry
       connectionTimeoutRef.current = setTimeout(() => {
-        console.warn('[Reyna] Connection timeout -attempting reconnect');
         closeSession();
         cleanupAudio();
         setIsConnecting(false);
@@ -639,10 +705,10 @@ export function useGeminiLive() {
       const silenceContext =
         SILENCE_MODES[silenceMode as keyof typeof SILENCE_MODES] ||
         SILENCE_MODES.checkin;
-      const fullInstruction = SYSTEM_INSTRUCTION + '\n\n' + silenceContext;
+      const fullInstruction = `${SYSTEM_INSTRUCTION}\n\n${silenceContext}`;
       const resumptionHandle =
         sessionResumptionHandleRef.current ??
-        persistedBackup?.resumptionHandle ??
+        persistedBackup?.sessionResumptionHandle ??
         null;
       let activeVoiceSessionId =
         voiceSessionIdRef.current ?? persistedBackup?.voiceSessionId ?? null;
@@ -661,7 +727,8 @@ export function useGeminiLive() {
         syncSessionBackup();
       }
       if (!sessionStartTimeRef.current) {
-        sessionStartTimeRef.current = persistedBackup?.startedAt ?? Date.now();
+        sessionStartTimeRef.current =
+          persistedBackup?.sessionStartedAt ?? Date.now();
       }
 
       const issuedToken = await issueVoiceToken(activeVoiceSessionId);
@@ -690,6 +757,10 @@ export function useGeminiLive() {
                 clearTimeout(connectionTimeoutRef.current);
                 connectionTimeoutRef.current = null;
               }
+              if (goAwayReconnectTimeoutRef.current) {
+                clearTimeout(goAwayReconnectTimeoutRef.current);
+                goAwayReconnectTimeoutRef.current = null;
+              }
 
               // Reset reconnection state on successful connect
               reconnectAttemptsRef.current = 0;
@@ -710,14 +781,13 @@ export function useGeminiLive() {
                 if (restoreContextOnConnectRef.current) {
                   try {
                     session.sendClientContent({
-                      turns: buildReconnectRestoreTurns(transcriptRef.current),
+                      turns: buildReconnectRestoreTurns(transcriptRef.current, {
+                        greetingDelivered: greetingDeliveredRef.current,
+                        lastToolCallName: lastToolCallNameRef.current,
+                      }),
                       turnComplete: true,
                     });
-                  } catch (restoreError) {
-                    console.warn(
-                      '[Reyna] Failed to restore reconnect context:',
-                      restoreError,
-                    );
+                  } catch (_restoreError) {
                   } finally {
                     restoreContextOnConnectRef.current = false;
                   }
@@ -804,10 +874,10 @@ export function useGeminiLive() {
               // ── Recording: mix mic + AI into one WebM ──────────
               try {
                 const mixDest =
-                  outputAudioContextRef.current!.createMediaStreamDestination();
-                outputNodeRef.current!.connect(mixDest);
+                  outputAudioContextRef.current?.createMediaStreamDestination();
+                outputNodeRef.current?.connect(mixDest);
                 const micForMix =
-                  outputAudioContextRef.current!.createMediaStreamSource(
+                  outputAudioContextRef.current?.createMediaStreamSource(
                     stream,
                   );
                 micForMix.connect(mixDest);
@@ -827,18 +897,12 @@ export function useGeminiLive() {
                 };
                 recorder.onstop = () => {
                   // Log auto-stop so we know it happened (disconnect() overrides this)
-                  console.log(
-                    '[Reyna] Recorder auto-stopped. Chunks collected:',
-                    chunks.length,
-                  );
                 };
                 recordingChunksRef.current = chunks;
                 recorderRef.current = recorder;
                 recorder.start(1000);
-              } catch (recErr) {
-                console.warn('[Reyna] Recording setup failed:', recErr);
-              }
-            } catch (openErr) {
+              } catch (_recErr) {}
+            } catch (_openErr) {
               setError('Failed to start mic streaming.');
             }
           },
@@ -846,10 +910,25 @@ export function useGeminiLive() {
           onmessage: async (msg: LiveServerMessage) => {
             if (msg.sessionResumptionUpdate) {
               sessionResumptionHandleRef.current =
-                msg.sessionResumptionUpdate.resumable === false
-                  ? null
-                  : (msg.sessionResumptionUpdate.newHandle ?? null);
+                msg.sessionResumptionUpdate.newHandle ??
+                sessionResumptionHandleRef.current;
               syncSessionBackup();
+            }
+
+            if (msg.goAway && !intentionalDisconnectRef.current) {
+              const goAwayDelayMs = Math.max(
+                parseGoAwayTimeLeftMs(msg.goAway.timeLeft) - 1000,
+                0,
+              );
+
+              if (!goAwayReconnectTimeoutRef.current) {
+                goAwayReconnectTimeoutRef.current = setTimeout(() => {
+                  goAwayReconnectTimeoutRef.current = null;
+                  if (!intentionalDisconnectRef.current) {
+                    reconnect(false);
+                  }
+                }, goAwayDelayMs);
+              }
             }
 
             // Handle Tool Calls
@@ -867,9 +946,7 @@ export function useGeminiLive() {
                     toolName: fc.name,
                     args: fc.args as Record<string, unknown>,
                     result: result as Record<string, unknown>,
-                  }).catch((err) =>
-                    console.warn('[Reyna] Tool call recording failed:', err),
-                  );
+                  }).catch(() => {});
                 }
 
                 responses.push({
@@ -891,7 +968,10 @@ export function useGeminiLive() {
                       role: 'user',
                       parts: [
                         {
-                          text: `[System note: ${toolNames} executed successfully. The visitor can see the result on screen. Continue the conversation from where you left off. You already introduced yourself -do NOT greet again.]`,
+                          text: buildResumeContextNote(transcriptRef.current, {
+                            greetingDelivered: greetingDeliveredRef.current,
+                            lastToolCallName: toolNames,
+                          }),
                         },
                       ],
                     },
@@ -949,7 +1029,7 @@ export function useGeminiLive() {
               sourcesRef.current.forEach((source) => {
                 try {
                   source.stop();
-                } catch (e) {}
+                } catch (_e) {}
               });
               sourcesRef.current.clear();
               nextStartTimeRef.current = 0;
@@ -976,11 +1056,7 @@ export function useGeminiLive() {
                 aiText.includes("i'm reyna") &&
                 aiText.includes('what brings you')
               ) {
-                console.warn(
-                  '[Reyna] GREETING LOOP DETECTED after tool call:',
-                  lastToolCallNameRef.current,
-                  'sendClientContent context anchor may not be working',
-                );
+                // Greeting loop detected after tool call
               }
               setTranscript((prev) => {
                 let lastIndex = -1;
@@ -1026,7 +1102,7 @@ export function useGeminiLive() {
 
             // Handle User Transcription
             const userTranscription = msg.serverContent?.inputTranscription;
-            if (userTranscription && userTranscription.text) {
+            if (userTranscription?.text) {
               setTranscript((prev) => {
                 let lastIndex = -1;
                 for (let i = prev.length - 1; i >= 0; i--) {
@@ -1070,22 +1146,17 @@ export function useGeminiLive() {
 
             // Auto-reconnect unless user pressed end call
             if (!intentionalDisconnectRef.current) {
-              console.warn(
-                '[Reyna] Connection closed unexpectedly -reconnecting',
-              );
               reconnect();
             }
           },
 
           onerror: (e: ErrorEvent | Event) => {
             const msg = (e as ErrorEvent).message || 'Unknown WebSocket error';
-            console.error('[Reyna] Live API error:', msg, e);
             setIsConnecting(false);
             resolvedSessionRef.current = null;
 
             // Don't hard-disconnect -try to reconnect
             if (!intentionalDisconnectRef.current) {
-              console.warn('[Reyna] Error received -attempting reconnect');
               reconnect();
             } else {
               setError(`Connection failed: ${msg}`);
@@ -1096,7 +1167,6 @@ export function useGeminiLive() {
       sessionRef.current = sessionPromise;
     } catch (e: any) {
       const msg = e?.message || String(e);
-      console.error('[Reyna] Connect error:', msg, e);
       closeSession();
       cleanupAudio();
       setConnected(false);

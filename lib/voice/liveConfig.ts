@@ -1,5 +1,8 @@
-import { Modality, Type, type LiveConnectConfig } from '@google/genai';
-import type { VoiceSpeaker } from '../telemetry/shared';
+import { type LiveConnectConfig, Modality, Type } from '@google/genai';
+import {
+  buildReconnectRestoreTurns as buildSessionReconnectRestoreTurns,
+  type TranscriptLike,
+} from './sessionMemory.js';
 
 export const GEMINI_LIVE_TOOLS = [
   {
@@ -47,24 +50,7 @@ export const GEMINI_LIVE_TOOLS = [
   },
 ];
 
-export const LIVE_SESSION_BACKUP_STORAGE_KEY =
-  'reynubixvoice.live-session-backup';
-const MAX_RESTORE_TURNS = 10;
-const MAX_RESTORE_TEXT_LENGTH = 280;
-
-export interface ReconnectTranscriptEntry {
-  speaker: VoiceSpeaker;
-  text: string;
-  isFinal?: boolean;
-}
-
-export interface LiveSessionBackup {
-  voiceSessionId: string | null;
-  transcript: ReconnectTranscriptEntry[];
-  resumptionHandle: string | null;
-  startedAt: number | null;
-  lastUpdatedAt: number;
-}
+export const REYNA_GEMINI_VOICE = 'Sulafat';
 
 export function buildGeminiLiveConfig(
   systemInstruction: string,
@@ -83,53 +69,28 @@ export function buildGeminiLiveConfig(
     responseModalities: [Modality.AUDIO],
     systemInstruction,
     tools: GEMINI_LIVE_TOOLS,
+    contextWindowCompression: {
+      slidingWindow: {},
+    },
     sessionResumption,
     speechConfig: {
-      voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Kore' } },
+      voiceConfig: {
+        prebuiltVoiceConfig: {
+          voiceName: REYNA_GEMINI_VOICE,
+        },
+      },
     },
     outputAudioTranscription: {},
     inputAudioTranscription: {},
   };
 }
 
-function sanitizeTranscriptText(value: string) {
-  return value.replace(/\s+/g, ' ').trim().slice(0, MAX_RESTORE_TEXT_LENGTH);
-}
-
 export function buildReconnectRestoreTurns(
-  transcript: ReconnectTranscriptEntry[],
+  transcript: TranscriptLike[],
+  options: {
+    greetingDelivered?: boolean;
+    lastToolCallName?: string | null;
+  } = {},
 ) {
-  const recentTurns = transcript
-    .filter((entry) => entry.isFinal !== false)
-    .map((entry) => ({
-      role: entry.speaker === 'human' ? 'user' : 'model',
-      parts: [{ text: sanitizeTranscriptText(entry.text) }],
-    }))
-    .filter((entry) => entry.parts[0].text.length > 0)
-    .slice(-MAX_RESTORE_TURNS);
-
-  if (recentTurns.length === 0) {
-    return [
-      {
-        role: 'user' as const,
-        parts: [
-          {
-            text: 'System note: This is the same live call after a brief connection hiccup. Continue naturally without greeting again.',
-          },
-        ],
-      },
-    ];
-  }
-
-  return [
-    ...recentTurns,
-    {
-      role: 'user' as const,
-      parts: [
-        {
-          text: 'System note: The live connection briefly hiccupped, but this is still the same conversation. Do not restart, do not re-introduce yourself, and continue from the last topic naturally.',
-        },
-      ],
-    },
-  ];
+  return buildSessionReconnectRestoreTurns(transcript, options);
 }

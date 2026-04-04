@@ -8,25 +8,39 @@ import {
   BrowserRouter as Router,
   Routes,
 } from 'react-router-dom';
+import { AdminDashboard } from './components/admin/AdminDashboard';
+import AdminLayout from './components/admin/AdminLayout';
+import { DealsPage } from './components/admin/DealsPage';
+import { ImportPage } from './components/admin/ImportPage';
+import { InteractionsPage } from './components/admin/InteractionsPage';
+import { LeadsPage } from './components/admin/LeadsPage';
+import { TasksPage } from './components/admin/TasksPage';
+import { AuthProvider } from './components/auth/AuthProvider';
+import { LoginPage } from './components/auth/LoginPage';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import Calculator from './components/Calculator';
-import ErrorBoundary from './components/ErrorBoundary';
 import Comparison from './components/Comparison';
+import ErrorBoundary from './components/ErrorBoundary';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
 import IndustrySlider from './components/IndustrySlider';
 import MentorCards from './components/MentorCards';
 import Navbar from './components/Navbar';
-import Privacy from './components/Privacy';
 import ReferralSection from './components/referral-section';
 import ScrollToTop from './components/ScrollToTop';
 import TelemetryManager from './components/TelemetryManager';
-import Terms from './components/Terms';
-import { PremiumContact } from './components/ui/premium-contact';
 import Spotlight from './components/ui/Spotlight';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 
 const AutomationCards = lazy(() => import('./components/AutomationCards'));
+const PremiumContact = lazy(() =>
+  import('./components/ui/premium-contact').then((m) => ({
+    default: m.PremiumContact,
+  })),
+);
+const Privacy = lazy(() => import('./components/Privacy'));
+const Terms = lazy(() => import('./components/Terms'));
 
 const MarketingLayout: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -101,45 +115,85 @@ const App: React.FC = () => (
   <ThemeProvider>
     <LanguageProvider>
       <ErrorBoundary>
-        <Router>
-          <ScrollToTop />
-          <TelemetryManager />
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <MarketingLayout>
-                  <HomePage />
-                </MarketingLayout>
-              }
-            />
-            <Route
-              path="/contact"
-              element={
-                <MarketingLayout>
-                  <PremiumContact />
-                </MarketingLayout>
-              }
-            />
-            <Route
-              path="/privacy"
-              element={
-                <MarketingLayout>
-                  <Privacy />
-                </MarketingLayout>
-              }
-            />
-            <Route
-              path="/terms"
-              element={
-                <MarketingLayout>
-                  <Terms />
-                </MarketingLayout>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
+        <AuthProvider>
+          <Router>
+            <ScrollToTop />
+            <TelemetryManager />
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <MarketingLayout>
+                    <HomePage />
+                  </MarketingLayout>
+                }
+              />
+              <Route
+                path="/contact"
+                element={
+                  <MarketingLayout>
+                    <Suspense fallback={<div className="min-h-screen" />}>
+                      <PremiumContact />
+                    </Suspense>
+                  </MarketingLayout>
+                }
+              />
+              <Route
+                path="/privacy"
+                element={
+                  <MarketingLayout>
+                    <Suspense fallback={<div className="min-h-[60vh]" />}>
+                      <Privacy />
+                    </Suspense>
+                  </MarketingLayout>
+                }
+              />
+              <Route
+                path="/terms"
+                element={
+                  <MarketingLayout>
+                    <Suspense fallback={<div className="min-h-[60vh]" />}>
+                      <Terms />
+                    </Suspense>
+                  </MarketingLayout>
+                }
+              />
+              <Route path="/admin/login" element={<LoginPage />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<AdminDashboard />} />
+                <Route path="leads" element={<LeadsPage />} />
+                <Route path="deals" element={<DealsPage />} />
+                <Route path="tasks" element={<TasksPage />} />
+                <Route path="interactions" element={<InteractionsPage />} />
+                <Route path="import" element={<ImportPage />} />
+                <Route
+                  path="analytics"
+                  element={
+                    <ProtectedRoute>
+                      <div className="text-white">Analytics — Coming soon</div>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="settings"
+                  element={
+                    <ProtectedRoute requiredRole="admin">
+                      <div className="text-white">Settings — Coming soon</div>
+                    </ProtectedRoute>
+                  }
+                />
+              </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Router>
+        </AuthProvider>
       </ErrorBoundary>
       <Analytics />
       <SpeedInsights />

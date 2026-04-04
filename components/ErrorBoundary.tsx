@@ -2,7 +2,7 @@ import React from 'react';
 
 // Minimal ErrorBoundary using React.Component.
 // This project has no @types/react, so we declare the class shape inline.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: React.Component type requires this for class extension
 const ErrorBoundaryClass = React.Component as any;
 
 interface ErrorBoundaryState {

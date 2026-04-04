@@ -17,7 +17,13 @@ const Calculator: React.FC = () => {
   const { t } = useLanguage();
   const [revenuePerCustomer, setRevenuePerCustomer] = useState(800);
   const [missedCalls, setMissedCalls] = useState(3);
-  const [dramaticBorderEnabled, setDramaticBorderEnabled] = useState(true);
+  const [dramaticBorderEnabled, setDramaticBorderEnabled] = useState(() => {
+    try {
+      const saved = localStorage.getItem('calculator-dramatic-border');
+      if (saved !== null) return saved === 'true';
+    } catch {}
+    return true;
+  });
   const [presentationMode, setPresentationMode] = useState(false);
   const [_presentationStage, setPresentationStage] = useState(0);
   const [displayedMonthlyLoss, setDisplayedMonthlyLoss] = useState(0);
@@ -251,10 +257,10 @@ const Calculator: React.FC = () => {
 
   // Inner content (JSX variable, not a componentavoids remount on re-render)
   const calculatorContent = (
-    <div className="relative z-10 grid gap-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-10">
+      <div className="relative z-10 grid gap-4 md:gap-6 lg:gap-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
       {/* Controls */}
       <div className="space-y-5 lg:pr-2">
-        <div className="rounded-[28px] border border-border-subtle bg-surface-raised/92 p-5 shadow-[0_22px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04]">
+        <div className="rounded-[28px] border border-border-subtle bg-surface-raised/92 p-3 xs:p-4 sm:p-5 md:p-6 shadow-[0_22px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04]">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="space-y-2">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-text-muted-strong">
@@ -281,7 +287,7 @@ const Calculator: React.FC = () => {
                   ? 'Disable dramatic border effect'
                   : 'Enable dramatic border effect'
               }
-              className={`dramatic-toggle-btn inline-flex items-center justify-center gap-2 self-start rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 backdrop-blur-md ${
+              className={`dramatic-toggle-btn w-full sm:w-auto inline-flex items-center justify-center gap-2 sm:self-start rounded-full border px-4 py-2 min-h-[44px] text-xs font-semibold transition-all duration-200 backdrop-blur-md ${
                 dramaticBorderEnabled
                   ? 'active border-brand-primary/30 bg-brand-primary/10 text-text-primary shadow-sm dark:border-brand-primary/40 dark:bg-brand-primary/15'
                   : 'border-border-subtle bg-surface/80 text-text-muted-strong hover:border-border-strong hover:text-text-primary dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20'
@@ -317,7 +323,7 @@ const Calculator: React.FC = () => {
               Load a realistic starting point in one tap.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 xs:gap-3 justify-center sm:justify-start max-w-full">
             {scenarios.map((s) => {
               const isActive =
                 revenuePerCustomer === s.val && missedCalls === s.calls;
@@ -331,7 +337,7 @@ const Calculator: React.FC = () => {
                     setRevenuePerCustomer(s.val);
                     setMissedCalls(s.calls);
                   }}
-                  className={`rounded-full border px-4 py-2 text-xs font-semibold transition-all duration-200 cursor-pointer backdrop-blur-sm ${
+                  className={`rounded-full border px-2 xs:px-3 py-1.5 xs:py-2 min-h-[44px] text-xs xs:text-sm font-semibold transition-all duration-200 cursor-pointer backdrop-blur-sm ${
                     isActive
                       ? 'bg-text-primary text-bg-main border-text-primary shadow-sm'
                       : 'bg-surface/84 text-text-muted-strong border-border-subtle hover:border-border-strong hover:text-text-primary dark:bg-white/5 dark:border-white/10 dark:hover:border-white/20'
@@ -349,7 +355,7 @@ const Calculator: React.FC = () => {
           id="input-revenue"
           className="rounded-[28px] border border-border-subtle bg-surface/92 p-5 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.03]"
         >
-          <div className="mb-5 flex items-start justify-between gap-4">
+          <div className="mb-5 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="space-y-2">
               <label
                 htmlFor="calculator-revenue-range"
@@ -364,14 +370,14 @@ const Calculator: React.FC = () => {
               </label>
               <p
                 id="calculator-revenue-helper"
-                className="text-sm leading-6 text-text-muted-strong"
+                className="text-sm leading-6 text-text-muted-strong pr-2"
               >
                 Set the average value you earn from a booked customer.
               </p>
             </div>
-            <span className="inline-flex min-w-[7rem] justify-center rounded-2xl border border-border-subtle bg-surface-raised/94 px-4 py-2 text-base font-bold text-text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.38)] dark:border-white/10 dark:bg-white/[0.04]">
-              {t.currency}
-              {revenuePerCustomer.toLocaleString()}
+            <span className="inline-flex w-full sm:w-auto min-w-[7rem] justify-center items-center gap-1 rounded-2xl border border-border-subtle bg-surface-raised/94 px-4 py-2 text-base font-bold text-text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.38)] dark:border-white/10 dark:bg-white/[0.04]">
+              <span>{t.currency}</span>
+              <span>{revenuePerCustomer.toLocaleString()}</span>
             </span>
           </div>
           <div className="space-y-3">
@@ -387,7 +393,7 @@ const Calculator: React.FC = () => {
                 if (presentationMode) cancelPresentation();
                 setRevenuePerCustomer(Number(e.target.value));
               }}
-              className="themed-range w-full cursor-pointer"
+              className="themed-range h-11 sm:h-8 w-full cursor-pointer"
             />
             <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.15em] text-text-muted-strong/90">
               <span>
@@ -407,7 +413,7 @@ const Calculator: React.FC = () => {
           id="input-calls"
           className="rounded-[28px] border border-border-subtle bg-surface/92 p-5 backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.03]"
         >
-          <div className="mb-5 flex items-start justify-between gap-4">
+          <div className="mb-5 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="space-y-2">
               <label
                 htmlFor="calculator-calls-range"
@@ -418,12 +424,12 @@ const Calculator: React.FC = () => {
               </label>
               <p
                 id="calculator-calls-helper"
-                className="text-sm leading-6 text-text-muted-strong"
+                className="text-sm leading-6 text-text-muted-strong pr-2"
               >
                 Enter how many inbound calls go unanswered on an average day.
               </p>
             </div>
-            <span className="inline-flex min-w-[5rem] justify-center rounded-2xl border border-border-subtle bg-surface-raised/94 px-4 py-2 text-base font-bold text-text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.38)] dark:border-white/10 dark:bg-white/[0.04]">
+            <span className="inline-flex w-full sm:w-auto min-w-[5rem] justify-center items-center rounded-2xl border border-border-subtle bg-surface-raised/94 px-4 py-2 text-base font-bold text-text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.38)] dark:border-white/10 dark:bg-white/[0.04]">
               {missedCalls}
             </span>
           </div>
@@ -440,7 +446,7 @@ const Calculator: React.FC = () => {
                 if (presentationMode) cancelPresentation();
                 setMissedCalls(Number(e.target.value));
               }}
-              className="themed-range w-full cursor-pointer"
+              className="themed-range h-11 sm:h-8 w-full cursor-pointer"
             />
             <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.15em] text-text-muted-strong/90">
               <span>1 call/day</span>
@@ -474,7 +480,7 @@ const Calculator: React.FC = () => {
             <div className="relative z-10 flex flex-col gap-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div className="space-y-2">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-red-400">
+                  <p className="text-xs sm:text-[11px] font-bold uppercase tracking-[0.16em] text-red-400">
                     {t.calculator.monthlyLoss}
                   </p>
                   <p className="max-w-sm text-sm leading-6 text-text-muted-strong">
@@ -482,13 +488,13 @@ const Calculator: React.FC = () => {
                     each month.
                   </p>
                 </div>
-                <div className="inline-flex w-fit items-center rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-red-400">
+                <div className="inline-flex w-fit items-center self-start sm:self-auto rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs sm:text-[11px] font-bold uppercase tracking-[0.16em] text-red-400">
                   Live proof
                 </div>
               </div>
 
               <div aria-live="polite">
-                <h3 className="text-[3.7rem] font-display font-bold leading-none tracking-[-0.05em] text-text-primary sm:text-[4.25rem]">
+                <h3 className="text-[1.5rem] xs:text-[1.8rem] sm:text-[2.2rem] md:text-[3.7rem] font-display font-bold leading-none tracking-[-0.05em] text-text-primary">
                   {t.currency}
                   {activeMonthlyLoss.toLocaleString()}
                 </h3>
@@ -509,10 +515,10 @@ const Calculator: React.FC = () => {
               transition: 'opacity 500ms ease-in',
             }}
           >
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-text-muted-strong">
+            <p className="mb-2 text-xs sm:text-[11px] font-bold uppercase tracking-[0.16em] text-text-muted-strong">
               {t.calculator.yearlyLoss}
             </p>
-            <h3 className="text-[2.4rem] font-display font-bold leading-none tracking-[-0.04em] text-text-primary">
+            <h3 className="text-[1.6rem] xs:text-[2rem] sm:text-[2.2rem] md:text-[2.4rem] font-display font-bold leading-none tracking-[-0.04em] text-text-primary">
               {t.currency}
               {yearlyLoss.toLocaleString()}
             </h3>
@@ -526,7 +532,7 @@ const Calculator: React.FC = () => {
             <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-money-gain text-sm font-bold text-white shadow-sm">
               AI
             </div>
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.16em] text-money-gain">
+            <p className="mb-2 text-xs sm:text-[11px] font-bold uppercase tracking-[0.16em] text-money-gain">
               Recovery potential
             </p>
             <p className="text-sm font-medium leading-6 text-text-primary">
@@ -541,7 +547,7 @@ const Calculator: React.FC = () => {
 
         {/* Post-calculator CTA */}
         <div className="rounded-[28px] border border-border-subtle bg-surface-raised/90 p-6 shadow-[0_20px_50px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.03]">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-4 sm:gap-6 text-center sm:text-left lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2">
               <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-text-muted-strong">
                 Next step
@@ -582,7 +588,7 @@ const Calculator: React.FC = () => {
 
   return (
     <section
-      className="py-12 md:py-24 relative section-grid-bg"
+      className="py-10 sm:py-14 md:py-20 relative section-grid-bg"
       id="calculator"
     >
       <div className="page-container">
@@ -590,7 +596,7 @@ const Calculator: React.FC = () => {
           <div className="flex justify-center mb-4">
             <span className="section-eyebrow">Revenue Loss Calculator</span>
           </div>
-          <h2 className="text-4xl lg:text-5xl font-display font-bold mb-4 tracking-[-0.02em] text-text-primary">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-display font-bold mb-4 tracking-[-0.02em] text-text-primary">
             {t.calculator.title}{' '}
             <span className="text-gradient-danger">
               {t.calculator.titleHighlight}
@@ -603,7 +609,7 @@ const Calculator: React.FC = () => {
 
         {dramaticBorderEnabled ? (
           /* Dramatic Animated Border Wrapper */
-          <div className="dramatic-border-container" id="calculator-card">
+          <div className="dramatic-border-container max-w-full overflow-hidden sm:max-w-none" id="calculator-card">
             <div className="dramatic-border-inner">
               <div className="dramatic-border-outer">
                 <div className="dramatic-main-card glass-card relative overflow-hidden rounded-3xl border border-border-subtle bg-surface-raised/90 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-bg-card/90">

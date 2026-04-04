@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { REYNA_GEMINI_VOICE } from '../../lib/voice/liveConfig.js';
 import { GEMINI_LIVE_MODEL } from '../../lib/voice/models.js';
 
 const authTokenCreateMock = vi.fn();
@@ -69,6 +70,16 @@ describe('voice token handler', () => {
           config: {
             responseModalities: ['AUDIO'],
             sessionResumption: {},
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: {
+                  voiceName: REYNA_GEMINI_VOICE,
+                },
+              },
+            },
+            contextWindowCompression: {
+              slidingWindow: {},
+            },
           },
         },
       },
@@ -114,6 +125,16 @@ describe('voice token handler', () => {
           config: {
             responseModalities: ['AUDIO'],
             sessionResumption: {},
+            speechConfig: {
+              voiceConfig: {
+                prebuiltVoiceConfig: {
+                  voiceName: REYNA_GEMINI_VOICE,
+                },
+              },
+            },
+            contextWindowCompression: {
+              slidingWindow: {},
+            },
           },
         },
       },

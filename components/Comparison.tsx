@@ -12,7 +12,7 @@ const Comparison = () => {
     image: IMAGES[i],
   }));
   const navButtonClassName =
-    'absolute top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary';
+    'absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary';
 
   const { emblaRef, emblaApi, selectedIndex } = useAutoplayCarousel({
     delay: 5000,
@@ -39,7 +39,7 @@ const Comparison = () => {
 
   return (
     <section
-      className="py-14 md:py-28 section-grid-bg overflow-hidden relative min-h-[550px] md:min-h-[650px] flex flex-col items-center justify-center"
+      className="py-10 sm:py-14 md:py-28 section-grid-bg overflow-hidden relative min-h-[420px] sm:min-h-[550px] md:min-h-[650px] flex flex-col items-center justify-center"
       id="comparison"
     >
       <div className="absolute inset-0 bg-gradient pointer-events-none" />
@@ -65,7 +65,7 @@ const Comparison = () => {
           <button
             type="button"
             onClick={() => emblaApi?.scrollPrev()}
-            className={`${navButtonClassName} left-1 md:left-3`}
+            className={`${navButtonClassName} left-2 sm:left-3 md:left-3 h-11 w-11 md:h-12 md:w-12`}
             aria-label="Previous comparison"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -75,7 +75,7 @@ const Comparison = () => {
           <button
             type="button"
             onClick={() => emblaApi?.scrollNext()}
-            className={`${navButtonClassName} right-1 md:right-3`}
+            className={`${navButtonClassName} right-2 sm:right-3 md:right-3 h-11 w-11 md:h-12 md:w-12`}
             aria-label="Next comparison"
           >
             <ChevronRight className="w-5 h-5" />
@@ -86,7 +86,7 @@ const Comparison = () => {
             <div className="flex touch-pan-y">
               {cards.map((card, i) => (
                 <div
-                  key={`comparison-card-${i}`}
+                  key={card.title}
                   className="flex-[0_0_85%] md:flex-[0_0_60%] lg:flex-[0_0_45%] min-w-0 pl-5"
                 >
                   <div
@@ -98,7 +98,7 @@ const Comparison = () => {
                     )}
                   >
                     {/* Card image */}
-                    <div className="relative h-40 overflow-hidden md:h-52">
+                    <div className="relative h-32 sm:h-40 md:h-52 overflow-hidden">
                       <div
                         className="absolute inset-0 bg-cover bg-center transition-transform duration-500"
                         style={{ backgroundImage: `url(${card.image})` }}
@@ -106,7 +106,7 @@ const Comparison = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-bg-main via-bg-main/15 to-transparent" />
                     </div>
                     {/* Card content */}
-                    <div className="bg-bg-glass/80 p-6 backdrop-blur-xl md:p-7">
+                    <div className="bg-bg-glass/80 p-4 sm:p-6 backdrop-blur-xl md:p-7">
                       <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-text-secondary">
                         0{i + 1} / 0{cards.length}
                       </div>
@@ -131,11 +131,13 @@ const Comparison = () => {
         <div className="flex justify-center gap-2 mt-6">
           {cards.map((_, i) => (
             <button
+              // biome-ignore lint/suspicious/noArrayIndexKey: static dot navigation, items never reorder
               key={`comparison-dot-${i}`}
+              data-index={i}
               type="button"
               onClick={() => emblaApi?.scrollTo(i)}
               className={clsx(
-                'h-2.5 rounded-full transition-all duration-300',
+                'h-2.5 p-2 rounded-full transition-all duration-300',
                 i === selectedIndex
                   ? 'w-8 bg-brand-primary'
                   : 'w-2.5 bg-border/80 hover:bg-text-secondary/80',

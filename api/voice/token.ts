@@ -4,6 +4,7 @@ import type {
   VoiceTokenPayload,
   VoiceTokenResponse,
 } from '../../lib/telemetry/shared.js';
+import { REYNA_GEMINI_VOICE } from '../../lib/voice/liveConfig.js';
 import { GEMINI_LIVE_MODEL } from '../../lib/voice/models.js';
 import { getGeminiLiveAdminClient } from '../_lib/gemini.js';
 import { readJsonBody, rejectMethod } from '../_lib/http.js';
@@ -60,6 +61,16 @@ export function buildVoiceAuthTokenConfig(
       config: {
         responseModalities: [Modality.AUDIO],
         sessionResumption: {},
+        speechConfig: {
+          voiceConfig: {
+            prebuiltVoiceConfig: {
+              voiceName: REYNA_GEMINI_VOICE,
+            },
+          },
+        },
+        contextWindowCompression: {
+          slidingWindow: {},
+        },
       },
     },
   };

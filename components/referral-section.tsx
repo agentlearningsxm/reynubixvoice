@@ -64,14 +64,14 @@ const referralCards: CardStackItem[] = [
 
 export default function ReferralSection() {
   return (
-    <section className="relative w-full section-grid-bg py-14 md:py-28 overflow-hidden">
+    <section className="relative w-full section-grid-bg py-10 sm:py-14 md:py-28 overflow-hidden">
       {/* Background Gradient Effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-bg-main/80 via-bg-card/25 to-bg-main/80 opacity-70" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-primary/8 via-transparent to-transparent opacity-50" />
 
       <div className="page-container relative z-10">
         {/* Header */}
-        <div className="mb-8 md:mb-16 text-center">
+        <div className="mb-6 sm:mb-8 md:mb-16 text-center">
           <div className="flex justify-center mb-4">
             <span className="section-eyebrow">Case Study</span>
           </div>
@@ -101,7 +101,7 @@ export default function ReferralSection() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-20 text-center">
+        <div className="mt-12 sm:mt-16 md:mt-20 text-center">
           <Link
             to="/contact"
             className="inline-flex items-center gap-2 rounded-full border border-brand-primary/25 px-8 py-4 text-base font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"

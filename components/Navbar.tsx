@@ -94,6 +94,8 @@ const Navbar: React.FC = () => {
   }, [updateHoverBubblePosition]);
 
   useEffect(() => {
+    // biome-ignore lint/suspicious/noExplicitAny: Cal.com embed SDK requires dynamic typing
+    // biome-ignore lint/complexity/noArguments: Cal.com embed SDK uses arguments for variadic calls
     ((C: any, A: any, L: any) => {
       const p = (a: any, ar: any) => {
         a.q.push(ar);
@@ -126,10 +128,12 @@ const Navbar: React.FC = () => {
           p(cal, ar);
         };
     })(window, 'https://app.cal.com/embed/embed.js', 'init');
+    // biome-ignore lint/suspicious/noExplicitAny: Cal.com embed SDK requires dynamic typing
     (window as any).Cal('init', 'let-s-talk', {
       origin: 'https://app.cal.com',
     });
 
+    // biome-ignore lint/suspicious/noExplicitAny: Cal.com embed SDK requires dynamic typing
     (window as any).Cal.ns['let-s-talk']('ui', {
       hideEventTypeDetails: false,
       layout: 'month_view',
@@ -188,7 +192,7 @@ const Navbar: React.FC = () => {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'py-3' : 'py-5'
+        isScrolled ? 'py-3 bg-bg-main/95 backdrop-blur-md border-b border-border/50 shadow-md' : 'py-5 bg-transparent'
       }`}
     >
       <div className="page-container">

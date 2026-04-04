@@ -130,6 +130,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    // biome-ignore lint/style/noNonNullAssertion: canvas 2d context is universally supported
     const ctx = canvas.getContext('2d')!;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const SIZE = 200;
@@ -387,13 +388,7 @@ const VoiceOrb: React.FC<VoiceOrbProps> = ({
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return (
-    <canvas
-      ref={canvasRef}
-      className="block w-[200px] h-[200px]"
-      aria-hidden="true"
-    />
-  );
+  return <canvas ref={canvasRef} className="block w-[200px] h-[200px]" />;
 };
 
 export default VoiceOrb;

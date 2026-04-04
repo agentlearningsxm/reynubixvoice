@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   ChevronRight,
   LoaderCircle,
@@ -14,9 +14,34 @@ import { trackEventFireAndForget } from '../lib/telemetry/browser';
 import Button from './ui/Button';
 import VoiceOrb from './ui/VoiceOrb';
 
+const CalendarIcon = ({
+  size = 14,
+  className = '',
+}: {
+  size?: number;
+  className?: string;
+}) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    className={className}
+    aria-hidden="true"
+  >
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+  </svg>
+);
+
 const Hero: React.FC = () => {
   const { t } = useLanguage();
   const gemini = useGeminiLive();
+  const shouldReduceMotion = useReducedMotion();
   const connected = gemini.connected;
   const isConnecting = gemini.isConnecting;
   const isAgentSpeaking = gemini.isAgentSpeaking;
@@ -122,13 +147,13 @@ const Hero: React.FC = () => {
 
   return (
     <section
-      className="relative pt-32 pb-28 lg:pt-44 lg:pb-32 overflow-x-clip"
+      className="relative pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-16 sm:pb-24 lg:pb-32 overflow-x-clip"
       id="receptionist"
     >
       {/* Grid provided by full-page square-grid in App.tsx -no local grid needed */}
 
       <div
-        className="absolute inset-x-0 top-0 h-[700px] pointer-events-none"
+        className="absolute inset-x-0 top-0 h-[400px] sm:h-[550px] lg:h-[700px] pointer-events-none"
         style={{
           background:
             'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(200,169,96,0.11) 0%, transparent 70%)',
@@ -142,13 +167,13 @@ const Hero: React.FC = () => {
       />
 
       <div className="page-container relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-12 items-center">
           {/* ── Left: copy ── */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.9, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="text-center lg:text-left z-10"
+            className="text-center lg:text-left z-10 min-w-0"
           >
             <div
               className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-7 border"
@@ -166,7 +191,7 @@ const Hero: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold font-display tracking-[-0.03em] leading-[1.04] mb-6 text-text-primary">
+            <h1 className="text-3xl xs:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold font-display tracking-[-0.03em] leading-tight xs:leading-snug mb-5 xs:mb-6 text-text-primary">
               {t.hero.headline}{' '}
               <span className="text-gradient-danger">
                 {t.hero.headlineHighlight}
@@ -174,7 +199,7 @@ const Hero: React.FC = () => {
               .
             </h1>
 
-            <p className="text-base lg:text-lg text-text-muted-strong mb-10 max-w-[480px] mx-auto lg:mx-0 leading-[1.7]">
+            <p className="text-sm xs:text-base lg:text-lg text-text-muted-strong mb-6 xs:mb-8 lg:mb-10 max-w-[480px] mx-auto lg:mx-0 leading-[1.65]">
               {t.hero.subheadline}
               <span className="text-text-primary font-medium block mt-2">
                 {t.hero.payoff}
@@ -205,26 +230,12 @@ const Hero: React.FC = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="flex md:hidden gap-3 mt-6 overflow-x-auto pb-2 scrollbar-hide justify-center"
+              className="flex md:hidden flex-wrap gap-3 sm:gap-4 mt-6 sm:mt-10 pb-2 justify-center"
             >
               {[
                 {
                   icon: (
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      className="text-brand-primary"
-                      aria-hidden="true"
-                    >
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
+                    <CalendarIcon size={14} className="text-brand-primary" />
                   ),
                   value: t.hero.widget.time,
                   label: t.hero.widget.booked,
@@ -311,12 +322,12 @@ const Hero: React.FC = () => {
               delay: 0.18,
               ease: [0.25, 0.46, 0.45, 0.94],
             }}
-            className="relative flex items-center justify-center"
-            style={{ height: 'clamp(360px, 45vw, 600px)' }}
+            className="relative flex items-center justify-center mt-8 md:mt-12 lg:mt-0"
+            style={{ height: 'clamp(160px, 35vw, 600px)' }}
           >
             {/* ─── Floating card -Appointment ─── */}
             <motion.div
-              animate={{ y: [0, -12, 0] }}
+              animate={shouldReduceMotion ? false : { y: [0, -12, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               className="absolute z-20 hidden md:block"
               style={{ left: '-5%', top: '15%' }}
@@ -326,20 +337,7 @@ const Hero: React.FC = () => {
                   className="hero-float-icon hero-float-icon--blue shrink-0"
                   aria-hidden="true"
                 >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    aria-hidden="true"
-                  >
-                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                    <line x1="16" y1="2" x2="16" y2="6" />
-                    <line x1="8" y1="2" x2="8" y2="6" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
-                  </svg>
+                  <CalendarIcon size={18} />
                 </div>
                 <div>
                   <p className="text-[10px] font-medium text-text-muted-strong leading-tight">
@@ -354,7 +352,7 @@ const Hero: React.FC = () => {
 
             {/* ─── Floating card -Revenue saved ─── */}
             <motion.div
-              animate={{ y: [0, -10, 0] }}
+              animate={shouldReduceMotion ? false : { y: [0, -10, 0] }}
               transition={{
                 duration: 5,
                 repeat: Infinity,
@@ -381,7 +379,7 @@ const Hero: React.FC = () => {
 
             {/* ─── Floating card -Answer rate ─── */}
             <motion.div
-              animate={{ y: [0, -8, 0] }}
+              animate={shouldReduceMotion ? false : { y: [0, -8, 0] }}
               transition={{
                 duration: 3.5,
                 repeat: Infinity,
@@ -403,7 +401,7 @@ const Hero: React.FC = () => {
             <motion.div
               animate={{ y: [0, -16, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative scale-[0.78] md:scale-100 origin-top"
+              className="relative scale-[0.60] xs:scale-[0.70] sm:scale-[0.80] md:scale-[0.90] lg:scale-100 origin-top"
             >
               {/* Edge glow behind phone -the "backlit through edges" effect */}
               <div
@@ -448,7 +446,7 @@ const Hero: React.FC = () => {
 
                   {gemini.isReconnecting && (
                     <div className="mb-1 text-[9px] text-yellow-300/80 font-medium tracking-wider uppercase text-center animate-pulse">
-                      Reconnecting...
+                      {t.hero.live.reconnecting}
                     </div>
                   )}
 
@@ -549,7 +547,7 @@ const Hero: React.FC = () => {
 
                   {/* ── Consent box (pre-call only) ── */}
                   <div
-                    className={`w-full max-w-[240px] overflow-hidden transition-all duration-500 ${connected ? 'opacity-0 max-h-0' : 'opacity-100 max-h-[120px]'}`}
+                    className={`w-full max-w-[260px] xs:max-w-[280px] overflow-hidden transition-all duration-500 ${connected ? 'opacity-0 max-h-0' : 'opacity-100 max-h-[120px]'}`}
                   >
                     <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
                       <label className="flex items-start gap-3 text-[11px] leading-[1.5] text-white/80">
@@ -576,7 +574,7 @@ const Hero: React.FC = () => {
                   </div>
 
                   {/* ── Call buttons ── */}
-                  <div className="mb-8 flex items-center gap-6">
+                  <div className="mb-8 flex items-center gap-3 xs:gap-4 sm:gap-6">
                     <div
                       className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 ${
                         connected

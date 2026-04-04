@@ -7,6 +7,16 @@ describe('buildGeminiLiveConfig', () => {
 
     expect(config.sessionResumption).toEqual({});
     expect(config.sessionResumption).not.toHaveProperty('transparent');
+    expect(config.contextWindowCompression).toEqual({
+      slidingWindow: {},
+    });
+    expect(config.speechConfig).toEqual({
+      voiceConfig: {
+        prebuiltVoiceConfig: {
+          voiceName: 'Sulafat',
+        },
+      },
+    });
     expect(config.inputAudioTranscription).toEqual({});
     expect(config.outputAudioTranscription).toEqual({});
   });

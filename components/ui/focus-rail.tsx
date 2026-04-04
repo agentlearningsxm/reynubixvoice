@@ -69,7 +69,6 @@ export function FocusRail({
   }, []);
 
   const count = items.length;
-  if (count === 0) return null;
 
   const activeIndex = wrap(0, count, active);
   const activeItem = items[activeIndex];
@@ -110,6 +109,8 @@ export function FocusRail({
     return () => clearInterval(timer);
   }, [autoPlay, isHovering, handleNext, interval]);
 
+  if (count === 0) return null;
+
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowLeft') handlePrev();
     if (e.key === 'ArrowRight') handleNext();
@@ -135,11 +136,13 @@ export function FocusRail({
   const visibleIndices = [-2, -1, 0, 1, 2] as const;
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: interactive carousel with keyboard and mouse navigation
     <div
       className={cn(
-        'group relative flex h-[500px] md:h-[580px] lg:h-[650px] w-full select-none flex-col overflow-hidden overflow-x-hidden rounded-3xl border border-border bg-bg-card text-text-primary outline-none',
+        'group relative flex h-[400px] sm:h-[500px] md:h-[580px] lg:h-[650px] w-full select-none flex-col overflow-hidden overflow-x-hidden rounded-3xl border border-border bg-bg-card text-text-primary outline-none',
         className,
       )}
+      tabIndex={-1}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       onKeyDown={onKeyDown}
@@ -195,9 +198,9 @@ export function FocusRail({
 
             return (
               <motion.div
-                key={absIndex}
+                // biome-ignore lint/a11y/noStaticElementInteractions: interactive carousel card with click navigation
                 className={cn(
-                  'absolute aspect-video w-[280px] rounded-2xl border border-border bg-bg-main shadow-2xl transition-shadow duration-300 sm:w-[360px] md:w-[500px]',
+                  'absolute aspect-video w-[240px] rounded-2xl border border-border bg-bg-main shadow-2xl transition-shadow duration-300 sm:w-[360px] md:w-[500px]',
                   isCenter ? 'z-20' : 'z-10',
                 )}
                 initial={false}

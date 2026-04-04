@@ -3,28 +3,32 @@ import { normalizeEmail } from '../../lib/telemetry/shared.js';
 import { readJsonBody, rejectMethod } from '../_lib/http.js';
 import { getSupabaseAdmin } from '../_lib/supabaseAdmin.js';
 
-function resolveBookingMetadata(payload: Record<string, any>) {
+function resolveBookingMetadata(payload: Record<string, unknown>) {
+  const data = payload.data as Record<string, unknown> | undefined;
+  const attendee = data?.attendee as Record<string, unknown> | undefined;
+  const responses = data?.responses as Record<string, unknown> | undefined;
+
   const bookingId =
-    payload.bookingId ||
-    payload.uid ||
-    payload.id ||
-    payload.data?.uid ||
-    payload.data?.bookingId ||
+    (payload.bookingId as string) ||
+    (payload.uid as string) ||
+    (payload.id as string) ||
+    (data?.uid as string) ||
+    (data?.bookingId as string) ||
     null;
 
   const eventType =
-    payload.triggerEvent ||
-    payload.eventType ||
-    payload.type ||
-    payload.event ||
+    (payload.triggerEvent as string) ||
+    (payload.eventType as string) ||
+    (payload.type as string) ||
+    (payload.event as string) ||
     'unknown';
 
   const attendeeEmail =
-    payload.email ||
-    payload.attendee?.email ||
-    payload.data?.email ||
-    payload.data?.attendee?.email ||
-    payload.data?.responses?.email ||
+    (payload.email as string) ||
+    (attendee?.email as string) ||
+    (data?.email as string) ||
+    (attendee?.email as string) ||
+    (responses?.email as string) ||
     null;
 
   return {
@@ -40,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const payload = readJsonBody<Record<string, any>>(req);
+    const payload = readJsonBody<Record<string, unknown>>(req);
     const supabase = getSupabaseAdmin();
     const bookingMeta = resolveBookingMetadata(payload);
 

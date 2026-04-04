@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildVoiceAuthTokenConfig } from '../../api/voice/token.js';
+import { REYNA_GEMINI_VOICE } from '../../lib/voice/liveConfig.js';
 import { GEMINI_LIVE_MODEL } from '../../lib/voice/models.js';
 
 describe('buildVoiceAuthTokenConfig', () => {
@@ -7,9 +8,7 @@ describe('buildVoiceAuthTokenConfig', () => {
     const expiresAt = '2026-03-28T19:00:00.000Z';
     const newSessionExpiresAt = '2026-03-28T18:31:00.000Z';
 
-    expect(
-      buildVoiceAuthTokenConfig(expiresAt, newSessionExpiresAt),
-    ).toEqual({
+    expect(buildVoiceAuthTokenConfig(expiresAt, newSessionExpiresAt)).toEqual({
       uses: 1,
       expireTime: expiresAt,
       newSessionExpireTime: newSessionExpiresAt,
@@ -18,9 +17,18 @@ describe('buildVoiceAuthTokenConfig', () => {
         config: {
           responseModalities: ['AUDIO'],
           sessionResumption: {},
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: REYNA_GEMINI_VOICE,
+              },
+            },
+          },
+          contextWindowCompression: {
+            slidingWindow: {},
+          },
         },
       },
     });
   });
 });
-

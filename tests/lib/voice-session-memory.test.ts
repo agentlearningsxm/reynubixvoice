@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   buildResumeContextNote,
+  buildResumeTurns,
   compactTranscript,
+  inferGreetingDelivered,
   toTranscriptTurnPayload,
 } from '../../lib/voice/sessionMemory.js';
 
@@ -39,6 +41,42 @@ describe('voice session memory helpers', () => {
       { speaker: 'human', text: 'First turn', isFinal: true },
       { speaker: 'ai', text: 'Second turn', isFinal: false },
     ]);
+  });
+
+  it('detects when Reyna already introduced herself', () => {
+    expect(
+      inferGreetingDelivered([
+        { speaker: 'ai', text: "Hi, I'm Reyna from ReynubixVoice." },
+      ]),
+    ).toBe(true);
+  });
+
+  it('builds reconnect restore turns with recent context and resume note', () => {
+    const turns = buildResumeTurns(
+      [
+        { speaker: 'human', text: 'We lose around four calls a day.' },
+        {
+          speaker: 'ai',
+          text: 'Understood. What is a typical job worth for you?',
+        },
+      ],
+      {
+        greetingDelivered: true,
+        lastToolCallName: 'show_calculator',
+      },
+    );
+
+    expect(turns).toHaveLength(3);
+    expect(turns[0]).toMatchObject({
+      role: 'user',
+      parts: [{ text: 'We lose around four calls a day.' }],
+    });
+    expect(turns[1]).toMatchObject({
+      role: 'model',
+      parts: [{ text: 'Understood. What is a typical job worth for you?' }],
+    });
+    expect(turns[2].parts[0].text).toContain('same ongoing Reyna call');
+    expect(turns[2].parts[0].text).toContain('show_calculator');
   });
 
   it('maps transcript entries into stable sync payloads', () => {

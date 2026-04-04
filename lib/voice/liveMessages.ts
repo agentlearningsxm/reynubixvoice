@@ -1,8 +1,6 @@
 import type { LiveServerMessage } from '@google/genai';
 
-export function extractModelAudioChunks(
-  message: LiveServerMessage,
-): string[] {
+export function extractModelAudioChunks(message: LiveServerMessage): string[] {
   const parts = message.serverContent?.modelTurn?.parts ?? [];
   const audioChunks: string[] = [];
 

@@ -1,5 +1,5 @@
-import crypto from 'crypto';
-import { describe, it, expect } from 'vitest';
+import crypto from 'node:crypto';
+import { describe, expect, it } from 'vitest';
 import { verifyRetellSignature } from '../../../api/webhooks/retell.js';
 
 const FAKE_KEY = 'test-api-key-123';
@@ -17,7 +17,9 @@ describe('verifyRetellSignature', () => {
 
   it('returns false for invalid signature', () => {
     const body = '{"event":"call_analyzed"}';
-    expect(verifyRetellSignature(body, 'not-a-valid-sig', FAKE_KEY)).toBe(false);
+    expect(verifyRetellSignature(body, 'not-a-valid-sig', FAKE_KEY)).toBe(
+      false,
+    );
   });
 
   it('returns false when key is missing', () => {

@@ -91,6 +91,8 @@ const DesktopCardStream: React.FC = () => {
     new Map(),
   );
   const canvasDprRef = useRef(1);
+  const frameCountRef = useRef(0);
+  const cachedRectsRef = useRef<Map<number, DOMRect>>(new Map());
 
   // Spawn particles at the laser intersection point
   const spawnParticles = useCallback(
@@ -151,9 +153,9 @@ const DesktopCardStream: React.FC = () => {
         particlesRef.current.push(particle);
       }
 
-      // Performance cap — higher limit for dramatic effect
-      if (particlesRef.current.length > 180) {
-        particlesRef.current.splice(0, particlesRef.current.length - 180);
+      // Performance cap
+      if (particlesRef.current.length > 60) {
+        particlesRef.current.splice(0, particlesRef.current.length - 60);
       }
     },
     [],
@@ -277,8 +279,18 @@ const DesktopCardStream: React.FC = () => {
     // Wider threshold so fast-moving edges are reliably detected
     const edgeThreshold = 20;
 
+    frameCountRef.current += 1;
+    const shouldMeasure = frameCountRef.current % 3 === 0;
+
     cardWrappersRef.current.forEach((wrapper, index) => {
-      const rect = wrapper.getBoundingClientRect();
+      let rect: DOMRect;
+      if (shouldMeasure || !cachedRectsRef.current.has(index)) {
+        rect = wrapper.getBoundingClientRect();
+        cachedRectsRef.current.set(index, rect);
+      } else {
+        // biome-ignore lint/style/noNonNullAssertion: key is guaranteed to exist
+        rect = cachedRectsRef.current.get(index)!;
+      }
       const cardLeft = rect.left;
       const cardRight = rect.right;
       const cardWidth = rect.width;
@@ -318,14 +330,14 @@ const DesktopCardStream: React.FC = () => {
             spawnParticles(
               laserCenter,
               rect,
-              8 + Math.floor(Math.random() * 6),
+              4 + Math.floor(Math.random() * 4),
             );
           } else if (leftDist < edgeThreshold) {
             // Steady spray while edge lingers near laser
             spawnParticles(
               laserCenter,
               rect,
-              2 + Math.floor(Math.random() * 3),
+              1 + Math.floor(Math.random() * 2),
             );
           }
 
@@ -343,13 +355,13 @@ const DesktopCardStream: React.FC = () => {
             spawnParticles(
               laserCenter,
               rect,
-              8 + Math.floor(Math.random() * 6),
+              4 + Math.floor(Math.random() * 4),
             );
           } else if (rightDist < edgeThreshold) {
             spawnParticles(
               laserCenter,
               rect,
-              2 + Math.floor(Math.random() * 3),
+              1 + Math.floor(Math.random() * 2),
             );
           }
         }
@@ -376,9 +388,15 @@ const DesktopCardStream: React.FC = () => {
 
     // Continuous "sawing" emission: while ANY card body is being cut by the laser,
     // keep spraying particles at the intersection line
-    for (const wrapper of cardWrappersRef.current) {
-      const rect = wrapper.getBoundingClientRect();
-      if (rect.left < laserCenter && rect.right > laserCenter) {
+    for (let i = 0; i < cardWrappersRef.current.length; i++) {
+      let rect: DOMRect | undefined;
+      if (shouldMeasure || !cachedRectsRef.current.has(i)) {
+        rect = cardWrappersRef.current[i].getBoundingClientRect();
+        cachedRectsRef.current.set(i, rect);
+      } else {
+        rect = cachedRectsRef.current.get(i);
+      }
+      if (rect && rect.left < laserCenter && rect.right > laserCenter) {
         // 50% chance each frame — creates a steady sawdust-like stream
         if (Math.random() < 0.5) {
           spawnParticles(laserCenter, rect, 2 + Math.floor(Math.random() * 3));
@@ -510,11 +528,7 @@ const DesktopCardStream: React.FC = () => {
       const codeContent = generateCode(w, h);
 
       return (
-        <div
-          key={`${tool.name}-${i}`}
-          className="card-wrapper"
-          data-index={i}
-        >
+        <div key={`${tool.name}-${i}`} className="card-wrapper" data-index={i}>
           <div className="card card-normal">
             <div
               className="card-gradient bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900"
@@ -542,6 +556,7 @@ const DesktopCardStream: React.FC = () => {
                     <img
                       src={tool.logo}
                       alt={tool.name}
+                      draggable={false}
                       onError={(e) => {
                         (e.target as HTMLImageElement).src =
                           `https://ui-avatars.com/api/?name=${tool.name}&background=ffffff&color=${tool.color.slice(1)}&size=48`;
@@ -626,6 +641,7 @@ const DesktopCardStream: React.FC = () => {
             ref={cardLineRef}
             className="card-line appearance-none border-0 bg-transparent p-0 text-left flex items-center whitespace-nowrap select-none"
             aria-label="Automation card stream"
+            onSelectStart={(e) => e.preventDefault()}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
@@ -726,7 +742,7 @@ const MobileCarousel: React.FC = () => {
     delay: 3000,
     loop: true,
     align: 'center',
-    dragFree: false,
+    dragFree: true,
     stopOnMouseEnter: false,
   });
 
@@ -744,14 +760,14 @@ const MobileCarousel: React.FC = () => {
 
   return (
     <>
-      <div className="relative min-h-[360px] flex items-center">
+      <div className="relative min-h-[300px] sm:min-h-[360px] flex items-center">
         <div className="automation-scanner" aria-hidden="true" />
         <div className="overflow-hidden w-full" ref={emblaRef}>
           <div className="flex">
             {AUTOMATION_TOOLS.map((tool) => (
-              <div className="flex-[0_0_85%] min-w-0 pl-5" key={tool.name}>
+              <div className="flex-[0_0_78%] min-w-0 pl-5" key={tool.name}>
                 <div
-                  className="card-surface relative h-[320px] overflow-hidden rounded-[28px] border-border/80 bg-bg-card/80"
+                  className="card-surface relative h-[280px] xs:h-[300px] sm:h-[320px] overflow-hidden rounded-[28px] border-border/80 bg-bg-card/80"
                   style={{ '--brand-color': tool.color } as React.CSSProperties}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
@@ -767,13 +783,13 @@ const MobileCarousel: React.FC = () => {
                       background: `radial-gradient(circle at 50% 0%, ${tool.color}40, transparent 70%)`,
                     }}
                   />
-                  <div className="relative z-10 p-6 flex flex-col h-full">
-                    <div className="relative w-14 h-14 flex-shrink-0">
+                  <div className="relative z-10 p-4 xs:p-5 sm:p-6 flex flex-col h-full">
+                    <div className="relative w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 flex-shrink-0">
                       <div
                         className="absolute inset-[-4px] rounded-[18px] opacity-35 blur-[10px]"
                         style={{ backgroundColor: tool.color }}
                       />
-                      <div className="relative w-14 h-14 bg-white/95 rounded-[14px] flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] p-2.5">
+                      <div className="relative w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 bg-white/95 rounded-[14px] flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] p-2.5">
                         <img
                           src={tool.logo}
                           alt={tool.name}
@@ -786,15 +802,15 @@ const MobileCarousel: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <h3 className="text-lg font-bold text-white mt-2.5 leading-tight">
+                    <h3 className="text-[clamp(0.875rem,3vw,1.125rem)] font-bold text-white mt-1.5 xs:mt-2 sm:mt-2.5 leading-tight">
                       {tool.name}
                     </h3>
-                    <p className="mt-1.5 flex-grow line-clamp-4 text-xs leading-relaxed text-white/82">
+                    <p className="mt-1 xs:mt-1.5 flex-grow line-clamp-4 text-[clamp(0.625rem,2.2vw,0.75rem)] leading-relaxed text-white/82">
                       {tool.description}
                     </p>
-                    <div className="flex justify-between items-center mt-auto pt-2">
+                    <div className="flex justify-between items-center mt-auto pt-1.5 xs:pt-2">
                       <span
-                        className="text-[11px] px-2.5 py-1 rounded-full font-medium"
+                        className="text-[clamp(0.625rem,2vw,0.6875rem)] px-2 xs:px-2.5 py-1 rounded-full font-medium"
                         style={{
                           backgroundColor: `${tool.color}20`,
                           color: tool.color,
@@ -804,7 +820,7 @@ const MobileCarousel: React.FC = () => {
                         AI Automation
                       </span>
                       <span
-                        className="text-[11px] font-medium"
+                        className="text-[clamp(0.625rem,2vw,0.6875rem)] font-medium"
                         style={{ color: tool.color }}
                       >
                         ● Active
@@ -820,7 +836,7 @@ const MobileCarousel: React.FC = () => {
 
       {/* Navigation dots */}
       <div
-        className="flex justify-center gap-2 mt-6 relative z-20"
+        className="flex justify-center gap-2 mt-4 sm:mt-6 relative z-20"
         role="tablist"
         aria-label="Carousel navigation"
       >
@@ -831,7 +847,7 @@ const MobileCarousel: React.FC = () => {
             role="tab"
             aria-selected={i === selectedIndex}
             aria-label={`Go to ${tool.name}`}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`w-2 h-2 p-2 rounded-full transition-all duration-300 ${
               i === selectedIndex
                 ? 'bg-brand-primary w-6'
                 : 'bg-text-secondary/30 hover:bg-text-secondary/60'
@@ -872,7 +888,7 @@ const AutomationCards: React.FC = () => {
             <span className="section-eyebrow">Automation Layer</span>
           </div>
 
-          <h2 className="text-4xl lg:text-5xl font-bold font-display tracking-[-0.02em] mb-4 text-text-primary">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display tracking-[-0.02em] mb-4 text-text-primary">
             Automations That Keep{' '}
             <span className="text-gradient">Work Moving</span>
           </h2>

@@ -1,6 +1,6 @@
-import useEmblaCarousel from 'embla-carousel-react';
 import type { EmblaOptionsType } from 'embla-carousel';
 import Autoplay from 'embla-carousel-autoplay';
+import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useEffect, useState } from 'react';
 
 interface UseAutoplayCarouselOptions {
@@ -46,12 +46,24 @@ export function useAutoplayCarousel(options: UseAutoplayCarouselOptions = {}) {
     if (!emblaApi) return;
     emblaApi.on('select', onSelect);
     onSelect();
-    return () => { emblaApi.off('select', onSelect); };
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
   }, [emblaApi, onSelect]);
 
   const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-  const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
+  const scrollTo = useCallback(
+    (index: number) => emblaApi?.scrollTo(index),
+    [emblaApi],
+  );
 
-  return { emblaRef, emblaApi, selectedIndex, scrollPrev, scrollNext, scrollTo };
+  return {
+    emblaRef,
+    emblaApi,
+    selectedIndex,
+    scrollPrev,
+    scrollNext,
+    scrollTo,
+  };
 }

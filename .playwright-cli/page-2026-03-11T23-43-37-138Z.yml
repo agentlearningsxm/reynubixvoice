@@ -9,7 +9,7 @@
             - listitem [ref=e7]:
               - generic [ref=e8]: "[TypeScript] Cannot find namespace 'React'."
               - generic [ref=e9]: /Desktop/reynubix/reynubixvoice-landing-page/components/Hero.tsx:17:13
-              - code [ref=e11]: "15 | import Button from './ui/Button'; 16 | > 17 | const Hero: React.FC = () => { | ^^^^^ 18 | const { t } = useLanguage(); 19 | const gemini = useGeminiLive(); 20 | const groq = useGroqFallback();"
+              - code [ref=e11]: "15 | import Button from './ui/Button'; 16 | > 17 | const Hero: React.FC = () => { | ^^^^^ 18 | const { t } = useLanguage(); 19 | const live = useGeminiLive(); 20 | // Groq voice fallback removed"
             - listitem [ref=e12]:
               - generic [ref=e13]: "[TypeScript] Type '{ key: any; items: FocusRailItem[]; loop: true; autoPlay: false; className: string; onItemDoubleClick: (activeItem: FocusRailItem) => void; renderActions: (activeItem: FocusRailItem) => any; }' is not assignable to type 'FocusRailProps'. Property 'key' does not exist on type 'FocusRailProps'."
               - generic [ref=e14]: /Desktop/reynubix/reynubixvoice-landing-page/components/MentorCards.tsx:541:13
