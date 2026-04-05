@@ -167,7 +167,7 @@ const Hero: React.FC = () => {
       />
 
       <div className="page-container relative z-10">
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 lg:gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 sm:gap-8 md:gap-12 lg:gap-12 items-start">
           {/* ── Left: copy ── */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -322,8 +322,8 @@ const Hero: React.FC = () => {
               delay: 0.18,
               ease: [0.25, 0.46, 0.45, 0.94],
             }}
-            className="relative flex items-center justify-center mt-8 md:mt-12 lg:mt-0"
-            style={{ height: 'clamp(160px, 35vw, 600px)' }}
+            className="relative flex items-center justify-center mt-12 md:mt-12 lg:mt-0 z-30"
+            style={{ height: 'clamp(500px, 80vw, 600px)' }}
           >
             {/* ─── Floating card -Appointment ─── */}
             <motion.div
@@ -399,9 +399,9 @@ const Hero: React.FC = () => {
 
             {/* ─── Phone: wrapper (floating animation + glow) ─── */}
             <motion.div
-              animate={{ y: [0, -16, 0] }}
+              animate={{ y: [0, -8, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative scale-[0.60] xs:scale-[0.70] sm:scale-[0.80] md:scale-[0.90] lg:scale-100 origin-top"
+              className="relative scale-[0.82] xs:scale-[0.88] sm:scale-[0.92] md:scale-[0.95] lg:scale-100 origin-center"
             >
               {/* Edge glow behind phone -the "backlit through edges" effect */}
               <div
@@ -427,11 +427,11 @@ const Hero: React.FC = () => {
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-black rounded-b-2xl z-10" />
 
                 {/* Screen interior */}
-                <div className="hero-phone-screen-bg absolute inset-[3px] rounded-[2.3rem] overflow-hidden flex flex-col items-center px-5">
+                <div className="hero-phone-screen-bg absolute inset-[3px] rounded-[2.3rem] overflow-hidden flex flex-col items-center px-4 xs:px-5">
                   {/* ── Status pill ── */}
-                  <div className="mt-10 mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
+                  <div className="mt-6 xs:mt-10 mb-2 xs:mb-3 inline-flex items-center gap-1.5 xs:gap-2 rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 xs:px-3 xs:py-1.5 shadow-[0_8px_24px_rgba(0,0,0,0.2)]">
                     <span
-                      className={`h-2 w-2 rounded-full ${
+                      className={`h-1.5 w-1.5 xs:h-2 xs:w-2 rounded-full ${
                         error
                           ? 'bg-red-400'
                           : isLiveSession
@@ -439,13 +439,13 @@ const Hero: React.FC = () => {
                             : 'bg-[#c8a960]'
                       }`}
                     />
-                    <span className="text-[9px] uppercase tracking-[0.12em] text-white/78">
+                    <span className="text-[7px] xs:text-[9px] uppercase tracking-[0.12em] text-white/78">
                       {isLiveSession ? t.hero.live.sessionLabel : t.hero.tag}
                     </span>
                   </div>
 
                   {gemini.isReconnecting && (
-                    <div className="mb-1 text-[9px] text-yellow-300/80 font-medium tracking-wider uppercase text-center animate-pulse">
+                    <div className="mb-1 text-[7px] xs:text-[9px] text-yellow-300/80 font-medium tracking-wider uppercase text-center animate-pulse">
                       {t.hero.live.reconnecting}
                     </div>
                   )}
@@ -456,8 +456,8 @@ const Hero: React.FC = () => {
                     <div
                       className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-700 ${connected ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
                     >
-                      {/* Orb */}
-                      <div className="flex items-center justify-center">
+                      {/* Orb -scaled down on mobile */}
+                      <div className="flex items-center justify-center scale-[0.7] xs:scale-[0.8] sm:scale-100 origin-center">
                         <VoiceOrb
                           isActive={isLiveSession}
                           isSpeaking={isAgentSpeaking}
@@ -466,11 +466,11 @@ const Hero: React.FC = () => {
                           hasError={!!error}
                         />
                       </div>
-                      {/* Phone title */}
-                      <h2 className="text-white text-xl font-bold text-center -mt-2 px-2">
+                      {/* Phone title -hidden on mobile */}
+                      <h2 className="hidden xs:block text-white text-base xs:text-xl font-bold text-center -mt-1 xs:-mt-2 px-2">
                         {phoneTitle}
                       </h2>
-                      <p className="text-white/62 text-[11px] text-center mt-1 px-4 leading-relaxed">
+                      <p className="hidden xs:block text-white/62 text-[9px] xs:text-[11px] text-center mt-0.5 xs:mt-1 px-3 xs:px-4 leading-relaxed">
                         {!error
                           ? phoneSubtitle
                           : `${phoneSubtitle} ${t.hero.live.retry}`}
@@ -479,30 +479,30 @@ const Hero: React.FC = () => {
 
                     {/* IN-CALL: live transcript (takes full central space) */}
                     <div
-                      className={`absolute inset-0 flex flex-col items-center justify-start pt-2 transition-all duration-700 px-2 ${connected ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                      className={`absolute inset-0 flex flex-col items-center justify-start pt-1.5 xs:pt-2 transition-all duration-700 px-1.5 xs:px-2 ${connected ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
                     >
                       {/* Speaker state indicator */}
-                      <div className="mb-4 flex items-center gap-2">
+                      <div className="mb-2 xs:mb-4 flex items-center gap-1.5 xs:gap-2">
                         {isAgentSpeaking && (
-                          <div className="flex items-center gap-1.5 rounded-full bg-green-500/12 border border-green-400/20 px-3 py-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                            <span className="text-[10px] text-green-300 font-semibold uppercase tracking-wider">
+                          <div className="flex items-center gap-1 xs:gap-1.5 rounded-full bg-green-500/12 border border-green-400/20 px-2 xs:px-3 py-0.5 xs:py-1">
+                            <span className="w-1 h-1 xs:w-1.5 xs:h-1.5 rounded-full bg-green-400 animate-pulse" />
+                            <span className="text-[7px] xs:text-[10px] text-green-300 font-semibold uppercase tracking-wider">
                               {t.hero.live.speaking}
                             </span>
                           </div>
                         )}
                         {isUserSpeaking && (
-                          <div className="flex items-center gap-1.5 rounded-full bg-amber-500/12 border border-amber-400/20 px-3 py-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                            <span className="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">
+                          <div className="flex items-center gap-1 xs:gap-1.5 rounded-full bg-amber-500/12 border border-amber-400/20 px-2 xs:px-3 py-0.5 xs:py-1">
+                            <span className="w-1 h-1 xs:w-1.5 xs:h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                            <span className="text-[7px] xs:text-[10px] text-amber-300 font-semibold uppercase tracking-wider">
                               {t.hero.live.listening}
                             </span>
                           </div>
                         )}
                         {!isAgentSpeaking && !isUserSpeaking && (
-                          <div className="flex items-center gap-1.5 rounded-full bg-white/[0.04] border border-white/10 px-3 py-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-white/30" />
-                            <span className="text-[10px] text-white/58 font-medium uppercase tracking-wider">
+                          <div className="flex items-center gap-1 xs:gap-1.5 rounded-full bg-white/[0.04] border border-white/10 px-2 xs:px-3 py-0.5 xs:py-1">
+                            <span className="w-1 h-1 xs:w-1.5 xs:h-1.5 rounded-full bg-white/30" />
+                            <span className="text-[7px] xs:text-[10px] text-white/58 font-medium uppercase tracking-wider">
                               {t.hero.live.connectedSubtitle}
                             </span>
                           </div>
@@ -510,7 +510,7 @@ const Hero: React.FC = () => {
                       </div>
 
                       {/* Transcript lines */}
-                      <div className="w-full flex-1 overflow-y-auto space-y-3 px-1 flex flex-col justify-end">
+                      <div className="w-full flex-1 overflow-y-auto space-y-2 xs:space-y-3 px-0.5 xs:px-1 flex flex-col justify-end">
                         {latestTranscriptEntries.length > 0 ? (
                           latestTranscriptEntries.map((entry) => {
                             const isAgent = entry.speaker === 'ai';
@@ -520,14 +520,14 @@ const Hero: React.FC = () => {
                                 className={`flex flex-col ${isAgent ? 'items-start' : 'items-end'}`}
                               >
                                 <span
-                                  className={`text-[9px] font-bold uppercase tracking-[0.18em] mb-1 ${isAgent ? 'text-green-400' : 'text-amber-400'}`}
+                                  className={`text-[7px] xs:text-[9px] font-bold uppercase tracking-[0.18em] mb-0.5 xs:mb-1 ${isAgent ? 'text-green-400' : 'text-amber-400'}`}
                                 >
                                   {isAgent
                                     ? t.hero.widget.agent
                                     : t.hero.live.userLabel}
                                 </span>
                                 <div
-                                  className={`max-w-[92%] rounded-2xl px-3 py-2 text-[11px] leading-[1.55] text-white/80 border ${isAgent ? 'bg-[rgba(74,222,128,0.08)] border-[rgba(74,222,128,0.15)]' : 'bg-[rgba(200,169,96,0.08)] border-[rgba(200,169,96,0.15)]'}`}
+                                  className={`max-w-[94%] xs:max-w-[92%] rounded-2xl px-2 xs:px-3 py-1.5 xs:py-2 text-[9px] xs:text-[11px] leading-[1.55] text-white/80 border ${isAgent ? 'bg-[rgba(74,222,128,0.08)] border-[rgba(74,222,128,0.15)]' : 'bg-[rgba(200,169,96,0.08)] border-[rgba(200,169,96,0.15)]'}`}
                                 >
                                   {entry.text}
                                 </div>
@@ -535,8 +535,8 @@ const Hero: React.FC = () => {
                             );
                           })
                         ) : (
-                          <div className="text-center">
-                            <p className="text-[11px] text-white/56 leading-relaxed">
+                          <div className="hidden xs:block text-center">
+                            <p className="text-[9px] xs:text-[11px] text-white/56 leading-relaxed">
                               {phoneSubtitle}
                             </p>
                           </div>
@@ -547,10 +547,10 @@ const Hero: React.FC = () => {
 
                   {/* ── Consent box (pre-call only) ── */}
                   <div
-                    className={`w-full max-w-[260px] xs:max-w-[280px] overflow-hidden transition-all duration-500 ${connected ? 'opacity-0 max-h-0' : 'opacity-100 max-h-[120px]'}`}
+                    className={`w-full max-w-[240px] xs:max-w-[260px] sm:max-w-[280px] overflow-hidden transition-all duration-500 ${connected ? 'opacity-0 max-h-0' : 'opacity-100 max-h-[120px]'}`}
                   >
-                    <div className="mb-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
-                      <label className="flex items-start gap-3 text-[11px] leading-[1.5] text-white/80">
+                    <div className="mb-2 xs:mb-3 rounded-2xl border border-white/10 bg-white/[0.04] px-3 xs:px-4 py-2 xs:py-3 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
+                      <label className="flex items-start gap-2 xs:gap-3 text-[8px] xs:text-[11px] leading-[1.45] xs:leading-[1.5] text-white/80">
                         <input
                           type="checkbox"
                           checked={consentAccepted}
@@ -558,15 +558,15 @@ const Hero: React.FC = () => {
                             setConsentAccepted(event.target.checked);
                             if (event.target.checked) setConsentError(null);
                           }}
-                          className="mt-0.5 h-4 w-4 rounded border-white/25 bg-white/10 text-[#c8a960]"
+                          className="mt-0.5 h-3.5 w-3.5 xs:h-4 xs:w-4 rounded border-white/25 bg-white/10 text-[#c8a960]"
                         />
                         <span>{t.hero.live.consentLabel}</span>
                       </label>
-                      <p className="mt-2 text-[10px] text-white/64">
+                      <p className="mt-1 xs:mt-2 text-[7px] xs:text-[10px] text-white/64">
                         {t.hero.live.consentHelp}
                       </p>
                       {consentError ? (
-                        <p className="mt-2 text-[10px] text-red-300">
+                        <p className="mt-1 xs:mt-2 text-[7px] xs:text-[10px] text-red-300">
                           {consentError}
                         </p>
                       ) : null}
@@ -574,15 +574,16 @@ const Hero: React.FC = () => {
                   </div>
 
                   {/* ── Call buttons ── */}
-                  <div className="mb-8 flex items-center gap-3 xs:gap-4 sm:gap-6">
+                  <div className="mb-5 xs:mb-8 flex items-center gap-2 xs:gap-3 sm:gap-4 md:gap-6">
                     <div
-                      className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 ${
+                      className={`w-10 h-10 xs:w-12 xs:h-12 rounded-full border flex items-center justify-center transition-all duration-300 ${
                         connected
                           ? 'bg-red-500/10 border-red-400/30 text-red-300'
                           : 'bg-white/[0.04] border-white/10 text-white/30'
                       }`}
                     >
-                      <PhoneOff size={18} />
+                      <PhoneOff size={16} className="xs:hidden" />
+                      <PhoneOff size={18} className="hidden xs:block" />
                     </div>
 
                     <button
@@ -596,7 +597,7 @@ const Hero: React.FC = () => {
                       }
                       aria-busy={isConnecting ? 'true' : 'false'}
                       aria-pressed={connected ? 'true' : 'false'}
-                      className="w-16 h-16 rounded-full flex items-center justify-center text-white transition-transform duration-200 hover:scale-105 active:scale-95 disabled:cursor-wait disabled:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[#05060b]"
+                      className="w-14 h-14 xs:w-16 xs:h-16 rounded-full flex items-center justify-center text-white transition-transform duration-200 hover:scale-105 active:scale-95 disabled:cursor-wait disabled:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-[#05060b]"
                       style={{
                         background: centerBtnBg,
                         boxShadow: centerBtnShadow,
@@ -607,22 +608,30 @@ const Hero: React.FC = () => {
                       }}
                     >
                       {isConnecting ? (
-                        <LoaderCircle size={26} className="animate-spin" />
+                        <LoaderCircle size={22} className="animate-spin xs:hidden" />
                       ) : connected ? (
-                        <PhoneOff size={26} />
+                        <PhoneOff size={22} className="xs:hidden" />
                       ) : (
-                        <Phone size={26} />
+                        <Phone size={22} className="xs:hidden" />
+                      )}
+                      {isConnecting ? (
+                        <LoaderCircle size={26} className="hidden animate-spin xs:block" />
+                      ) : connected ? (
+                        <PhoneOff size={26} className="hidden xs:block" />
+                      ) : (
+                        <Phone size={26} className="hidden xs:block" />
                       )}
                     </button>
 
                     <div
-                      className={`w-12 h-12 rounded-full border flex items-center justify-center transition-all duration-300 ${
+                      className={`w-10 h-10 xs:w-12 xs:h-12 rounded-full border flex items-center justify-center transition-all duration-300 ${
                         isUserSpeaking
                           ? 'bg-amber-500/12 border-amber-400/30 text-amber-300'
                           : 'bg-white/[0.04] border-white/10 text-white/30'
                       }`}
                     >
-                      <MicOff size={18} />
+                      <MicOff size={16} className="xs:hidden" />
+                      <MicOff size={18} className="hidden xs:block" />
                     </div>
                   </div>
                 </div>
