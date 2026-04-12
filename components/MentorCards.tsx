@@ -4,6 +4,7 @@ import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { type Language, useLanguage } from '../contexts/LanguageContext';
 import { CATEGORIES, MENTORS, type Mentor } from '../data/mentors';
+import { useScrollLock } from '../hooks/useScrollLock';
 import { FocusRail, type FocusRailItem } from './ui/focus-rail';
 
 const USER_SKOOL = 'https://www.skool.com/@reynoso-anubis-8987';
@@ -70,17 +71,18 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
   mentor,
   onClose,
 }) => {
+  // Use scroll lock hook instead of manual body style manipulation
+  useScrollLock(mentor !== null);
+
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     if (mentor) {
       document.addEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'hidden';
     }
     return () => {
       document.removeEventListener('keydown', handleEsc);
-      document.body.style.overflow = '';
     };
   }, [mentor, onClose]);
 
@@ -94,9 +96,15 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
           onClick={onClose}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Details about ${mentor.name}`}
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            style={{ touchAction: 'none' }}
+          />
 
           {/* Modal */}
           <motion.div
@@ -106,12 +114,21 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
             transition={{ duration: 0.3, ease: 'easeOut' }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-2xl bg-bg-main border border-border shadow-2xl"
+            style={{
+              overscrollBehavior: 'contain',
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
+            }}
           >
             {/* Close Button */}
             <button
               type="button"
-              onClick={onClose}
-              className="absolute top-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-bg-glass/90 text-text-muted-strong backdrop-blur-md transition-colors hover:border-brand-primary/30 hover:text-text-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="absolute top-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-bg-glass/90 text-text-muted-strong backdrop-blur-md transition-colors hover:border-brand-primary/30 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+              aria-label="Close modal"
             >
               <X className="w-4 h-4 text-text-primary" />
             </button>
@@ -122,10 +139,10 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
             />
 
             {/* Identity Row */}
-            <div className="px-7 -mt-12 relative pb-6">
-              <div className="flex items-end gap-5 mb-5">
+            <div className="px-5 sm:px-7 -mt-8 sm:-mt-12 relative pb-6">
+              <div className="flex items-end gap-4 sm:gap-5 mb-5">
                 <div
-                  className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${mentor.gradient} flex items-center justify-center text-accent-ink text-2xl font-bold shadow-2xl border-4 border-bg-main shrink-0`}
+                  className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${mentor.gradient} flex items-center justify-center text-accent-ink text-xl sm:text-2xl font-bold shadow-2xl border-4 border-bg-main shrink-0`}
                 >
                   {mentor.initials}
                 </div>
@@ -298,7 +315,10 @@ const MentorCards: React.FC = () => {
   }));
 
   return (
-    <section className="relative py-10 sm:py-14 md:py-28 section-grid-bg" id="reviews">
+    <section
+      className="relative py-10 sm:py-14 md:py-28 section-grid-bg"
+      id="reviews"
+    >
       {/* Light mode subtle background layer */}
       <div className="absolute inset-0 dark:hidden bg-gradient-to-b from-transparent via-slate-100/50 to-transparent pointer-events-none" />
       <div className="page-container relative">
@@ -340,7 +360,7 @@ const MentorCards: React.FC = () => {
         {/* FocusRail Carousel */}
         <div
           key={activeCategory}
-          className="card-surface rounded-[32px] border-border/80 bg-bg-card/75 shadow-[0_18px_44px_rgba(0,0,0,0.14)]"
+          className="card-surface rounded-[20px] xs:rounded-[28px] md:rounded-[32px] border-border/80 bg-bg-card/75 shadow-[0_18px_44px_rgba(0,0,0,0.14)]"
         >
           <FocusRail
             items={railItems}
@@ -355,38 +375,38 @@ const MentorCards: React.FC = () => {
               const mentor = mentorMap[activeItem.id as number];
               if (!mentor) return null;
               return (
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center justify-center gap-1.5 xs:gap-2 w-full xs:w-auto flex-wrap">
                   <a
                     href={mentor.youtubeChannel}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 min-h-[44px] text-sm font-medium text-red-400 transition-colors hover:bg-red-500/16"
+                    className="inline-flex items-center justify-center gap-1 rounded-lg border border-red-500/25 bg-red-500/10 px-2.5 py-2 min-h-[44px] text-xs font-medium text-red-400 transition-colors hover:bg-red-500/16 flex-1 xs:flex-none"
                   >
                     <Youtube className="w-4 h-4" />
-                    YouTube
+                    <span className="hidden xs:inline">YouTube</span>
                   </a>
                   {mentor.skoolLink && (
                     <a
                       href={mentor.skoolLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-brand-primary/25 bg-brand-primary/10 px-3 py-2 min-h-[44px] text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary/16"
+                      className="inline-flex items-center justify-center gap-1 rounded-lg border border-brand-primary/25 bg-brand-primary/10 px-2.5 py-2 min-h-[44px] text-xs font-medium text-brand-primary transition-colors hover:bg-brand-primary/16 flex-1 xs:flex-none"
                     >
                       <Users className="w-4 h-4" />
-                      Skool
+                      <span className="hidden xs:inline">Skool</span>
                     </a>
                   )}
                   <button
                     type="button"
                     onClick={() => setSelectedMentor(mentor)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-brand-primary/25 px-4 py-2.5 min-h-[44px] text-sm font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+                    className="inline-flex items-center justify-center gap-1 rounded-full border border-brand-primary/25 px-3 py-2 min-h-[44px] text-xs font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main flex-1 xs:flex-none"
                     style={{
                       background:
                         'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
                     }}
                   >
                     <ExternalLink className="w-4 h-4" />
-                    Learn More
+                    <span>Learn More</span>
                   </button>
                 </div>
               );

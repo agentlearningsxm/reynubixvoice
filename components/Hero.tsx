@@ -167,7 +167,7 @@ const Hero: React.FC = () => {
       />
 
       <div className="page-container relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 sm:gap-8 md:gap-12 lg:gap-12 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-start">
           {/* ── Left: copy ── */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -230,7 +230,7 @@ const Hero: React.FC = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="flex md:hidden flex-wrap gap-3 sm:gap-4 mt-6 sm:mt-10 pb-2 justify-center"
+              className="flex md:hidden flex-wrap gap-2 xs:gap-3 sm:gap-4 mt-4 xs:mt-6 sm:mt-10 pb-2 justify-center"
             >
               {[
                 {
@@ -259,7 +259,7 @@ const Hero: React.FC = () => {
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-bg-glass/80 backdrop-blur-sm border border-border-subtle text-sm"
+                  className="shrink-0 flex items-center gap-1.5 xs:gap-2 px-2.5 xs:px-3 sm:px-4 py-1.5 xs:py-2 rounded-full bg-bg-glass/80 backdrop-blur-sm border border-border-subtle text-[0.6875rem] xs:text-sm"
                 >
                   <span className="flex items-center justify-center">
                     {stat.icon}
@@ -401,7 +401,7 @@ const Hero: React.FC = () => {
             <motion.div
               animate={{ y: [0, -8, 0] }}
               transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-              className="relative scale-[0.82] xs:scale-[0.88] sm:scale-[0.92] md:scale-[0.95] lg:scale-100 origin-center"
+              className="relative scale-[0.72] xs:scale-[0.82] sm:scale-[0.90] md:scale-[0.95] lg:scale-100 origin-center"
             >
               {/* Edge glow behind phone -the "backlit through edges" effect */}
               <div
@@ -420,7 +420,7 @@ const Hero: React.FC = () => {
 
               {/* Phone body */}
               <div
-                className="hero-phone-bg relative w-[280px] h-[560px] rounded-[2.5rem] overflow-hidden transition-shadow duration-700"
+                className="hero-phone-bg relative w-[240px] xs:w-[280px] h-[480px] xs:h-[560px] rounded-[2.5rem] overflow-hidden transition-shadow duration-700"
                 style={{ boxShadow: phoneBoxShadow, zIndex: 1 }}
               >
                 {/* Dynamic notch */}
@@ -608,14 +608,20 @@ const Hero: React.FC = () => {
                       }}
                     >
                       {isConnecting ? (
-                        <LoaderCircle size={22} className="animate-spin xs:hidden" />
+                        <LoaderCircle
+                          size={22}
+                          className="animate-spin xs:hidden"
+                        />
                       ) : connected ? (
                         <PhoneOff size={22} className="xs:hidden" />
                       ) : (
                         <Phone size={22} className="xs:hidden" />
                       )}
                       {isConnecting ? (
-                        <LoaderCircle size={26} className="hidden animate-spin xs:block" />
+                        <LoaderCircle
+                          size={26}
+                          className="hidden animate-spin xs:block"
+                        />
                       ) : connected ? (
                         <PhoneOff size={26} className="hidden xs:block" />
                       ) : (

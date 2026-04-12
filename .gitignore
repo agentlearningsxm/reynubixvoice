@@ -51,3 +51,4 @@ dev-server*.log
 brand-logos*
 
 .vercel
+.ai-credentials.md

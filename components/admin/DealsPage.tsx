@@ -111,7 +111,10 @@ export function DealsPage() {
             : stage === 'won'
               ? 100
               : 0;
-    const { error } = await supabase.from('deals').update({ stage, probability }).eq('id', id);
+    const { error } = await supabase
+      .from('deals')
+      .update({ stage, probability })
+      .eq('id', id);
     if (!error) fetchDeals();
   }
 

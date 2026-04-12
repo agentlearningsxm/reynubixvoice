@@ -1,0 +1,18 @@
+# CRM Migration — Python Dependencies
+# Install: pip install -r requirements.txt
+
+# Database
+supabase>=2.0.0
+
+# AI Analysis
+groq>=0.4.0
+
+# Google Sheets
+google-api-python-client>=2.100.0
+google-auth>=2.23.0
+
+# Environment
+python-dotenv>=1.0.0
+
+# Validation
+pydantic>=2.0.0

@@ -1,11 +1,34 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
 import {
   buildResumeContextNote,
   buildResumeTurns,
   compactTranscript,
+  createPendingSessionBackup,
   inferGreetingDelivered,
+  readVoiceSessionBackup,
   toTranscriptTurnPayload,
+  writeVoiceSessionBackup,
+  VOICE_SESSION_BACKUP_KEY,
+  VOICE_SESSION_BACKUP_MAX_AGE_MS,
 } from '../../lib/voice/sessionMemory.js';
+
+const mockSessionStorage = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => { store[key] = value; },
+    removeItem: (key: string) => { delete store[key]; },
+    clear: () => { store = {}; },
+  };
+})();
+
+// Mock window.sessionStorage (used by the library functions)
+Object.defineProperty(global, 'window', {
+  value: {
+    sessionStorage: mockSessionStorage,
+  },
+  writable: true,
+});
 
 describe('voice session memory helpers', () => {
   it('builds a resume note that preserves context without re-greeting', () => {
@@ -97,6 +120,61 @@ describe('voice session memory helpers', () => {
       speaker: 'ai',
       text: 'Let me pull up the calculator.',
       isFinal: true,
+    });
+  });
+
+  describe('pending session backup', () => {
+    beforeEach(() => {
+      mockSessionStorage.clear();
+    });
+
+    afterEach(() => {
+      mockSessionStorage.clear();
+    });
+
+    it('creates a pending backup with no voiceSessionId for first connection attempt', () => {
+      const backup = createPendingSessionBackup();
+
+      expect(backup.voiceSessionId).toBeNull();
+      expect(backup.sessionResumptionHandle).toBeNull();
+      expect(backup.transcript).toEqual([]);
+      expect(backup.greetingDelivered).toBe(false);
+      expect(backup.lastToolCallName).toBeNull();
+      expect(backup.sessionStartedAt).toBeGreaterThan(0);
+      expect(backup.updatedAt).toBe(backup.sessionStartedAt);
+    });
+
+    it('persists pending backup to sessionStorage', () => {
+      createPendingSessionBackup();
+
+      const raw = mockSessionStorage.getItem(VOICE_SESSION_BACKUP_KEY);
+      expect(raw).not.toBeNull();
+
+      const parsed = JSON.parse(raw!);
+      expect(parsed.voiceSessionId).toBeNull();
+      expect(parsed.sessionStartedAt).toBeGreaterThan(0);
+    });
+
+    it('allows reading back a pending backup within max age', () => {
+      createPendingSessionBackup();
+
+      const backup = readVoiceSessionBackup();
+      expect(backup).not.toBeNull();
+      expect(backup!.voiceSessionId).toBeNull();
+      expect(backup!.sessionStartedAt).toBeGreaterThan(0);
+    });
+
+    it('updates pending backup when voiceSessionId becomes available', () => {
+      const pendingBackup = createPendingSessionBackup();
+
+      writeVoiceSessionBackup({
+        ...pendingBackup,
+        voiceSessionId: 'vs_real_session_id',
+        updatedAt: Date.now(),
+      });
+
+      const backup = readVoiceSessionBackup();
+      expect(backup!.voiceSessionId).toBe('vs_real_session_id');
     });
   });
 });

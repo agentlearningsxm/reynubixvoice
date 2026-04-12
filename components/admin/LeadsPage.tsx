@@ -24,6 +24,8 @@ const statusColors: Record<string, string> = {
   lost: 'bg-red-500/10 text-red-500 border-red-500/20',
 };
 
+const PAGE_SIZE = 20;
+
 export function LeadsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,33 +38,54 @@ export function LeadsPage() {
     company: '',
     phone: '',
   });
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    email: '',
+    company: '',
+    phone: '',
+    status: 'new',
+  });
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const fetchLeads = useCallback(async (searchTerm: string, filter: string) => {
-    setLoading(true);
-    try {
-      let query = supabase
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (filter) query = query.eq('status', filter);
-      if (searchTerm)
-        query = query.or(
-          `email.ilike.%${searchTerm}%,name.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%`,
-        );
-      const { data, error } = await query;
-      if (error) throw error;
-      setLeads(data || []);
-    } catch {
-      setLeads([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchLeads = useCallback(
+    async (searchTerm: string, filter: string, currentPage: number) => {
+      setLoading(true);
+      try {
+        const from = (currentPage - 1) * PAGE_SIZE;
+        const to = from + PAGE_SIZE - 1;
+        let query = supabase
+          .from('leads')
+          .select('*', { count: 'exact' })
+          .order('created_at', { ascending: false })
+          .range(from, to);
+        if (filter) query = query.eq('status', filter);
+        if (searchTerm)
+          query = query.or(
+            `email.ilike.%${searchTerm}%,name.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%`,
+          );
+        const { data, error, count } = await query;
+        if (error) throw error;
+        setLeads(data || []);
+        setTotalCount(count || 0);
+      } catch {
+        setLeads([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
-    fetchLeads(search, statusFilter);
-  }, [search, statusFilter, fetchLeads]);
+    fetchLeads(search, statusFilter, page);
+  }, [search, statusFilter, page, fetchLeads]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter]);
 
   useEffect(() => {
     return () => {
@@ -87,13 +110,33 @@ export function LeadsPage() {
     if (!error) {
       setShowAddModal(false);
       setNewLead({ email: '', name: '', company: '', phone: '' });
-      fetchLeads(search, statusFilter);
+      fetchLeads(search, statusFilter, page);
+    }
+  }
+
+  async function handleEditLead(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingLead) return;
+    const { error } = await supabase
+      .from('leads')
+      .update({
+        name: editForm.name || null,
+        email: editForm.email,
+        email_normalized: editForm.email.toLowerCase().trim(),
+        company: editForm.company || null,
+        phone: editForm.phone || null,
+        status: editForm.status,
+      })
+      .eq('id', editingLead.id);
+    if (!error) {
+      setEditingLead(null);
+      fetchLeads(search, statusFilter, page);
     }
   }
 
   async function deleteLead(id: string) {
     const { error } = await supabase.from('leads').delete().eq('id', id);
-    if (!error) fetchLeads(search, statusFilter);
+    if (!error) fetchLeads(search, statusFilter, page);
   }
 
   return (
@@ -101,7 +144,7 @@ export function LeadsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-white">Leads</h1>
-          <p className="text-zinc-400">{leads.length} total leads</p>
+          <p className="text-zinc-400">{totalCount} total leads</p>
         </div>
         <button
           type="button"
@@ -115,18 +158,18 @@ export function LeadsPage() {
       <div className="flex gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search leads..."
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-800 py-2 pl-10 pr-4 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
-        />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search leads..."
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 py-2 pl-10 pr-4 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+          />
         </div>
-      <select
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value)}
-        className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none"
-      >
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none"
+        >
           <option value="">All Status</option>
           <option value="new">New</option>
           <option value="contacted">Contacted</option>
@@ -172,13 +215,17 @@ export function LeadsPage() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 text-sm font-medium text-emerald-500">
-                        {(lead.name || lead.email || '?').charAt(0).toUpperCase()}
+                        {(lead.name || lead.email || '?')
+                          .charAt(0)
+                          .toUpperCase()}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-white">
                           {lead.name || '—'}
                         </p>
-                        <p className="text-xs text-zinc-400">{lead.email}</p>
+                        <p className="text-xs text-zinc-400">
+                          {lead.email || 'No email'}
+                        </p>
                       </div>
                     </div>
                   </td>
@@ -202,6 +249,16 @@ export function LeadsPage() {
                     <div className="flex items-center justify-end gap-2">
                       <button
                         type="button"
+                        onClick={() => {
+                          setEditingLead(lead);
+                          setEditForm({
+                            name: lead.name || '',
+                            email: lead.email || '',
+                            company: lead.company || '',
+                            phone: lead.phone || '',
+                            status: lead.status,
+                          });
+                        }}
                         className="rounded p-1 text-zinc-400 hover:bg-zinc-700 hover:text-white"
                       >
                         <Edit className="h-4 w-4" />
@@ -229,6 +286,33 @@ export function LeadsPage() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {totalCount > PAGE_SIZE && (
+        <div className="flex items-center justify-between px-2">
+          <p className="text-sm text-zinc-500">
+            Showing {(page - 1) * PAGE_SIZE + 1}–
+            {Math.min(page * PAGE_SIZE, totalCount)} of {totalCount}
+          </p>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              disabled={page <= 1}
+              onClick={() => setPage(page - 1)}
+              className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              disabled={page * PAGE_SIZE >= totalCount}
+              onClick={() => setPage(page + 1)}
+              className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
 
@@ -285,6 +369,80 @@ export function LeadsPage() {
                   className="flex-1 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600"
                 >
                   Add Lead
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {editingLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="w-full max-w-md rounded-xl border border-zinc-700 bg-zinc-900 p-6">
+            <h2 className="mb-4 text-lg font-semibold text-white">
+              Edit Lead
+            </h2>
+            <form onSubmit={handleEditLead} className="space-y-4">
+              <input
+                required
+                value={editForm.email}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, email: e.target.value })
+                }
+                placeholder="Email *"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+              />
+              <input
+                value={editForm.name}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, name: e.target.value })
+                }
+                placeholder="Name"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+              />
+              <input
+                value={editForm.company}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, company: e.target.value })
+                }
+                placeholder="Company"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+              />
+              <input
+                value={editForm.phone}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, phone: e.target.value })
+                }
+                placeholder="Phone"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+              />
+              <select
+                value={editForm.status}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, status: e.target.value })
+                }
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none"
+              >
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="qualified">Qualified</option>
+                <option value="proposal">Proposal</option>
+                <option value="won">Won</option>
+                <option value="lost">Lost</option>
+              </select>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEditingLead(null)}
+                  className="flex-1 rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-600"
+                >
+                  Save Changes
                 </button>
               </div>
             </form>

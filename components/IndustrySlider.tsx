@@ -1,8 +1,10 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import type React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { fallbackImage, industryImages } from '../data/industry-images';
 import { useAutoplayCarousel } from '../hooks/useAutoplayCarousel';
+import { useScrollLock } from '../hooks/useScrollLock';
 import { cn } from '../lib/utils';
 
 const IndustrySlider: React.FC = () => {
@@ -10,6 +12,27 @@ const IndustrySlider: React.FC = () => {
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [expandedCard, setExpandedCard] = useState<{
+    title: string;
+    description: string;
+    image: string;
+  } | null>(null);
+
+  // Lock body scroll when bottom sheet is open
+  useScrollLock(expandedCard !== null);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExpandedCard(null);
+    };
+    if (expandedCard) {
+      document.addEventListener('keydown', handleEsc);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [expandedCard]);
 
   const { emblaRef, emblaApi, selectedIndex } = useAutoplayCarousel({
     delay: 4000,
@@ -120,18 +143,21 @@ const IndustrySlider: React.FC = () => {
         </button>
 
         {/* Embla viewport */}
-        <div className="overflow-hidden mx-1 sm:mx-6 md:mx-14" ref={emblaRef}>
+        <div
+          className="overflow-hidden mx-2 xs:mx-4 sm:mx-6 md:mx-14"
+          ref={emblaRef}
+        >
           <div className="flex">
             {industries.map((card, i) => {
               const isActive = i === selectedIndex;
               return (
                 <div
                   key={card.id}
-                  className="flex-[0_0_85%] md:flex-[0_0_33.333%] min-w-0 pl-5"
+                  className="flex-[0_0_88%] xs:flex-[0_0_85%] sm:flex-[0_0_75%] md:flex-[0_0_33.333%] min-w-0 pl-4 xs:pl-5"
                 >
                   <div
                     className={cn(
-                      'card-surface group relative aspect-[3/4] md:aspect-[5/7] overflow-hidden rounded-[28px] border-border/80 transition-all duration-300',
+                      'card-surface group relative aspect-[4/5] xs:aspect-[3/4] md:aspect-[5/7] overflow-hidden rounded-[20px] xs:rounded-[24px] md:rounded-[28px] border-border/80 transition-all duration-300',
                       isActive
                         ? 'z-10 scale-[1.02] border-brand-primary/30 bg-bg-card/90 opacity-100 shadow-[0_24px_60px_rgba(0,0,0,0.24)]'
                         : 'scale-[0.97] bg-bg-card/70 opacity-80 shadow-[0_12px_30px_rgba(0,0,0,0.14)]',
@@ -170,6 +196,21 @@ const IndustrySlider: React.FC = () => {
                       >
                         {card.description}
                       </p>
+                      {/* Expand hint - mobile only */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedCard({
+                            title: card.title,
+                            description: card.description,
+                            image: card.image,
+                          });
+                        }}
+                        className="md:hidden mt-2 text-xs font-medium text-white/60 underline underline-offset-2 decoration-white/30 hover:text-white/90 hover:decoration-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded"
+                      >
+                        Read more
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -209,6 +250,97 @@ const IndustrySlider: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Expanded description modal - mobile only */}
+      <AnimatePresence>
+        {expandedCard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-end justify-center md:hidden"
+            onClick={() => setExpandedCard(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Details about ${expandedCard.title}`}
+          >
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              style={{ touchAction: 'none' }}
+            />
+
+            {/* Bottom sheet */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-h-[80vh] landscape:max-h-[92vh] rounded-t-3xl bg-gradient-to-b from-[#1a1714] to-[#0d0b09] border-t border-border/60 shadow-2xl"
+              style={{
+                overscrollBehavior: 'contain',
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+              }}
+            >
+              {/* Scrollable content wrapper */}
+              <div
+                className="overflow-y-auto"
+                style={{
+                  overscrollBehavior: 'contain',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                {/* Handle bar */}
+                <div className="sticky top-0 z-10 flex justify-center pt-3 pb-2 bg-gradient-to-b from-[#1a1714] to-transparent">
+                  <div className="w-10 h-1 rounded-full bg-white/20" />
+                </div>
+
+                {/* Hero image preview */}
+                <div className="relative h-36 mx-4 rounded-2xl overflow-hidden mb-5">
+                  <img
+                    src={expandedCard.image}
+                    alt={expandedCard.title}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a1714] via-black/30 to-transparent" />
+                </div>
+
+                {/* Content */}
+                <div className="px-4 sm:px-6 pb-8">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-primary/80 mb-2">
+                    Use Case
+                  </p>
+                  <h3 className="text-xl font-bold font-display text-white mb-4 leading-tight">
+                    {expandedCard.title}
+                  </h3>
+                  <p className="text-[clamp(0.875rem,3vw,1rem)] leading-relaxed text-white/85">
+                    {expandedCard.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Close button */}
+              <div className="sticky bottom-0 px-4 sm:px-6 pb-6 pt-3 bg-gradient-to-t from-[#1a1714] to-transparent">
+                <button
+                  type="button"
+                  onClick={() => setExpandedCard(null)}
+                  className="w-full py-3.5 rounded-xl text-sm font-semibold text-accent-ink transition-all active:scale-[0.98] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

@@ -192,17 +192,19 @@ const Navbar: React.FC = () => {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'py-3 bg-bg-main/95 backdrop-blur-md border-b border-border/50 shadow-md' : 'py-5 bg-transparent'
+        isScrolled
+          ? 'py-3 bg-bg-main/95 backdrop-blur-md border-b border-border/50 shadow-md'
+          : 'py-5 bg-transparent'
       }`}
     >
       <div className="page-container">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-1.5 cursor-pointer">
-            <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
-              <Logo size={24} />
+          <Link to="/" className="flex items-center gap-2 cursor-pointer">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
+              <Logo size={22} />
             </div>
-            <span className="text-xl font-bold font-display tracking-tight text-text-primary">
+            <span className="text-base sm:text-xl font-bold font-display tracking-tight text-text-primary">
               ReynubixVoice
             </span>
           </Link>
@@ -404,7 +406,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile Controls */}
-          <div className="lg:hidden flex items-center gap-3">
+          <div className="lg:hidden flex items-center gap-2">
             <button
               type="button"
               onClick={toggleMode}
@@ -437,7 +439,7 @@ const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="mobile-menu" id="mobile-navigation-menu">
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {navItems.map((item) => (
               <a
                 key={item.id}

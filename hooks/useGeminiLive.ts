@@ -27,6 +27,7 @@ import {
 import {
   buildResumeContextNote,
   compactTranscript,
+  createPendingSessionBackup,
   inferGreetingDelivered,
   type TranscriptLike,
   toTranscriptTurnPayload,
@@ -655,28 +656,40 @@ export function useGeminiLive() {
     [closeSession, cleanupAudio],
   );
 
-  // ─── Connect ──────────────────────────────────────────────────
-  const connectToGemini = async (isReconnect = false) => {
-    connectToGeminiRef.current = connectToGemini;
-    try {
-      const persistedBackup = readLiveSessionBackup();
-      const hasRecoverableSession =
-        !!voiceSessionIdRef.current ||
-        !!persistedBackup?.voiceSessionId ||
-        !!sessionResumptionHandleRef.current ||
-        !!persistedBackup?.sessionResumptionHandle;
-      const shouldResumeSession = isReconnect || hasRecoverableSession;
+// ─── Connect ──────────────────────────────────────────────────
+const connectToGemini = async (isReconnect = false) => {
+  connectToGeminiRef.current = connectToGemini;
+  try {
+    const persistedBackup = readLiveSessionBackup();
+    // Check for recoverable session: either explicit IDs or a pending backup
+    // with sessionStartedAt (created before first connection attempt).
+    const hasRecoverableSession =
+      !!voiceSessionIdRef.current ||
+      !!persistedBackup?.voiceSessionId ||
+      !!sessionResumptionHandleRef.current ||
+      !!persistedBackup?.sessionResumptionHandle ||
+      !!persistedBackup?.sessionStartedAt;
+    const shouldResumeSession = isReconnect || hasRecoverableSession;
 
-      if (!shouldResumeSession) {
-        intentionalDisconnectRef.current = false;
-        reconnectAttemptsRef.current = 0;
-        setError(null);
-        setTranscript([]);
-      } else {
-        setError(null);
+    if (!shouldResumeSession) {
+      intentionalDisconnectRef.current = false;
+      reconnectAttemptsRef.current = 0;
+      setError(null);
+      setTranscript([]);
+      
+      // Create pending backup immediately for graceful failure recovery.
+      // This ensures we have a sessionStartedAt even if connection fails.
+      const pendingBackup = createPendingSessionBackup();
+      sessionStartTimeRef.current = pendingBackup.sessionStartedAt;
+    } else {
+      setError(null);
+      // Restore sessionStartTime from pending backup if not already set.
+      if (!sessionStartTimeRef.current && persistedBackup?.sessionStartedAt) {
+        sessionStartTimeRef.current = persistedBackup.sessionStartedAt;
       }
+    }
 
-      setIsConnecting(true);
+    setIsConnecting(true);
 
       // Connection timeout -if onopen doesn't fire in time, retry
       connectionTimeoutRef.current = setTimeout(() => {
@@ -710,26 +723,30 @@ export function useGeminiLive() {
         sessionResumptionHandleRef.current ??
         persistedBackup?.sessionResumptionHandle ??
         null;
-      let activeVoiceSessionId =
-        voiceSessionIdRef.current ?? persistedBackup?.voiceSessionId ?? null;
-      if (!activeVoiceSessionId) {
-        sessionStartTimeRef.current = Date.now();
-        const session = await startVoiceSession(
-          {
-            accepted: true,
-            acceptedAt: new Date().toISOString(),
-            version: '1.0',
-          },
-          { allowMockFallback: true },
-        );
-        activeVoiceSessionId = session.voiceSessionId;
-        voiceSessionIdRef.current = activeVoiceSessionId;
-        syncSessionBackup();
-      }
+let activeVoiceSessionId =
+      voiceSessionIdRef.current ?? persistedBackup?.voiceSessionId ?? null;
+    if (!activeVoiceSessionId) {
+      // Preserve sessionStartTime from pending backup (set earlier in connectToGemini).
+      // Only set to Date.now() if somehow not already set.
       if (!sessionStartTimeRef.current) {
-        sessionStartTimeRef.current =
-          persistedBackup?.sessionStartedAt ?? Date.now();
+        sessionStartTimeRef.current = Date.now();
       }
+      const session = await startVoiceSession(
+        {
+          accepted: true,
+          acceptedAt: new Date().toISOString(),
+          version: '1.0',
+        },
+        { allowMockFallback: true },
+      );
+      activeVoiceSessionId = session.voiceSessionId;
+      voiceSessionIdRef.current = activeVoiceSessionId;
+      syncSessionBackup();
+    }
+    if (!sessionStartTimeRef.current) {
+      sessionStartTimeRef.current =
+        persistedBackup?.sessionStartedAt ?? Date.now();
+    }
 
       const issuedToken = await issueVoiceToken(activeVoiceSessionId);
       const authKey = issuedToken.token;
@@ -959,24 +976,16 @@ export function useGeminiLive() {
                 resolvedSessionRef.current?.sendToolResponse({
                   functionResponses: responses,
                 });
-                // Anti-loop: inject a context anchor after tool response
-                // to prevent Gemini from resetting and re-greeting.
+                // Anti-loop: inject a context anchor after tool response via
+                // sendRealtimeInput (gemini-3.1: sendClientContent is restricted
+                // to history seeding only; live text must use sendRealtimeInput).
                 const toolNames = responses.map((r: any) => r.name).join(', ');
-                resolvedSessionRef.current?.sendClientContent({
-                  turns: [
-                    {
-                      role: 'user',
-                      parts: [
-                        {
-                          text: buildResumeContextNote(transcriptRef.current, {
-                            greetingDelivered: greetingDeliveredRef.current,
-                            lastToolCallName: toolNames,
-                          }),
-                        },
-                      ],
-                    },
-                  ],
-                  turnComplete: true,
+                const contextNote = buildResumeContextNote(transcriptRef.current, {
+                  greetingDelivered: greetingDeliveredRef.current,
+                  lastToolCallName: toolNames,
+                });
+                resolvedSessionRef.current?.sendRealtimeInput({
+                  text: contextNote,
                 });
               } catch (_) {
                 // Session may have closed

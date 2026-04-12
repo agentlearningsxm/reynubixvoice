@@ -25,6 +25,11 @@ export interface TranscriptAnalysis {
   promptFixRecommendations: string;
   failureSource: string;
   callOutcome: string;
+  callerName: string | null;
+  callerEmail: string | null;
+  callerPhone: string | null;
+  callerCompany: string | null;
+  businessType: string | null;
 }
 
 const SENTIMENTS = ['positive', 'neutral', 'negative', 'frustrated'] as const;
@@ -58,6 +63,11 @@ const ANALYSIS_SCHEMA = {
       promptFixRecommendations: { type: 'string' },
       failureSource: { type: 'string', enum: [...FAILURE_SOURCES] },
       callOutcome: { type: 'string', enum: [...CALL_OUTCOMES] },
+      callerName: { type: ['string', 'null'] },
+      callerEmail: { type: ['string', 'null'] },
+      callerPhone: { type: ['string', 'null'] },
+      callerCompany: { type: ['string', 'null'] },
+      businessType: { type: ['string', 'null'] },
     },
     required: [
       'summary',
@@ -67,6 +77,11 @@ const ANALYSIS_SCHEMA = {
       'promptFixRecommendations',
       'failureSource',
       'callOutcome',
+      'callerName',
+      'callerEmail',
+      'callerPhone',
+      'callerCompany',
+      'businessType',
     ],
   },
   strict: true,
@@ -80,6 +95,11 @@ const DEFAULT_ANALYSIS: TranscriptAnalysis = {
   promptFixRecommendations: 'N/A',
   failureSource: 'none',
   callOutcome: 'information-only',
+  callerName: null,
+  callerEmail: null,
+  callerPhone: null,
+  callerCompany: null,
+  businessType: null,
 };
 
 function truncate(value: string, maxLength: number) {
@@ -89,7 +109,7 @@ function truncate(value: string, maxLength: number) {
 function buildAnalysisPrompt(input: SessionAnalysisInput) {
   return `You are a strict QA reviewer for Reyna, a voice AI receptionist built by ReynubixVoice.
 
-Analyze the complete session data and return a JSON object with exactly these 7 fields:
+Analyze the complete session data and return a JSON object with exactly these 12 fields:
 - summary: 2 to 3 sentence summary including the caller goal, key discussion points, outcome, and next steps
 - sentiment: one of positive, neutral, negative, frustrated
 - callQualityScore: integer from 1 to 10
@@ -97,6 +117,11 @@ Analyze the complete session data and return a JSON object with exactly these 7 
 - promptFixRecommendations: specific prompt changes that would prevent the issues, or "No changes needed"
 - failureSource: one of greeting, qualification, calculator, booking, transfer, closing, none
 - callOutcome: one of qualified-lead, information-only, dropped, error, booking-made
+- callerName: the caller's name if mentioned in the transcript, or null
+- callerEmail: the caller's email address if mentioned in the transcript, or null
+- callerPhone: the caller's phone number if mentioned in the transcript, or null
+- callerCompany: the caller's company or business name if mentioned, or null
+- businessType: the type of business the caller runs (e.g. "plumbing", "dental", "roofing"), or null
 
 Scoring priorities:
 - accuracy of information
@@ -164,6 +189,12 @@ function normalizeScore(value: unknown) {
   return Math.min(10, Math.max(1, Math.round(numericValue)));
 }
 
+function normalizeNullableText(value: unknown): string | null {
+  if (value == null) return null;
+  const text = typeof value === 'string' ? value.trim() : '';
+  return text.length > 0 ? text : null;
+}
+
 export function normalizeAnalysis(
   parsed: Record<string, unknown>,
 ): TranscriptAnalysis {
@@ -185,6 +216,11 @@ export function normalizeAnalysis(
       CALL_OUTCOMES,
       'information-only',
     ),
+    callerName: normalizeNullableText(parsed.callerName),
+    callerEmail: normalizeNullableText(parsed.callerEmail),
+    callerPhone: normalizeNullableText(parsed.callerPhone),
+    callerCompany: normalizeNullableText(parsed.callerCompany),
+    businessType: normalizeNullableText(parsed.businessType),
   };
 }
 
@@ -213,6 +249,11 @@ export async function analyzeSessionData(
       promptFixRecommendations: 'N/A',
       failureSource: 'none',
       callOutcome: 'information-only',
+      callerName: null,
+      callerEmail: null,
+      callerPhone: null,
+      callerCompany: null,
+      businessType: null,
     };
   }
 
@@ -263,5 +304,10 @@ export async function analyzeSessionData(
       'Review Groq model configuration and response formatting',
     failureSource: 'none',
     callOutcome: 'error',
+    callerName: null,
+    callerEmail: null,
+    callerPhone: null,
+    callerCompany: null,
+    businessType: null,
   };
 }

@@ -15,6 +15,7 @@ import { ImportPage } from './components/admin/ImportPage';
 import { InteractionsPage } from './components/admin/InteractionsPage';
 import { LeadsPage } from './components/admin/LeadsPage';
 import { TasksPage } from './components/admin/TasksPage';
+import { CallsPage } from './components/admin/CallsPage';
 import { AuthProvider } from './components/auth/AuthProvider';
 import { LoginPage } from './components/auth/LoginPage';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
@@ -172,12 +173,19 @@ const App: React.FC = () => (
                 <Route path="deals" element={<DealsPage />} />
                 <Route path="tasks" element={<TasksPage />} />
                 <Route path="interactions" element={<InteractionsPage />} />
+                <Route path="calls" element={<CallsPage />} />
                 <Route path="import" element={<ImportPage />} />
                 <Route
                   path="analytics"
                   element={
                     <ProtectedRoute>
-                      <div className="text-white">Analytics — Coming soon</div>
+                      <div className="flex flex-col items-center justify-center py-24 text-center">
+                        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10">
+                          <svg className="h-8 w-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 13h4v8H3zM10 9h4v12h-4zM17 5h4v16h-4z" /></svg>
+                        </div>
+                        <h2 className="text-xl font-semibold text-white">Analytics</h2>
+                        <p className="mt-2 max-w-sm text-sm text-zinc-400">Call volume trends, conversion funnels, and performance dashboards are coming soon.</p>
+                      </div>
                     </ProtectedRoute>
                   }
                 />
@@ -185,7 +193,13 @@ const App: React.FC = () => (
                   path="settings"
                   element={
                     <ProtectedRoute requiredRole="admin">
-                      <div className="text-white">Settings — Coming soon</div>
+                      <div className="flex flex-col items-center justify-center py-24 text-center">
+                        <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10">
+                          <svg className="h-8 w-8 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z" /><circle cx="12" cy="12" r="3" /></svg>
+                        </div>
+                        <h2 className="text-xl font-semibold text-white">Settings</h2>
+                        <p className="mt-2 max-w-sm text-sm text-zinc-400">Profile, notifications, and Groq model configuration are coming soon.</p>
+                      </div>
                     </ProtectedRoute>
                   }
                 />

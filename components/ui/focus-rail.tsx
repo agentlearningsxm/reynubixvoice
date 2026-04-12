@@ -61,7 +61,13 @@ export function FocusRail({
   React.useEffect(() => {
     const update = () => {
       const w = railRef.current?.offsetWidth || 1280;
-      setSpacing(Math.min(520, w * 0.4));
+      if (w < 480) {
+        setSpacing(Math.min(220, w * 0.55));
+      } else if (w < 640) {
+        setSpacing(Math.min(280, w * 0.5));
+      } else {
+        setSpacing(Math.min(520, w * 0.4));
+      }
     };
     update();
     window.addEventListener('resize', update);
@@ -139,7 +145,7 @@ export function FocusRail({
     // biome-ignore lint/a11y/noStaticElementInteractions: interactive carousel with keyboard and mouse navigation
     <div
       className={cn(
-        'group relative flex h-[400px] sm:h-[500px] md:h-[580px] lg:h-[650px] w-full select-none flex-col overflow-hidden overflow-x-hidden rounded-3xl border border-border bg-bg-card text-text-primary outline-none',
+        'group relative flex h-[480px] xs:h-[540px] sm:h-[580px] md:h-[620px] lg:h-[700px] w-full select-none flex-col overflow-hidden overflow-x-hidden rounded-2xl xs:rounded-3xl border border-border bg-bg-card text-text-primary outline-none',
         className,
       )}
       tabIndex={-1}
@@ -168,10 +174,10 @@ export function FocusRail({
         </AnimatePresence>
       </div>
 
-      <div className="relative z-10 flex flex-1 flex-col justify-center px-6 md:px-10">
+      <div className="relative z-10 flex flex-1 flex-col justify-between px-6 md:px-10">
         <motion.div
           ref={railRef}
-          className="relative mx-auto flex h-[340px] w-full max-w-7xl cursor-grab items-center justify-center perspective-[1200px] active:cursor-grabbing md:h-[360px]"
+          className="relative mx-auto flex h-[220px] xs:h-[260px] w-full max-w-7xl cursor-grab items-center justify-center perspective-[1200px] active:cursor-grabbing md:h-[360px]"
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
@@ -198,9 +204,10 @@ export function FocusRail({
 
             return (
               <motion.div
+                key={`carousel-${index}-${offset}`}
                 // biome-ignore lint/a11y/noStaticElementInteractions: interactive carousel card with click navigation
                 className={cn(
-                  'absolute aspect-video w-[240px] rounded-2xl border border-border bg-bg-main shadow-2xl transition-shadow duration-300 sm:w-[360px] md:w-[500px]',
+                  'absolute aspect-video w-[200px] xs:w-[260px] sm:w-[360px] md:w-[500px] rounded-2xl border border-border bg-bg-main shadow-2xl transition-shadow duration-300',
                   isCenter ? 'z-20' : 'z-10',
                 )}
                 initial={false}
@@ -236,8 +243,8 @@ export function FocusRail({
           })}
         </motion.div>
 
-        <div className="pointer-events-auto mx-auto mt-12 flex w-full max-w-6xl flex-col items-center justify-between gap-6 md:flex-row">
-          <div className="flex min-h-32 flex-1 flex-col items-center justify-center text-center md:items-start md:text-left">
+        <div className="pointer-events-auto mx-auto flex w-full max-w-6xl flex-col items-center justify-center gap-2 xs:gap-3 md:gap-4 md:flex-row md:justify-between pt-2 xs:pt-3 md:pt-0">
+          <div className="flex min-h-[40px] xs:min-h-[48px] md:min-h-[64px] flex-1 flex-col items-center justify-center text-center md:items-start md:text-left overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeItem.id}
@@ -245,18 +252,18 @@ export function FocusRail({
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 exit={{ opacity: 0, y: -10, filter: 'blur(4px)' }}
                 transition={{ duration: 0.3 }}
-                className="space-y-2"
+                className="space-y-0.5 xs:space-y-1"
               >
                 {activeItem.meta && (
                   <span className="text-xs font-medium uppercase tracking-wider text-brand-primary">
                     {activeItem.meta}
                   </span>
                 )}
-                <h2 className="text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
+                <h2 className="text-xl xs:text-2xl font-bold tracking-tight text-text-primary md:text-3xl">
                   {activeItem.title}
                 </h2>
                 {activeItem.description && (
-                  <p className="max-w-xl text-sm text-text-muted-strong md:text-base">
+                  <p className="max-w-xl text-xs xs:text-sm text-text-muted-strong md:text-base line-clamp-2">
                     {activeItem.description}
                   </p>
                 )}
@@ -264,26 +271,26 @@ export function FocusRail({
             </AnimatePresence>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 rounded-full bg-bg-glass p-1 ring-1 ring-border backdrop-blur-md">
+          <div className="flex flex-col xs:flex-row items-center gap-1.5 xs:gap-2 md:gap-3 w-full xs:w-auto">
+            <div className="flex items-center gap-0.5 rounded-full bg-bg-glass px-1.5 py-1 ring-1 ring-border backdrop-blur-md">
               <button
                 type="button"
                 onClick={handlePrev}
-                className="rounded-full p-3 text-text-muted-strong transition hover:bg-brand-subtle hover:text-text-primary active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+                className="rounded-full p-2 text-text-muted-strong transition hover:bg-brand-subtle hover:text-text-primary active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
                 aria-label="Previous"
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-4 w-4" />
               </button>
-              <span className="min-w-[56px] text-center text-xs font-mono text-text-muted-strong">
+              <span className="min-w-[48px] text-center text-[10px] xs:text-xs font-mono text-text-muted-strong">
                 {activeIndex + 1} / {count}
               </span>
               <button
                 type="button"
                 onClick={handleNext}
-                className="rounded-full p-3 text-text-muted-strong transition hover:bg-brand-subtle hover:text-text-primary active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+                className="rounded-full p-2 text-text-muted-strong transition hover:bg-brand-subtle hover:text-text-primary active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
                 aria-label="Next"
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-4 w-4" />
               </button>
             </div>
 

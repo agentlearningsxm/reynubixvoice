@@ -42,6 +42,18 @@
   }
 }
 
+/* === 8PT SPACING GRID ===
+   Enforce: use only even Tailwind spacing units
+   space-2(8px) · space-4(16px) · space-6(24px) · space-8(32px)
+   space-10(40px) · space-12(48px) · space-16(64px) · space-20(80px)
+   Touch targets: min-h-[44px] on ALL interactive elements (buttons, links, icons)
+   ========================= */
+
+/* Mobile-first button standard: full-width on mobile, auto on sm+ */
+.btn-mobile-full {
+  @apply w-full sm:w-auto min-h-[44px] py-3 px-6 text-base;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
@@ -59,6 +71,51 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #5a4d3e;
+}
+
+/* ===== Modal & Bottom Sheet Scroll Safety =====
+   Prevents scroll chaining, iOS overscroll bleed, and body scroll conflicts.
+   Applied to all modal/sheet overlays across the site.
+   Note: Body scroll locking is handled by useScrollLock hook (position:fixed).
+*/
+
+/* Scroll containment utility — use on any scrollable modal/sheet content */
+.scroll-contain {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+/* Prevent scroll chaining on modal backdrops */
+.modal-backdrop {
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safe area handling for notched devices */
+@supports (padding: max(0px)) {
+  .safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}
+
+/* Smooth scroll for the entire page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Allow normal body scrolling — containment is handled per-component */
+body {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Allow bounce only inside scrollable containers that need it */
+.scroll-bounce {
+  overscroll-behavior-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 :root {
@@ -1709,7 +1766,7 @@ main > section:nth-last-child(-n+2)::after {
 .card-stream {
   position: absolute;
   width: 100%;
-  height: 180px;
+  /* height controlled by Tailwind responsive classes on the element */
   display: flex;
   align-items: center;
   overflow: visible;
@@ -1718,12 +1775,24 @@ main > section:nth-last-child(-n+2)::after {
 .card-line {
   display: flex;
   align-items: center;
-  gap: 60px;
+  gap: 16px; /* 8pt grid — mobile default */
   white-space: nowrap;
   cursor: grab;
   user-select: none;
   -webkit-user-select: none;
   will-change: transform;
+}
+
+@media (min-width: 640px) {
+  .card-line {
+    gap: 32px;
+  }
+}
+
+@media (min-width: 768px) {
+  .card-line {
+    gap: 60px;
+  }
 }
 
 .card-line.dragging {
@@ -1732,8 +1801,8 @@ main > section:nth-last-child(-n+2)::after {
 
 .card-wrapper {
   position: relative;
-  width: clamp(300px, 26vw, 420px);
-  height: clamp(190px, 16.5vw, 270px);
+  width: clamp(200px, 56vw, 420px); /* was clamp(300px, 26vw, 420px) — 300px min overflowed on 360px phones */
+  height: clamp(120px, 30vw, 270px); /* was clamp(190px, 16.5vw, 270px) — 190px min was too tall for mobile container */
   flex-shrink: 0;
   user-select: none;
   -webkit-user-select: none;

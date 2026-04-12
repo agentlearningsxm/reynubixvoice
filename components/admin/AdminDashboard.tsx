@@ -62,17 +62,38 @@ export function AdminDashboard() {
 
   useEffect(() => {
     async function fetchStats() {
+      const daysMap: Record<string, number> = {
+        'Last 7 days': 7,
+        'Last 30 days': 30,
+        'Last 90 days': 90,
+      };
+      const days = daysMap[selectedRange] || 30;
+      const cutoff = new Date(
+        Date.now() - days * 24 * 60 * 60 * 1000,
+      ).toISOString();
+
       const [leads, voiceSessions, bookings, deals, tasks] = await Promise.all([
-        supabase.from('leads').select('id', { count: 'exact', head: true }),
+        supabase
+          .from('leads')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', cutoff),
         supabase
           .from('voice_sessions')
-          .select('id', { count: 'exact', head: true }),
-        supabase.from('bookings').select('id', { count: 'exact', head: true }),
-        supabase.from('deals').select('id', { count: 'exact', head: true }),
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', cutoff),
+        supabase
+          .from('bookings')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', cutoff),
+        supabase
+          .from('deals')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', cutoff),
         supabase
           .from('tasks')
           .select('id, status, due_date')
-          .eq('status', 'pending'),
+          .eq('status', 'pending')
+          .gte('created_at', cutoff),
       ]);
 
       const overdueTasks = (tasks.data || []).filter(
@@ -92,11 +113,13 @@ export function AdminDashboard() {
         supabase
           .from('interactions')
           .select('type, title, created_at')
+          .gte('created_at', cutoff)
           .order('created_at', { ascending: false })
           .limit(6),
         supabase
           .from('leads')
           .select('name, email, created_at')
+          .gte('created_at', cutoff)
           .order('created_at', { ascending: false })
           .limit(3),
       ]);
@@ -132,7 +155,7 @@ export function AdminDashboard() {
       setLoading(false);
     }
     fetchStats();
-  }, []);
+  }, [selectedRange]);
 
   const metricCards = [
     {

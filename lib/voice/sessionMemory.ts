@@ -20,7 +20,7 @@ export interface VoiceSessionBackup {
 }
 
 export const VOICE_SESSION_BACKUP_KEY = 'reynubixvoice.live-session-backup';
-export const VOICE_SESSION_BACKUP_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+export const VOICE_SESSION_BACKUP_MAX_AGE_MS = 1 * 60 * 60 * 1000;
 
 const MAX_BACKUP_TURNS = 12;
 const MAX_RESUME_CONTEXT_TURNS = 8;
@@ -100,6 +100,21 @@ export function writeVoiceSessionBackup(backup: VoiceSessionBackup | null) {
   } catch {
     // Ignore storage quota or serialization issues.
   }
+}
+
+export function createPendingSessionBackup(): VoiceSessionBackup {
+  const now = Date.now();
+  const backup: VoiceSessionBackup = {
+    voiceSessionId: null,
+    sessionResumptionHandle: null,
+    transcript: [],
+    updatedAt: now,
+    sessionStartedAt: now,
+    greetingDelivered: false,
+    lastToolCallName: null,
+  };
+  writeVoiceSessionBackup(backup);
+  return backup;
 }
 
 export function buildResumeContextNote(

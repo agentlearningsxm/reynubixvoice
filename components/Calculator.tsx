@@ -31,6 +31,9 @@ const Calculator: React.FC = () => {
   const presentationTimeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
   const animationFrames = useRef<number[]>([]);
   const alreadyScrolledRef = useRef(false);
+  const runPresentationRef = useRef<(targetRevenue: number, targetCalls: number) => void>(
+    () => {},
+  );
 
   // Logic: Missed Calls * 30 Days * 25% Booking Rate * Avg Ticket Price
   const monthlyLoss = useMemo(() => {
@@ -43,13 +46,6 @@ const Calculator: React.FC = () => {
 
   const controls = useAnimation();
   const yearlyControls = useAnimation();
-
-  useEffect(() => {
-    controls.start({
-      scale: [1, 1.02, 1],
-      transition: { duration: 0.3 },
-    });
-  }, [controls]);
 
   // Animate a numeric value from `from` to `to` over `duration` ms with ease-out
   const animateValue = useCallback(
@@ -107,7 +103,8 @@ const Calculator: React.FC = () => {
       const timeouts = presentationTimeouts.current;
 
       // Stage 0: Scroll calculator into view (skip if show_calculator already did it)
-      if (!alreadyScrolledRef.current) {
+      const alreadyScrolled = alreadyScrolledRef.current;
+      if (!alreadyScrolled) {
         const cardEl = document.getElementById('calculator-card');
         if (cardEl) {
           cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -119,7 +116,14 @@ const Calculator: React.FC = () => {
       }
       alreadyScrolledRef.current = true;
 
-      // Stage 1: Revenue slider (600ms delayallows scroll to settle)
+      // When scroll already happened, skip the settle delay — much snappier
+      const d = alreadyScrolled
+        ? { s1: 150, s2: 750, s3: 1750, s4: 3500, end: 4500 }
+        : { s1: 600, s2: 1200, s3: 2200, s4: 4000, end: 5000 };
+
+      const targetMonthly = Math.floor(targetCalls * 30 * 0.25 * targetRevenue);
+
+      // Stage 1: Revenue slider
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(1);
@@ -129,24 +133,21 @@ const Calculator: React.FC = () => {
             600,
             setRevenuePerCustomer,
           );
-        }, 600),
+        }, d.s1),
       );
 
-      // Stage 2: Missed calls slider (1200ms delay)
+      // Stage 2: Missed calls slider
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(2);
           animateValue(missedCalls, targetCalls, 600, setMissedCalls);
-        }, 1200),
+        }, d.s2),
       );
 
-      // Stage 3: Monthly loss count-up (2200ms delay)
+      // Stage 3: Monthly loss count-up
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(3);
-          const targetMonthly = Math.floor(
-            targetCalls * 30 * 0.25 * targetRevenue,
-          );
           animateValue(0, targetMonthly, 1200, setDisplayedMonthlyLoss, () => {
             // Trigger pulse animation on monthly loss card
             controls.start({
@@ -154,24 +155,25 @@ const Calculator: React.FC = () => {
               transition: { duration: 0.4 },
             });
           });
-        }, 2200),
+        }, d.s3),
       );
 
-      // Stage 4: Yearly fade-in (4000ms delay)
+      // Stage 4: Yearly fade-in
       timeouts.push(
         setTimeout(() => {
           setPresentationStage(4);
           setYearlyVisible(true);
-        }, 4000),
+        }, d.s4),
       );
 
-      // End presentation mode (5000ms)
+      // End presentation mode — sync displayedMonthlyLoss first to prevent flicker
       timeouts.push(
         setTimeout(() => {
+          setDisplayedMonthlyLoss(targetMonthly);
           setPresentationMode(false);
           setPresentationStage(0);
           alreadyScrolledRef.current = false;
-        }, 5000),
+        }, d.end),
       );
     },
     [
@@ -191,13 +193,17 @@ const Calculator: React.FC = () => {
     };
   }, []);
 
-  // Listen for AI Agent events
+  // Keep the ref in sync with the latest runPresentation (avoids stale closure in listener)
+  useEffect(() => {
+    runPresentationRef.current = runPresentation;
+  }, [runPresentation]);
+
+  // Listen for AI Agent events — stable listener, never re-registered
   useEffect(() => {
     const handleAIUpdate = (event: CustomEvent) => {
-      if (presentationMode) return; // Prevent double-triggering
-      const targetRevenue = event.detail.revenue ?? revenuePerCustomer;
-      const targetCalls = event.detail.missedCalls ?? missedCalls;
-      runPresentation(targetRevenue, targetCalls);
+      const targetRevenue = event.detail.revenue;
+      const targetCalls = event.detail.missedCalls;
+      runPresentationRef.current(targetRevenue, targetCalls);
     };
 
     window.addEventListener(
@@ -209,7 +215,7 @@ const Calculator: React.FC = () => {
         'updateCalculator',
         handleAIUpdate as EventListener,
       );
-  }, [revenuePerCustomer, missedCalls, presentationMode, runPresentation]);
+  }, []);
 
   // Listen for show_calculator (scroll-only, no animation)
   useEffect(() => {
@@ -231,19 +237,11 @@ const Calculator: React.FC = () => {
       window.removeEventListener('showCalculator', handleShowCalculator);
   }, []);
 
-  // Load dramatic border preference
-  useEffect(() => {
-    const savedPreference = localStorage.getItem('dramatic-border-enabled');
-    if (savedPreference !== null) {
-      setDramaticBorderEnabled(savedPreference === 'true');
-    }
-  }, []);
-
   // Save dramatic border preference
   const toggleDramaticBorder = () => {
     const newValue = !dramaticBorderEnabled;
     setDramaticBorderEnabled(newValue);
-    localStorage.setItem('dramatic-border-enabled', String(newValue));
+    localStorage.setItem('calculator-dramatic-border', String(newValue));
   };
 
   const scenarios = [
@@ -257,7 +255,7 @@ const Calculator: React.FC = () => {
 
   // Inner content (JSX variable, not a componentavoids remount on re-render)
   const calculatorContent = (
-      <div className="relative z-10 grid gap-4 md:gap-6 lg:gap-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
+    <div className="relative z-10 grid gap-4 md:gap-6 lg:gap-8 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)]">
       {/* Controls */}
       <div className="space-y-5 lg:pr-2">
         <div className="rounded-[28px] border border-border-subtle bg-surface-raised/92 p-3 xs:p-4 sm:p-5 md:p-6 shadow-[0_22px_60px_rgba(15,23,42,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-white/[0.04]">
@@ -609,7 +607,10 @@ const Calculator: React.FC = () => {
 
         {dramaticBorderEnabled ? (
           /* Dramatic Animated Border Wrapper */
-          <div className="dramatic-border-container max-w-full overflow-hidden sm:max-w-none" id="calculator-card">
+          <div
+            className="dramatic-border-container max-w-full overflow-hidden sm:max-w-none"
+            id="calculator-card"
+          >
             <div className="dramatic-border-inner">
               <div className="dramatic-border-outer">
                 <div className="dramatic-main-card glass-card relative overflow-hidden rounded-3xl border border-border-subtle bg-surface-raised/90 shadow-2xl backdrop-blur-2xl dark:border-white/10 dark:bg-bg-card/90">

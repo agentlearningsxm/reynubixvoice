@@ -136,11 +136,11 @@ const Footer: React.FC = () => {
       ═══════════════════════════════════════════════════ */}
       <div className="relative py-10 sm:py-12 md:py-16">
         <div className="page-container">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 xs:grid-cols-4 md:grid-cols-4 gap-3 xs:gap-4 md:gap-6">
             {stats.map(({ value, label, icon: Icon }) => (
               <div
                 key={label}
-                className="glass-card flex flex-col items-center gap-2 rounded-[20px] bg-bg-glass/80 px-3 py-4 sm:px-5 sm:py-6 text-center"
+                className="glass-card flex flex-col items-center gap-1.5 xs:gap-2 rounded-[16px] xs:rounded-[20px] bg-bg-glass/80 px-2.5 py-3 xs:px-3 xs:py-4 sm:px-5 sm:py-6 md:px-6 md:py-8 text-center"
                 style={{
                   borderColor:
                     'color-mix(in srgb, var(--accent-primary) 14%, var(--border))',
@@ -182,7 +182,7 @@ const Footer: React.FC = () => {
           }}
         />
 
-          <div className="py-12 sm:py-16 md:py-20">
+        <div className="py-12 sm:py-16 md:py-20">
           <div className="page-container">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
               {/* Brand Columnwider */}

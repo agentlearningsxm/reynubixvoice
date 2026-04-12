@@ -1,6 +1,6 @@
-import { AlertCircle, Calendar, Check, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle, Calendar, Check, Plus, Search, Trash2 } from 'lucide-react';
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 
 interface Task {
@@ -11,6 +11,7 @@ interface Task {
   status: string;
   due_date: string | null;
   lead_id: string | null;
+  lead?: { id: string; name: string | null; email: string } | null;
 }
 
 const priorityColors: Record<string, string> = {
@@ -20,10 +21,15 @@ const priorityColors: Record<string, string> = {
   urgent: 'text-red-400',
 };
 
+const PAGE_SIZE = 20;
+
 export function TasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTask, setNewTask] = useState({
     title: '',
@@ -32,28 +38,39 @@ export function TasksPage() {
     due_date: '',
   });
 
-  useEffect(() => {
-    fetchTasks();
-    // biome-ignore lint/correctness/useExhaustiveDependencies: fetchTasks is stable function
-  }, [fetchTasks]);
-
-  async function fetchTasks() {
+  const fetchTasks = useCallback(async () => {
     setLoading(true);
     try {
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
       let query = supabase
         .from('tasks')
-        .select('*')
-        .order('due_date', { ascending: true, nullsFirst: false });
+        .select('*, lead:leads(id, name, email)', { count: 'exact' })
+        .order('due_date', { ascending: true, nullsFirst: false })
+        .range(from, to);
       if (statusFilter) query = query.eq('status', statusFilter);
-      const { data, error } = await query;
+      if (search)
+        query = query.or(
+          `title.ilike.%${search}%,description.ilike.%${search}%`,
+        );
+      const { data, error, count } = await query;
       if (error) throw error;
       setTasks(data || []);
+      setTotalCount(count || 0);
     } catch {
       setTasks([]);
     } finally {
       setLoading(false);
     }
-  }
+  }, [statusFilter, search, page]);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, statusFilter]);
 
   async function handleAddTask(e: React.FormEvent) {
     e.preventDefault();
@@ -103,7 +120,7 @@ export function TasksPage() {
         <div>
           <h1 className="text-2xl font-semibold text-white">Tasks</h1>
           <p className="text-zinc-400">
-            {tasks.length} total · {overdue.length} overdue
+            {totalCount} total · {overdue.length} overdue
           </p>
         </div>
         <button
@@ -122,20 +139,28 @@ export function TasksPage() {
         </div>
       )}
 
-      <select
-        value={statusFilter}
-        onChange={(e) => {
-          setStatusFilter(e.target.value);
-          fetchTasks();
-        }}
-        className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none"
-      >
-        <option value="">All Status</option>
-        <option value="pending">Pending</option>
-        <option value="in_progress">In Progress</option>
-        <option value="completed">Completed</option>
-        <option value="cancelled">Cancelled</option>
-      </select>
+      <div className="flex gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tasks..."
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-800 py-2 pl-10 pr-4 text-sm text-white placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+          />
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-sm text-white focus:border-emerald-500 focus:outline-none"
+        >
+          <option value="">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
 
       {loading ? (
         <div className="flex justify-center py-12">
@@ -168,6 +193,11 @@ export function TasksPage() {
                 {task.description && (
                   <p className="text-xs text-zinc-400">{task.description}</p>
                 )}
+                {task.lead && (
+                  <p className="text-xs text-emerald-400/80">
+                    {task.lead.name || task.lead.email}
+                  </p>
+                )}
               </div>
               <span
                 className={`text-xs font-medium capitalize ${priorityColors[task.priority]}`}
@@ -194,6 +224,33 @@ export function TasksPage() {
           {tasks.length === 0 && (
             <p className="py-12 text-center text-zinc-500">No tasks found</p>
           )}
+        </div>
+      )}
+
+      {totalCount > PAGE_SIZE && (
+        <div className="flex items-center justify-between px-2">
+          <p className="text-sm text-zinc-500">
+            Showing {(page - 1) * PAGE_SIZE + 1}–
+            {Math.min(page * PAGE_SIZE, totalCount)} of {totalCount}
+          </p>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              disabled={page <= 1}
+              onClick={() => setPage(page - 1)}
+              className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <button
+              type="button"
+              disabled={page * PAGE_SIZE >= totalCount}
+              onClick={() => setPage(page + 1)}
+              className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 hover:bg-zinc-800 disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
 

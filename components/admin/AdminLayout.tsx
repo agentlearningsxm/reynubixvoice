@@ -11,6 +11,7 @@ import {
   LogOut,
   Menu,
   MessageSquare,
+  Phone,
   Settings,
   Users,
   X,
@@ -25,6 +26,7 @@ const navItems = [
   { icon: Briefcase, label: 'Deals', path: '/admin/deals' },
   { icon: CheckSquare, label: 'Tasks', path: '/admin/tasks' },
   { icon: MessageSquare, label: 'Interactions', path: '/admin/interactions' },
+  { icon: Phone, label: 'Calls', path: '/admin/calls' },
   { icon: Database, label: 'Import', path: '/admin/import' },
   { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
@@ -36,6 +38,7 @@ const pageTitleMap: Record<string, string> = {
   '/admin/deals': 'Deals',
   '/admin/tasks': 'Tasks',
   '/admin/interactions': 'Interactions',
+  '/admin/calls': 'Calls',
   '/admin/import': 'Import',
   '/admin/analytics': 'Analytics',
   '/admin/settings': 'Settings',
@@ -122,13 +125,9 @@ export default function AdminLayout() {
               >
                 <item.icon className="w-5 h-5 flex-shrink-0" />
                 {!collapsed && (
-                  <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="text-sm font-medium whitespace-nowrap"
-                  >
+                  <span className="text-sm font-medium whitespace-nowrap">
                     {item.label}
-                  </motion.span>
+                  </span>
                 )}
               </Link>
             );

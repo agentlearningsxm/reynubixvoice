@@ -1,8 +1,9 @@
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import type React from 'react';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AUTOMATION_TOOLS } from '../data/automation-tools';
 import { useAutoplayCarousel } from '../hooks/useAutoplayCarousel';
+import { useScrollLock } from '../hooks/useScrollLock';
 
 // ─── Particle type for scanner obliteration effect ───
 interface ScanParticle {
@@ -594,8 +595,8 @@ const DesktopCardStream: React.FC = () => {
 
   return (
     <>
-      {/* Speed indicator */}
-      <div className="absolute top-4 right-4 z-50">
+      {/* Speed indicator — hidden on mobile to reduce clutter */}
+      <div className="absolute top-4 right-4 z-50 hidden sm:block">
         <div className="glass-card rounded-full bg-bg-glass/90 px-4 py-2 text-xs font-medium text-text-secondary">
           Speed:{' '}
           <span
@@ -611,7 +612,7 @@ const DesktopCardStream: React.FC = () => {
       {/* Card stream container */}
       <div
         ref={containerRef}
-        className="relative w-full h-[340px] flex items-center overflow-hidden"
+        className="relative w-full h-[220px] sm:h-[280px] md:h-[340px] flex items-center overflow-hidden"
         style={{ cursor: 'grab' }}
       >
         {/* CSS scanner line */}
@@ -633,8 +634,7 @@ const DesktopCardStream: React.FC = () => {
 
         {/* Card stream */}
         <div
-          className="card-stream absolute w-full flex items-center overflow-visible"
-          style={{ height: '180px' }}
+          className="card-stream absolute w-full flex items-center overflow-visible h-[140px] sm:h-[160px] md:h-[180px]"
         >
           <motion.button
             type="button"
@@ -745,6 +745,26 @@ const MobileCarousel: React.FC = () => {
     dragFree: true,
     stopOnMouseEnter: false,
   });
+  const [expandedTool, setExpandedTool] = useState<{
+    name: string;
+    description: string;
+    logo: string;
+    color: string;
+  } | null>(null);
+
+  useScrollLock(expandedTool !== null);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExpandedTool(null);
+    };
+    if (expandedTool) {
+      document.addEventListener('keydown', handleEsc);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [expandedTool]);
 
   // Voice agent carousel navigation
   useEffect(() => {
@@ -760,14 +780,17 @@ const MobileCarousel: React.FC = () => {
 
   return (
     <>
-      <div className="relative min-h-[300px] sm:min-h-[360px] flex items-center">
+      <div className="relative min-h-[260px] xs:min-h-[300px] sm:min-h-[360px] flex items-center">
         <div className="automation-scanner" aria-hidden="true" />
         <div className="overflow-hidden w-full" ref={emblaRef}>
           <div className="flex">
             {AUTOMATION_TOOLS.map((tool) => (
-              <div className="flex-[0_0_78%] min-w-0 pl-5" key={tool.name}>
+              <div
+                className="flex-[0_0_85%] xs:flex-[0_0_80%] sm:flex-[0_0_75%] min-w-0 pl-4 xs:pl-5"
+                key={tool.name}
+              >
                 <div
-                  className="card-surface relative h-[280px] xs:h-[300px] sm:h-[320px] overflow-hidden rounded-[28px] border-border/80 bg-bg-card/80"
+                  className="card-surface relative h-[240px] xs:h-[280px] sm:h-[320px] overflow-hidden rounded-[20px] xs:rounded-[24px] sm:rounded-[28px] border-border/80 bg-bg-card/80"
                   style={{ '--brand-color': tool.color } as React.CSSProperties}
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
@@ -783,13 +806,13 @@ const MobileCarousel: React.FC = () => {
                       background: `radial-gradient(circle at 50% 0%, ${tool.color}40, transparent 70%)`,
                     }}
                   />
-                  <div className="relative z-10 p-4 xs:p-5 sm:p-6 flex flex-col h-full">
-                    <div className="relative w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 flex-shrink-0">
+                  <div className="relative z-10 p-3 xs:p-4 sm:p-6 flex flex-col h-full">
+                    <div className="relative w-8 h-8 xs:w-10 xs:h-10 sm:w-14 sm:h-14 flex-shrink-0">
                       <div
                         className="absolute inset-[-4px] rounded-[18px] opacity-35 blur-[10px]"
                         style={{ backgroundColor: tool.color }}
                       />
-                      <div className="relative w-10 h-10 xs:w-12 xs:h-12 sm:w-14 sm:h-14 bg-white/95 rounded-[14px] flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] p-2.5">
+                      <div className="relative w-8 h-8 xs:w-10 xs:h-10 sm:w-14 sm:h-14 bg-white/95 rounded-[10px] xs:rounded-[14px] flex items-center justify-center shadow-[0_4px_15px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)] p-1.5 xs:p-2 sm:p-2.5">
                         <img
                           src={tool.logo}
                           alt={tool.name}
@@ -802,13 +825,28 @@ const MobileCarousel: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <h3 className="text-[clamp(0.875rem,3vw,1.125rem)] font-bold text-white mt-1.5 xs:mt-2 sm:mt-2.5 leading-tight">
+                    <h3 className="text-[clamp(0.8125rem,3.2vw,1.125rem)] font-bold text-white mt-1 xs:mt-1.5 sm:mt-2.5 leading-tight">
                       {tool.name}
                     </h3>
-                    <p className="mt-1 xs:mt-1.5 flex-grow line-clamp-4 text-[clamp(0.625rem,2.2vw,0.75rem)] leading-relaxed text-white/82">
+                    <p className="mt-0.5 xs:mt-1 flex-grow line-clamp-3 xs:line-clamp-4 text-[clamp(0.5625rem,2.4vw,0.75rem)] leading-relaxed text-white/82">
                       {tool.description}
                     </p>
-                    <div className="flex justify-between items-center mt-auto pt-1.5 xs:pt-2">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedTool({
+                          name: tool.name,
+                          description: tool.description,
+                          logo: tool.logo,
+                          color: tool.color,
+                        });
+                      }}
+                      className="md:hidden mt-1.5 text-[clamp(0.5625rem,2.2vw,0.6875rem)] font-medium text-white/50 underline underline-offset-2 decoration-white/20 hover:text-white/80 hover:decoration-white/50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded"
+                    >
+                      Read more
+                    </button>
+                    <div className="flex justify-between items-center mt-auto pt-1 xs:pt-1.5">
                       <span
                         className="text-[clamp(0.625rem,2vw,0.6875rem)] px-2 xs:px-2.5 py-1 rounded-full font-medium"
                         style={{
@@ -862,6 +900,114 @@ const MobileCarousel: React.FC = () => {
           Swipe or drag to explore
         </span>
       </div>
+
+      {/* Expanded tool modal - mobile only */}
+      <AnimatePresence>
+        {expandedTool && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-end justify-center md:hidden"
+            onClick={() => setExpandedTool(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Details about ${expandedTool.name}`}
+          >
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              style={{ touchAction: 'none' }}
+            />
+
+            {/* Bottom sheet */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-h-[70vh] rounded-t-3xl bg-gradient-to-b from-slate-900 to-[#0d0b09] border-t border-border/60 shadow-2xl"
+              style={{
+                overscrollBehavior: 'contain',
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+              }}
+            >
+              {/* Scrollable content */}
+              <div
+                className="overflow-y-auto"
+                style={{
+                  overscrollBehavior: 'contain',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                {/* Handle bar */}
+                <div className="sticky top-0 z-10 flex justify-center pt-3 pb-2 bg-gradient-to-b from-slate-900 to-transparent">
+                  <div className="w-10 h-1 rounded-full bg-white/20" />
+                </div>
+
+                {/* Tool header */}
+                <div className="flex items-center gap-4 px-6 pt-2 pb-5">
+                  <div
+                    className="relative w-14 h-14 bg-white/95 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0 p-2.5"
+                    style={{
+                      boxShadow: `0 4px 20px ${expandedTool.color}40`,
+                    }}
+                  >
+                    <img
+                      src={expandedTool.logo}
+                      alt={expandedTool.name}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          `https://ui-avatars.com/api/?name=${expandedTool.name}&background=ffffff&color=${expandedTool.color.slice(1)}&size=48`;
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white leading-tight">
+                      {expandedTool.name}
+                    </h3>
+                    <span
+                      className="inline-block mt-1 text-xs px-2.5 py-0.5 rounded-full font-medium"
+                      style={{
+                        backgroundColor: `${expandedTool.color}20`,
+                        color: expandedTool.color,
+                        border: `1px solid ${expandedTool.color}40`,
+                      }}
+                    >
+                      AI Automation
+                    </span>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="px-6 pb-6">
+                  <p className="text-[clamp(0.875rem,3vw,1rem)] leading-relaxed text-white/85">
+                    {expandedTool.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Close button */}
+              <div className="sticky bottom-0 px-6 pb-6 pt-3 bg-gradient-to-t from-[#0d0b09] to-transparent">
+                <button
+                  type="button"
+                  onClick={() => setExpandedTool(null)}
+                  className="w-full py-3.5 rounded-xl text-sm font-semibold text-white transition-all active:scale-[0.98] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  style={{
+                    background: `linear-gradient(135deg, ${expandedTool.color}, ${expandedTool.color}cc)`,
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

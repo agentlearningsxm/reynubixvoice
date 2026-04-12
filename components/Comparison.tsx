@@ -1,12 +1,36 @@
 import clsx from 'clsx';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { IMAGES } from '../data/comparison-images';
 import { useAutoplayCarousel } from '../hooks/useAutoplayCarousel';
+import { useScrollLock } from '../hooks/useScrollLock';
 
 const Comparison = () => {
   const { t } = useLanguage();
+  const [expandedCard, setExpandedCard] = useState<{
+    title: string;
+    subtitle: string;
+    description: string;
+    image: string;
+    index: number;
+  } | null>(null);
+
+  useScrollLock(expandedCard !== null);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExpandedCard(null);
+    };
+    if (expandedCard) {
+      document.addEventListener('keydown', handleEsc);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [expandedCard]);
+
   const cards = t.comparison.gallery.map((card, i) => ({
     ...card,
     image: IMAGES[i],
@@ -82,12 +106,15 @@ const Comparison = () => {
           </button>
 
           {/* Embla viewport */}
-          <div className="overflow-hidden" ref={emblaRef}>
+          <div
+            className="overflow-hidden mx-2 xs:mx-4 sm:mx-6 md:mx-10"
+            ref={emblaRef}
+          >
             <div className="flex touch-pan-y">
               {cards.map((card, i) => (
                 <div
                   key={card.title}
-                  className="flex-[0_0_85%] md:flex-[0_0_60%] lg:flex-[0_0_45%] min-w-0 pl-5"
+                  className="flex-[0_0_88%] xs:flex-[0_0_85%] sm:flex-[0_0_75%] md:flex-[0_0_60%] lg:flex-[0_0_45%] min-w-0 pl-4 xs:pl-5"
                 >
                   <div
                     className={clsx(
@@ -119,6 +146,22 @@ const Comparison = () => {
                       <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-text-secondary">
                         {card.description}
                       </p>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedCard({
+                            title: card.title,
+                            subtitle: card.subtitle,
+                            description: card.description,
+                            image: card.image,
+                            index: i,
+                          });
+                        }}
+                        className="md:hidden mt-3 text-xs font-medium text-brand-primary/80 underline underline-offset-2 decoration-brand-primary/30 hover:text-brand-primary hover:decoration-brand-primary/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 rounded"
+                      >
+                        Read more
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -147,6 +190,93 @@ const Comparison = () => {
           ))}
         </div>
       </div>
+
+      {/* Expanded description modal - mobile only */}
+      <AnimatePresence>
+        {expandedCard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:hidden"
+            onClick={() => setExpandedCard(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Details about ${expandedCard.title}`}
+          >
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              style={{ touchAction: 'none' }}
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl bg-bg-card border border-border/60 shadow-2xl"
+              style={{
+                overscrollBehavior: 'contain',
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+              }}
+            >
+              {/* Scrollable content */}
+              <div
+                className="overflow-y-auto"
+                style={{
+                  overscrollBehavior: 'contain',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                {/* Card image */}
+                <div className="relative h-40 rounded-t-2xl overflow-hidden">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${expandedCard.image})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-bg-card/20 to-transparent" />
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-text-secondary">
+                    {expandedCard.index + 1} / {cards.length}
+                  </div>
+                  <h3 className="text-xl font-bold text-text-primary font-display leading-tight">
+                    {expandedCard.title}
+                  </h3>
+                  <p className="mt-1 text-sm font-semibold text-brand-primary">
+                    {expandedCard.subtitle}
+                  </p>
+                  <p className="mt-4 text-[clamp(0.875rem,3vw,1rem)] leading-relaxed text-text-secondary">
+                    {expandedCard.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Close button */}
+              <div className="sticky bottom-0 px-6 pb-6 pt-3 bg-gradient-to-t from-bg-card to-transparent">
+                <button
+                  type="button"
+                  onClick={() => setExpandedCard(null)}
+                  className="w-full py-3.5 rounded-xl text-sm font-semibold text-accent-ink transition-all active:scale-[0.98] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };
