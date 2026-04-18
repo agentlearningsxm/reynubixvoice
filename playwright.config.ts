@@ -23,7 +23,6 @@ export default defineConfig({
     trace: 'on-first-retry',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    reducedMotion: 'reduce',
     actionTimeout: 10_000,
     navigationTimeout: 20_000,
   },
