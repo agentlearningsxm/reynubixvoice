@@ -516,7 +516,7 @@ export function useGeminiLive() {
       const fullInstruction = SYSTEM_INSTRUCTION + '\n\n' + silenceContext;
 
       const sessionPromise = ai.live.connect({
-        model: 'gemini-3.0-flash-native-audio',
+        model: 'gemini-3.1-flash-live-preview',
         config: {
           responseModalities: [Modality.AUDIO],
           systemInstruction: fullInstruction,
