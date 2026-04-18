@@ -6,7 +6,7 @@ import {
 
 export const GEMINI_LIVE_TOOLS: any[] = [];
 
-export const REYNA_GEMINI_VOICE = 'Sulafat';
+export const REYNA_GEMINI_VOICE = 'Kore';
 
 export function buildGeminiLiveConfig(
   systemInstruction: string,

@@ -10,7 +10,7 @@ describe('buildGeminiLiveConfig', () => {
     expect(config.speechConfig).toEqual({
       voiceConfig: {
         prebuiltVoiceConfig: {
-          voiceName: 'Sulafat',
+          voiceName: 'Kore',
         },
       },
     });
