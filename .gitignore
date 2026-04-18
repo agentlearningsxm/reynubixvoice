@@ -43,6 +43,12 @@ docker-server.mjs
 # Dev logs
 dev-server*.log
 
+# Playwright
+test-results/
+playwright-report/
+.playwright/
+playwright/.cache/
+
 # Agent tooling
 .agent/
 .claude/

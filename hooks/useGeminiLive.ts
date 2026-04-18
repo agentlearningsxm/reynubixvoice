@@ -498,7 +498,7 @@ export function useGeminiLive() {
       mediaStreamRef.current = stream;
       audioContextRef.current = new (
         window.AudioContext || (window as any).webkitAudioContext
-      )();
+      )({ sampleRate: 16000 });
       const inputSampleRate = audioContextRef.current.sampleRate;
 
       outputAudioContextRef.current = new (
@@ -584,7 +584,7 @@ export function useGeminiLive() {
 
               setTimeout(() => {
                 resolvedSessionRef.current?.sendRealtimeInput({
-                  media: humBlob,
+                  audio: humBlob,
                 });
               }, 500);
 
@@ -630,7 +630,7 @@ export function useGeminiLive() {
                 // Use resolved session ref instead of promise chain
                 try {
                   resolvedSessionRef.current?.sendRealtimeInput({
-                    media: blob,
+                    audio: blob,
                   });
                 } catch (_) {
                   // Session may have closed -ignore
@@ -816,9 +816,7 @@ export function useGeminiLive() {
                   const newText = aiTranscription.text as string;
                   newPrev[lastIndex] = {
                     ...newPrev[lastIndex],
-                    text: newText.startsWith(lastText)
-                      ? newText
-                      : lastText + newText,
+                    text: lastText + newText,
                     isFinal: !!aiTranscription.finished,
                   };
                   return newPrev;
@@ -861,9 +859,7 @@ export function useGeminiLive() {
                   const newText = userTranscription.text as string;
                   newPrev[lastIndex] = {
                     ...newPrev[lastIndex],
-                    text: newText.startsWith(lastText)
-                      ? newText
-                      : lastText + newText,
+                    text: lastText + newText,
                     isFinal: !!userTranscription.finished,
                   };
                   return newPrev;
