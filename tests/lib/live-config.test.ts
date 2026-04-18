@@ -2,11 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { buildGeminiLiveConfig } from '../../lib/voice/liveConfig.js';
 
 describe('buildGeminiLiveConfig', () => {
-  it('does not include the unsupported transparent resumption flag', () => {
+  it('omits sessionResumption entirely on fresh sessions', () => {
     const config = buildGeminiLiveConfig('Stay helpful.');
 
-    expect(config.sessionResumption).toEqual({});
-    expect(config.sessionResumption).not.toHaveProperty('transparent');
+    expect(config).not.toHaveProperty('sessionResumption');
     expect(config.contextWindowCompression).toEqual({
       slidingWindow: {},
     });

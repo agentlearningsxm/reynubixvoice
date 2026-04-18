@@ -37,8 +37,8 @@ import {
 } from '../lib/voice/sessionMemory';
 
 // ─── Resilience Constants ───────────────────────────────────────────
-const MAX_RECONNECT_ATTEMPTS = 8;
-const RECONNECT_BASE_DELAY_MS = 2000;
+const MAX_RECONNECT_ATTEMPTS = 5;
+const RECONNECT_BASE_DELAY_MS = 3000;
 const CONNECTION_TIMEOUT_MS = 15000;
 
 // ─── Transcript types ───────────────────────────────────────────────
@@ -656,46 +656,47 @@ export function useGeminiLive() {
     [closeSession, cleanupAudio],
   );
 
-// ─── Connect ──────────────────────────────────────────────────
-const connectToGemini = async (isReconnect = false) => {
-  connectToGeminiRef.current = connectToGemini;
-  try {
-    const persistedBackup = readLiveSessionBackup();
-    // Check for recoverable session: either explicit IDs or a pending backup
-    // with sessionStartedAt (created before first connection attempt).
-    const hasRecoverableSession =
-      !!voiceSessionIdRef.current ||
-      !!persistedBackup?.voiceSessionId ||
-      !!sessionResumptionHandleRef.current ||
-      !!persistedBackup?.sessionResumptionHandle ||
-      !!persistedBackup?.sessionStartedAt;
-    const shouldResumeSession = isReconnect || hasRecoverableSession;
+  // ─── Connect ──────────────────────────────────────────────────
+  const connectToGemini = async (isReconnect = false) => {
+    connectToGeminiRef.current = connectToGemini;
+    try {
+      const persistedBackup = readLiveSessionBackup();
+      // Check for recoverable session: either explicit IDs or a pending backup
+      // with sessionStartedAt (created before first connection attempt).
+      const hasRecoverableSession =
+        !!voiceSessionIdRef.current ||
+        !!persistedBackup?.voiceSessionId ||
+        !!sessionResumptionHandleRef.current ||
+        !!persistedBackup?.sessionResumptionHandle ||
+        !!persistedBackup?.sessionStartedAt;
+      const shouldResumeSession = isReconnect || hasRecoverableSession;
 
-    if (!shouldResumeSession) {
-      intentionalDisconnectRef.current = false;
-      reconnectAttemptsRef.current = 0;
-      setError(null);
-      setTranscript([]);
-      
-      // Create pending backup immediately for graceful failure recovery.
-      // This ensures we have a sessionStartedAt even if connection fails.
-      const pendingBackup = createPendingSessionBackup();
-      sessionStartTimeRef.current = pendingBackup.sessionStartedAt;
-    } else {
-      setError(null);
-      // Restore sessionStartTime from pending backup if not already set.
-      if (!sessionStartTimeRef.current && persistedBackup?.sessionStartedAt) {
-        sessionStartTimeRef.current = persistedBackup.sessionStartedAt;
+      if (!shouldResumeSession) {
+        intentionalDisconnectRef.current = false;
+        reconnectAttemptsRef.current = 0;
+        setError(null);
+        setTranscript([]);
+
+        // Create pending backup immediately for graceful failure recovery.
+        // This ensures we have a sessionStartedAt even if connection fails.
+        const pendingBackup = createPendingSessionBackup();
+        sessionStartTimeRef.current = pendingBackup.sessionStartedAt;
+      } else {
+        setError(null);
+        // Restore sessionStartTime from pending backup if not already set.
+        if (!sessionStartTimeRef.current && persistedBackup?.sessionStartedAt) {
+          sessionStartTimeRef.current = persistedBackup.sessionStartedAt;
+        }
       }
-    }
 
-    setIsConnecting(true);
+      setIsConnecting(true);
 
       // Connection timeout -if onopen doesn't fire in time, retry
       connectionTimeoutRef.current = setTimeout(() => {
         closeSession();
         cleanupAudio();
         setIsConnecting(false);
+        setError('Connection timed out. Retrying...');
         reconnect();
       }, CONNECTION_TIMEOUT_MS);
 
@@ -712,7 +713,6 @@ const connectToGemini = async (isReconnect = false) => {
       outputNodeRef.current = outputAudioContextRef.current.createGain();
       outputNodeRef.current.connect(outputAudioContextRef.current.destination);
 
-      // Build dynamic system instruction with silence mode
       const silenceMode =
         localStorage.getItem('reyna-silence-mode') || 'checkin';
       const silenceContext =
@@ -723,37 +723,49 @@ const connectToGemini = async (isReconnect = false) => {
         sessionResumptionHandleRef.current ??
         persistedBackup?.sessionResumptionHandle ??
         null;
-let activeVoiceSessionId =
-      voiceSessionIdRef.current ?? persistedBackup?.voiceSessionId ?? null;
-    if (!activeVoiceSessionId) {
-      // Preserve sessionStartTime from pending backup (set earlier in connectToGemini).
-      // Only set to Date.now() if somehow not already set.
-      if (!sessionStartTimeRef.current) {
-        sessionStartTimeRef.current = Date.now();
+      let activeVoiceSessionId =
+        voiceSessionIdRef.current ?? persistedBackup?.voiceSessionId ?? null;
+      if (!activeVoiceSessionId) {
+        // Preserve sessionStartTime from pending backup (set earlier in connectToGemini).
+        // Only set to Date.now() if somehow not already set.
+        if (!sessionStartTimeRef.current) {
+          sessionStartTimeRef.current = Date.now();
+        }
+        const session = await startVoiceSession(
+          {
+            accepted: true,
+            acceptedAt: new Date().toISOString(),
+            version: '1.0',
+          },
+          { allowMockFallback: true },
+        );
+        activeVoiceSessionId = session.voiceSessionId;
+        voiceSessionIdRef.current = activeVoiceSessionId;
+        syncSessionBackup();
       }
-      const session = await startVoiceSession(
-        {
-          accepted: true,
-          acceptedAt: new Date().toISOString(),
-          version: '1.0',
-        },
-        { allowMockFallback: true },
-      );
-      activeVoiceSessionId = session.voiceSessionId;
-      voiceSessionIdRef.current = activeVoiceSessionId;
-      syncSessionBackup();
-    }
-    if (!sessionStartTimeRef.current) {
-      sessionStartTimeRef.current =
-        persistedBackup?.sessionStartedAt ?? Date.now();
-    }
+      if (!sessionStartTimeRef.current) {
+        sessionStartTimeRef.current =
+          persistedBackup?.sessionStartedAt ?? Date.now();
+      }
 
       const issuedToken = await issueVoiceToken(activeVoiceSessionId);
       const authKey = issuedToken.token;
+      console.log(
+        '[gemini-connect] Token type:',
+        authKey.startsWith('auth_tokens/') ? 'ephemeral' : 'raw-key',
+      );
+      console.log(
+        '[gemini-connect] Token prefix:',
+        authKey.substring(0, 20) + '...',
+      );
 
       const ai = new GoogleGenAI({
         apiKey: authKey,
         httpOptions: { apiVersion: GEMINI_LIVE_API_VERSION },
+      });
+
+      const liveConfig = buildGeminiLiveConfig(fullInstruction, {
+        sessionResumptionHandle: resumptionHandle,
       });
 
       restoreContextOnConnectRef.current =
@@ -763,11 +775,10 @@ let activeVoiceSessionId =
 
       const sessionPromise = ai.live.connect({
         model: GEMINI_LIVE_MODEL,
-        config: buildGeminiLiveConfig(fullInstruction, {
-          sessionResumptionHandle: resumptionHandle,
-        }),
+        config: liveConfig,
         callbacks: {
           onopen: () => {
+            console.log('[gemini-open] WebSocket connected successfully');
             try {
               // Clear connection timeout -we're in
               if (connectionTimeoutRef.current) {
@@ -925,6 +936,10 @@ let activeVoiceSessionId =
           },
 
           onmessage: async (msg: LiveServerMessage) => {
+            if ((msg as any).setupComplete) {
+              console.log('[gemini-msg] setupComplete');
+            }
+
             if (msg.sessionResumptionUpdate) {
               sessionResumptionHandleRef.current =
                 msg.sessionResumptionUpdate.newHandle ??
@@ -980,10 +995,13 @@ let activeVoiceSessionId =
                 // sendRealtimeInput (gemini-3.1: sendClientContent is restricted
                 // to history seeding only; live text must use sendRealtimeInput).
                 const toolNames = responses.map((r: any) => r.name).join(', ');
-                const contextNote = buildResumeContextNote(transcriptRef.current, {
-                  greetingDelivered: greetingDeliveredRef.current,
-                  lastToolCallName: toolNames,
-                });
+                const contextNote = buildResumeContextNote(
+                  transcriptRef.current,
+                  {
+                    greetingDelivered: greetingDeliveredRef.current,
+                    lastToolCallName: toolNames,
+                  },
+                );
                 resolvedSessionRef.current?.sendRealtimeInput({
                   text: contextNote,
                 });
@@ -1148,10 +1166,23 @@ let activeVoiceSessionId =
             }
           },
 
-          onclose: () => {
+          onclose: (event) => {
+            console.log(
+              '[gemini-close] code:',
+              event.code,
+              'reason:',
+              event.reason,
+              'wasClean:',
+              event.wasClean,
+            );
             setConnected(false);
             setIsAgentSpeaking(false);
             resolvedSessionRef.current = null;
+
+            if (connectionTimeoutRef.current) {
+              clearTimeout(connectionTimeoutRef.current);
+              connectionTimeoutRef.current = null;
+            }
 
             // Auto-reconnect unless user pressed end call
             if (!intentionalDisconnectRef.current) {
@@ -1161,14 +1192,21 @@ let activeVoiceSessionId =
 
           onerror: (e: ErrorEvent | Event) => {
             const msg = (e as ErrorEvent).message || 'Unknown WebSocket error';
+            console.error('[gemini-error] raw event:', e, 'message:', msg);
             setIsConnecting(false);
             resolvedSessionRef.current = null;
+
+            if (connectionTimeoutRef.current) {
+              clearTimeout(connectionTimeoutRef.current);
+              connectionTimeoutRef.current = null;
+            }
+
+            // Show error immediately so user knows what's happening
+            setError(`Connection failed: ${msg}`);
 
             // Don't hard-disconnect -try to reconnect
             if (!intentionalDisconnectRef.current) {
               reconnect();
-            } else {
-              setError(`Connection failed: ${msg}`);
             }
           },
         },
@@ -1176,6 +1214,7 @@ let activeVoiceSessionId =
       sessionRef.current = sessionPromise;
     } catch (e: any) {
       const msg = e?.message || String(e);
+      console.error('[gemini-connect] Caught error:', msg, e);
       closeSession();
       cleanupAudio();
       setConnected(false);
@@ -1188,16 +1227,21 @@ let activeVoiceSessionId =
         connectionTimeoutRef.current = null;
       }
 
-      // API key errors shouldn't trigger reconnection
-      const isAuthError =
+      // Permanent failures shouldn't trigger reconnection
+      const isPermanentFailure =
         msg.includes('API') ||
         msg.includes('key') ||
         msg.includes('401') ||
-        msg.includes('403');
+        msg.includes('403') ||
+        msg.includes('404') ||
+        msg.includes('ERR_INSUFFICIENT_RESOURCES') ||
+        msg.includes('Failed to fetch') ||
+        msg.includes('denied access') ||
+        msg.includes('1008');
 
-      if (isAuthError) {
+      if (isPermanentFailure) {
         setIsReconnecting(false);
-        setError(`API error: ${msg}`);
+        setError(`Voice service error: ${msg}`);
       } else if (!intentionalDisconnectRef.current) {
         reconnect();
       } else {

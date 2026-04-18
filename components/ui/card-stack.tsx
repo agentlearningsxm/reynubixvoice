@@ -414,7 +414,7 @@ function DefaultFanCard({ item }: { item: CardStackItem; active: boolean }) {
               <img
                 src="/hair-to-dreads-salon.webp"
                 alt="Hair to Dreads Salon"
-                className="h-full w-auto max-w-none object-contain drop-shadow-2xl"
+                className="h-full w-auto max-w-none object-contain drop-shadow-2xl scale-[0.72] origin-center"
                 draggable={false}
                 loading="eager"
               />

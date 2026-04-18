@@ -43,6 +43,23 @@ const IndustrySlider: React.FC = () => {
     disableAutoplay: prefersReducedMotion,
   });
 
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const selectHandler = () => setIsDragging(false);
+    const dragStartHandler = () => setIsDragging(true);
+    const dragEndHandler = () => setIsDragging(false);
+    emblaApi.on('select', selectHandler);
+    emblaApi.on('pointerDown', dragStartHandler);
+    emblaApi.on('pointerUp', dragEndHandler);
+    return () => {
+      emblaApi.off('select', selectHandler);
+      emblaApi.off('pointerDown', dragStartHandler);
+      emblaApi.off('pointerUp', dragEndHandler);
+    };
+  }, [emblaApi]);
+
   const industries = Object.entries(t.industries.items).map(([key, item]) => {
     const data = item as { name: string; desc: string };
     return {
@@ -144,7 +161,7 @@ const IndustrySlider: React.FC = () => {
 
         {/* Embla viewport */}
         <div
-          className="overflow-hidden mx-2 xs:mx-4 sm:mx-6 md:mx-14"
+          className="overflow-hidden mx-2 xs:mx-4 sm:mx-6 md:mx-14 cursor-grab active:cursor-grabbing"
           ref={emblaRef}
         >
           <div className="flex">
@@ -179,39 +196,31 @@ const IndustrySlider: React.FC = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/40 to-black/10" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_42%)] opacity-70" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-[1]">
-                      <p className="mb-1 md:mb-2 text-[9px] md:text-[11px] font-semibold uppercase tracking-[0.18em] text-white/72">
-                        Use Case
-                      </p>
-                      <h3 className="font-display font-bold text-[clamp(0.875rem,3vw,1.5rem)] md:text-xl lg:text-2xl text-white drop-shadow-lg leading-tight">
-                        {card.title}
-                      </h3>
-                      <p
-                        className={cn(
-                          'mt-2 md:mt-4 text-[clamp(0.6875rem,2.5vw,0.875rem)] md:text-sm lg:text-base leading-relaxed text-white/88 transition-all duration-300 line-clamp-3',
-                          isActive
-                            ? 'translate-y-0 opacity-100'
-                            : 'translate-y-4 opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100',
-                        )}
-                      >
-                        {card.description}
-                      </p>
-                      {/* Expand hint - mobile only */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setExpandedCard({
-                            title: card.title,
-                            description: card.description,
-                            image: card.image,
-                          });
-                        }}
-                        className="md:hidden mt-2 text-xs font-medium text-white/60 underline underline-offset-2 decoration-white/30 hover:text-white/90 hover:decoration-white/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded"
-                      >
-                        Read more
-                      </button>
-                    </div>
+                                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-[1]">
+                                                <p className="mb-1.5 md:mb-2 text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
+                                                        Use Case
+                                                </p>
+                                                <h3 className="font-display font-bold text-base md:text-xl lg:text-2xl text-white drop-shadow-lg leading-tight mb-2 md:mb-3">
+                                                        {card.title}
+                                                </h3>
+								<p className="text-xs md:text-sm lg:text-base leading-relaxed text-white/85 mb-3 line-clamp-2 md:line-clamp-none">
+									{card.description}
+								</p>
+                                                <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setExpandedCard({
+                                                                        title: card.title,
+                                                                        description: card.description,
+                                                                        image: card.image,
+                                                                });
+                                                        }}
+                                                        className="md:hidden text-xs font-medium text-brand-primary hover:text-brand-primary/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 rounded"
+                                                >
+                                                        Read more →
+                                                </button>
+                                        </div>
                   </div>
                 </div>
               );
@@ -219,12 +228,16 @@ const IndustrySlider: React.FC = () => {
           </div>
         </div>
 
-        {/* Swipe hint - mobile only */}
-        <div className="flex justify-center mt-4 md:hidden">
-          <span className="text-xs text-text-secondary">
-            ← Swipe to explore →
-          </span>
-        </div>
+{/* Swipe hint - mobile only */}
+<div className="flex justify-center items-center gap-2 mt-4 md:hidden">
+<svg className="w-4 h-4 text-text-secondary animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" >
+<path d="M14 4.5V12l2.5-1.5M14 12l-2.5-1.5M14 12v7.5" strokeLinecap="round" strokeLinejoin="round"/>
+<path d="M10 4.5V12l-2.5-1.5M10 12l2.5-1.5M10 12v7.5" strokeLinecap="round" strokeLinejoin="round"/>
+</svg>
+<span className="text-xs text-text-secondary font-medium">
+Drag cards to explore
+</span>
+</div>
 
         {/* Dots */}
         <div

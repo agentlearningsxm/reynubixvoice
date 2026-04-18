@@ -1,54 +1,10 @@
-import { type LiveConnectConfig, Modality, Type } from '@google/genai';
+import { type LiveConnectConfig } from '@google/genai';
 import {
   buildReconnectRestoreTurns as buildSessionReconnectRestoreTurns,
   type TranscriptLike,
 } from './sessionMemory.js';
 
-export const GEMINI_LIVE_TOOLS = [
-  {
-    functionDeclarations: [
-      {
-        name: 'show_calculator',
-        description:
-          'Scroll the Revenue Loss Calculator into view. Call this when you START asking about revenue or missed calls, BEFORE you have both numbers. Does not animate anything.',
-        parameters: {
-          type: Type.OBJECT,
-          properties: {},
-          required: [],
-        },
-      },
-      {
-        name: 'update_calculator',
-        description:
-          'Update the values in the Revenue Loss Calculator to show the visitor their potential monthly loss.',
-        parameters: {
-          type: Type.OBJECT,
-          properties: {
-            revenue: {
-              type: Type.NUMBER,
-              description: 'Average revenue per customer in dollars',
-            },
-            missedCalls: {
-              type: Type.NUMBER,
-              description: 'Missed calls per day (1-20)',
-            },
-          },
-          required: ['revenue', 'missedCalls'],
-        },
-      },
-      {
-        name: 'open_cal_popup',
-        description:
-          'Open the Cal.com booking popup so the visitor can schedule a call. ONLY use this AFTER the visitor explicitly agrees to book.',
-        parameters: {
-          type: Type.OBJECT,
-          properties: {},
-          required: [],
-        },
-      },
-    ],
-  },
-];
+export const GEMINI_LIVE_TOOLS: any[] = [];
 
 export const REYNA_GEMINI_VOICE = 'Sulafat';
 
@@ -58,21 +14,18 @@ export function buildGeminiLiveConfig(
     sessionResumptionHandle?: string | null;
   } = {},
 ): LiveConnectConfig {
-  // The Gemini API accepts session resumption handles, but the current
-  // @google/genai Gemini transport rejects the `transparent` flag even though
-  // it exists in the shared type surface.
-  const sessionResumption = options.sessionResumptionHandle
-    ? { handle: options.sessionResumptionHandle }
-    : {};
-
   return {
-    responseModalities: [Modality.AUDIO],
+    responseModalities: ['audio' as any],
     systemInstruction,
-    tools: GEMINI_LIVE_TOOLS,
+    ...(GEMINI_LIVE_TOOLS.length > 0 ? { tools: GEMINI_LIVE_TOOLS } : {}),
     contextWindowCompression: {
       slidingWindow: {},
     },
-    sessionResumption,
+    // Omit sessionResumption entirely on fresh sessions — sending an empty
+    // object causes the server to close the WebSocket at setup (code 1000).
+    ...(options.sessionResumptionHandle
+      ? { sessionResumption: { handle: options.sessionResumptionHandle } }
+      : {}),
     speechConfig: {
       voiceConfig: {
         prebuiltVoiceConfig: {

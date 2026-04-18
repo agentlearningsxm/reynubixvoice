@@ -46,7 +46,7 @@ const referralCards: CardStackItem[] = [
     description:
       'Reliable answer coverage helped turn day-to-day service into a stronger word-of-mouth story, not just a saved lead here and there.',
     imageSrc:
-      'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800&q=80',
+      'https://images.unsplash.com/photo-1573497019236-17f8177b81e8?w=800&q=80',
     tag: 'Referral Signal',
   },
   {

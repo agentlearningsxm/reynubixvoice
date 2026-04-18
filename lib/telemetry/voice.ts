@@ -19,7 +19,7 @@ export async function startVoiceSession(
   let voiceSessionId = `vs_mock_${Date.now()}`;
   try {
     const session = await postJsonWithContext<{ voiceSessionId: string }>(
-      '/api/voice/session/start',
+      '/api/voice-session-start',
       {
         consent,
         metadata: {
@@ -52,7 +52,7 @@ export async function startVoiceSession(
 export async function issueVoiceToken(
   voiceSessionId: string,
 ): Promise<VoiceTokenResponse> {
-  const resp = await fetch('/api/voice/token', {
+  const resp = await fetch('/api/voice-token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ voiceSessionId }),
@@ -69,11 +69,12 @@ export function syncVoiceTranscript(
   voiceSessionId: string,
   turns: TranscriptTurnPayload[],
 ) {
-  return fetch('/api/voice/transcript', {
+  return fetch('/api/voice-telemetry', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       voiceSessionId,
+      eventType: 'voice_transcript',
       turns,
     }),
     keepalive: true,
@@ -92,7 +93,7 @@ export async function uploadVoiceAudio(
 
   const dataUrl = await blobToDataUrl(blob);
 
-  const resp = await fetch('/api/voice/audio', {
+  const resp = await fetch('/api/voice-audio', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -117,11 +118,12 @@ export function recordVoiceToolCall(input: {
   args?: Record<string, unknown>;
   result?: Record<string, unknown>;
 }) {
-  return fetch('/api/voice/tool-call', {
+  return fetch('/api/voice-telemetry', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       ...input,
+      eventType: 'voice_tool_call',
       capturedAt: new Date().toISOString(),
     }),
     keepalive: true,
@@ -133,11 +135,12 @@ export function recordVoiceError(
     context?: VoiceErrorPayload['context'];
   },
 ) {
-  return fetch('/api/voice/error', {
+  return fetch('/api/voice-telemetry', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       ...payload,
+      eventType: 'voice_error',
       context: payload.context ?? getTrackingContext(),
       occurredAt: payload.occurredAt ?? new Date().toISOString(),
     }),
@@ -152,7 +155,7 @@ export function endVoiceSession(input: {
   transcriptText?: string;
   metadata?: Record<string, unknown>;
 }) {
-  return fetch('/api/voice/session/end', {
+  return fetch('/api/voice-session-end', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
