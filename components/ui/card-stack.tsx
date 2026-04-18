@@ -143,6 +143,7 @@ export function CardStack<T extends CardStackItem>({
 
   React.useEffect(() => {
     if (!len) return;
+    // biome-ignore lint/style/noNonNullAssertion: active is guaranteed to be in bounds by wrapIndex
     onChangeIndex?.(active, items[active]!);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, items, len, onChangeIndex]);
@@ -202,6 +203,7 @@ export function CardStack<T extends CardStackItem>({
 
   if (!len) return null;
 
+  // biome-ignore lint/style/noNonNullAssertion: active is guaranteed in bounds by early return on !len
   const activeItem = items[active]!;
 
   return (
@@ -210,10 +212,10 @@ export function CardStack<T extends CardStackItem>({
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
     >
-      {/* Stage */}
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: interactive container with keyboard navigation */}
       <div
         className="relative w-full"
-        style={{ height: Math.max(380, cardHeight + 80) }}
+        style={{ height: Math.max(320, cardHeight + 60) }}
         onKeyDown={onKeyDown}
       >
         {/* background wash / spotlight (unique feel) */}
@@ -263,6 +265,7 @@ export function CardStack<T extends CardStackItem>({
                     dragConstraints: { left: 0, right: 0 },
                     dragElastic: 0.18,
                     onDragEnd: (
+                      // biome-ignore lint/suspicious/noExplicitAny: framer-motion drag callback type
                       _e: any,
                       info: { offset: { x: number }; velocity: { x: number } },
                     ) => {
@@ -352,8 +355,9 @@ export function CardStack<T extends CardStackItem>({
               return (
                 <button
                   key={it.id}
+                  type="button"
                   onClick={() => setActive(idx)}
-                  className="relative flex items-center justify-center w-8 h-8"
+                  className="relative flex items-center justify-center w-8 h-8 min-w-[44px] min-h-[44px]"
                   aria-label={`Go to ${it.title}`}
                 >
                   <span
@@ -410,7 +414,7 @@ function DefaultFanCard({ item }: { item: CardStackItem; active: boolean }) {
               <img
                 src="/hair-to-dreads-salon.webp"
                 alt="Hair to Dreads Salon"
-                className="h-full w-auto max-w-none object-contain drop-shadow-2xl"
+                className="h-full w-auto max-w-none object-contain drop-shadow-2xl scale-[0.72] origin-center"
                 draggable={false}
                 loading="eager"
               />
@@ -458,7 +462,7 @@ function DefaultFanCard({ item }: { item: CardStackItem; active: boolean }) {
       )}
 
       {/* content */}
-      <div className="relative z-10 flex h-full flex-col justify-end p-5">
+      <div className="relative z-10 flex h-full flex-col justify-end p-6">
         <div className="truncate text-lg font-semibold text-white">
           {item.title}
         </div>

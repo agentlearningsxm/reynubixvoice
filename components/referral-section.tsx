@@ -4,97 +4,87 @@ import { Link } from 'react-router-dom';
 import { CardStack, type CardStackItem } from '@/components/ui/card-stack';
 
 const referralCards: CardStackItem[] = [
-  // CARD 1: Real Client - Hair to Dreads
   {
     id: 1,
     title: 'Hair to Dreads',
     description:
-      "Since 2010, Hair to Dreads has been Rotterdam's go-to for premium loc maintenance. Now with 24/7 AI reception, they never miss a booking.",
+      "Since 2010, Hair to Dreads has been Rotterdam's go-to for premium loc maintenance. With 24/7 AI reception in place, booking intent is captured long after the salon closes.",
     imageSrc:
       'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80',
-    tag: '🏆 Founding Partner',
+    tag: 'Case Study',
   },
-
-  // CARD 2: Invitation
   {
     id: 2,
-    title: 'Your Success Story Starts Here',
+    title: 'After-Hours Coverage',
     description:
-      'Imagine never missing another opportunity. Every call answered. Every client captured. Your business deserves this.',
+      'Evening and weekend calls no longer wait for a callback. New inquiries are greeted, qualified, and routed the moment they come in.',
     imageSrc:
       'https://images.unsplash.com/photo-1556761175-b413da4baf72?w=800&q=80',
-    tag: '✨ Your Spot Awaits',
+    tag: 'Operational Gain',
   },
-
-  // CARD 3: Invitation
   {
     id: 3,
-    title: 'Ready to Join the Family?',
+    title: 'Fewer Lost Bookings',
     description:
-      'One conversation could change everything. Let us show you how 24/7 AI reception transforms your business just like it did for Hair to Dreads.',
+      'Routine questions and booking intent get handled immediately, which means fewer missed opportunities and less callback triage for the team.',
     imageSrc:
       'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80',
-    tag: '💡 Take the Leap',
+    tag: 'Lead Capture',
   },
-
-  // CARD 4: Invitation
   {
     id: 4,
-    title: 'Be the Next Success',
+    title: 'A Consistent First Impression',
     description:
-      "Every great partnership starts with one 'yes'. Your clients are calling let's make sure you're always there to answer.",
+      'Every caller hears the same clear, branded response whether they phone at 10 a.m. or 10 p.m., which keeps the client experience steady.',
     imageSrc:
       'https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=800&q=80',
-    tag: '🚀 Your Turn',
+    tag: 'Client Experience',
   },
-
-  // CARD 5: Invitation
   {
     id: 5,
-    title: 'Write Your Chapter',
+    title: 'Referral-Ready Service',
     description:
-      'Hair to Dreads was our first. You could be next. Real results. Real referrals. Real partnership.',
+      'Reliable answer coverage helped turn day-to-day service into a stronger word-of-mouth story, not just a saved lead here and there.',
     imageSrc:
-      'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800&q=80',
-    tag: '📖 Your Story',
+      'https://images.unsplash.com/photo-1573497019236-17f8177b81e8?w=800&q=80',
+    tag: 'Referral Signal',
   },
-
-  // CARD 6: Direct CTA
   {
     id: 6,
-    title: "Let's Make This Happen",
+    title: 'Could This Work for Your Team?',
     description:
-      'Book your demo today. See how we capture every missed call, every opportunity, every success. Join the family.',
+      'If your business depends on inbound calls, we can walk you through the exact setup pattern and where it creates lift.',
     imageSrc:
       'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80',
-    tag: '💬 Book Now',
+    tag: 'Next Partnership',
     href: '#contact',
-    ctaLabel: 'Start Your Journey',
+    ctaLabel: 'Book a Demo',
   },
 ];
 
 export default function ReferralSection() {
   return (
-    <section className="relative w-full section-grid-bg py-14 md:py-28 overflow-hidden">
+    <section className="relative w-full section-grid-bg py-10 sm:py-14 md:py-28 overflow-hidden">
       {/* Background Gradient Effects */}
-      <div className="absolute inset-0 bg-gradient-to-b from-bg-main/80 via-bg-card/30 to-bg-main/80 opacity-60" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-primary/10 via-transparent to-transparent opacity-60" />
+      <div className="absolute inset-0 bg-gradient-to-b from-bg-main/80 via-bg-card/25 to-bg-main/80 opacity-70" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-brand-primary/8 via-transparent to-transparent opacity-50" />
 
       <div className="page-container relative z-10">
         {/* Header */}
-        <div className="mb-8 md:mb-16 text-center">
+        <div className="mb-6 sm:mb-8 md:mb-16 text-center">
           <div className="flex justify-center mb-4">
-            <span className="section-eyebrow">Social Proof</span>
+            <span className="section-eyebrow">Case Study</span>
           </div>
           <h2 className="mb-4 text-3xl font-bold font-display tracking-[-0.02em] text-text-primary sm:text-5xl md:text-6xl">
-            Join the <span className="text-gradient">Family</span>
+            How One Partner Turned{' '}
+            <span className="text-gradient">Missed Calls</span> Into Booked
+            Clients
           </h2>
 
-          <p className="mx-auto max-w-2xl text-base sm:text-xl text-text-secondary">
-            Every great partnership starts with one 'yes'. <br />
-            <span className="text-brand-primary font-semibold">
-              Will you be next?
-            </span>
+          <p className="mx-auto max-w-3xl text-base leading-relaxed text-text-muted-strong sm:text-xl">
+            Hair to Dreads gave us an early real-world proving ground. This
+            section walks through the tone, consistency, and lead capture gains
+            that came from answering every call.
           </p>
         </div>
 
@@ -111,21 +101,25 @@ export default function ReferralSection() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-20 text-center">
+        <div className="mt-12 sm:mt-16 md:mt-20 text-center">
           <Link
             to="/contact"
-            className="inline-flex items-center gap-2 rounded-full px-8 py-4 text-base font-semibold text-white shadow-[0_0_24px_rgba(200,169,96,0.28),0_4px_14px_rgba(0,0,0,0.3)] hover:shadow-[0_0_36px_rgba(200,169,96,0.42),0_6px_20px_rgba(0,0,0,0.35)] transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 rounded-full border border-brand-primary/25 px-8 py-4 text-base font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
             style={{
               background:
                 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+              boxShadow:
+                '0 12px 28px color-mix(in srgb, var(--accent-primary) 20%, transparent), 0 6px 20px rgba(0,0,0,0.2)',
             }}
           >
-            Start Your Success Story
+            See If This Fits Your Business
             <svg
               className="h-5 w-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
+              focusable="false"
             >
               <path
                 strokeLinecap="round"

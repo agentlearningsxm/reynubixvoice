@@ -3,210 +3,11 @@ import { ExternalLink, GraduationCap, Users, X, Youtube } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { type Language, useLanguage } from '../contexts/LanguageContext';
+import { CATEGORIES, MENTORS, type Mentor } from '../data/mentors';
+import { useScrollLock } from '../hooks/useScrollLock';
 import { FocusRail, type FocusRailItem } from './ui/focus-rail';
 
-/* ─── Types ──────────────────────────────────────────────────────── */
-
-interface MentorVideo {
-  id: string;
-  title: string;
-}
-
-interface Mentor {
-  id: number;
-  name: string;
-  initials: string;
-  category: string;
-  specialty: string;
-  youtubeChannel: string;
-  videos: MentorVideo[];
-  skoolLink: string | null;
-  gradient: string;
-  description: string;
-}
-
-/* ─── Constants ──────────────────────────────────────────────────── */
-
-const CATEGORIES = [
-  { id: 'all', label: 'All' },
-  { id: 'n8n', label: 'n8n Automations' },
-  { id: 'voice', label: 'Voice AI' },
-  { id: 'web', label: 'Web Design' },
-  { id: 'claude', label: 'Claude Code' },
-  { id: 'mindset', label: 'AI & Business' },
-];
-
 const USER_SKOOL = 'https://www.skool.com/@reynoso-anubis-8987';
-
-const MENTORS: Mentor[] = [
-  {
-    id: 1,
-    name: 'Nate Herk',
-    initials: 'NH',
-    category: 'n8n',
-    specialty: 'n8n Automation Expert & Agency Builder',
-    youtubeChannel: 'https://www.youtube.com/@nateherk',
-    videos: [
-      { id: 'zKBPwDpBfhs', title: 'n8n Masterclass: Build & Sell AI Agents' },
-    ],
-    skoolLink: 'https://www.skool.com/ai-automation-society-plus',
-    gradient: 'from-amber-500 to-yellow-600',
-    description:
-      'Nate taught me to build AI automation systems that run your business while you sleep. His n8n masterclass showed me how to create lead-capture bots, auto-follow-ups, and smart scheduling  so your phone rings with pre-qualified customers, not tire-kickers. Think: a Rotterdam plumber getting 30% more booked jobs without hiring anyone new.',
-  },
-  {
-    id: 2,
-    name: 'Michele Torti',
-    initials: 'MT',
-    category: 'n8n',
-    specialty: 'n8n AI Workflows & Sales Automation',
-    youtubeChannel: 'https://www.youtube.com/@michtortiyt',
-    videos: [
-      { id: 'zVjX_vqyd7I', title: 'n8n AI Agent That Automates Workflows' },
-    ],
-    skoolLink: 'https://www.skool.com/the-ai-automation-circle',
-    gradient: 'from-yellow-500 to-amber-600',
-    description:
-      "Michele showed me how to build AI sales teams that work 24/7 without calling in sick. From auto-processing invoices to qualifying leads while you're on a job site  his n8n workflows save hours every single week. That's real money back in your pocket: less admin, more revenue.",
-  },
-  {
-    id: 3,
-    name: 'Sixflow Automations',
-    initials: 'SF',
-    category: 'voice',
-    specialty: 'Production-Grade Voice AI Systems',
-    youtubeChannel: 'https://www.youtube.com/@SixflowAutomations',
-    videos: [{ id: '0_TQV5tfFds', title: 'Production-Grade Voice AI Systems' }],
-    skoolLink: 'https://www.skool.com/voiceai',
-    gradient: 'from-emerald-500 to-emerald-700',
-    description:
-      "Sixflow builds production-grade voice AI that never misses a call. They taught me how to design agents that qualify leads, book appointments, and handle customer questions  even at 2 AM when your competitor's phone goes to voicemail. Their analytics platform shows exactly how many leads and bookings your AI receptionist handles each day.",
-  },
-  {
-    id: 4,
-    name: 'Alejo & Paige',
-    initials: 'AP',
-    category: 'voice',
-    specialty: 'Retell AI Voice Agent Builders',
-    youtubeChannel: 'https://www.youtube.com/@AlejoAndPaige',
-    videos: [
-      {
-        id: 'RY3j5aRLLao',
-        title: 'Retell AI Tutorial: Build a Voice Receptionist',
-      },
-    ],
-    skoolLink: 'https://www.skool.com/amplify-voice-ai',
-    gradient: 'from-green-500 to-emerald-600',
-    description:
-      'Alejo & Paige run the Amplify Voice AI community  the go-to place for voice agent builders. They taught me step-by-step how to build a voice receptionist that sounds human, books jobs automatically, and never puts a caller on hold. Like having your best receptionist working 24/7  for a fraction of the cost.',
-  },
-  {
-    id: 5,
-    name: 'Henryk Brzozowski',
-    initials: 'HB',
-    category: 'voice',
-    specialty: 'Voice AI Pioneer & Bootcamp Leader',
-    youtubeChannel: 'https://www.youtube.com/@HenrykAutomation',
-    videos: [
-      { id: 'rsks8RkIgbg', title: 'Voice AI Pioneer & Bootcamp Leader' },
-    ],
-    skoolLink: 'https://www.skool.com/voice-ai-bootcamp',
-    gradient: 'from-amber-500 to-yellow-600',
-    description:
-      'Henryk is a Voice AI pioneer who deploys agents at 20x lower cost and 32x faster than traditional call centers. His Voice AI Bootcamp taught me how to build systems that handle hundreds of calls simultaneously  meaning your business never misses a lead, even during peak hours. Like hiring 50 receptionists for the price of one.',
-  },
-  {
-    id: 6,
-    name: 'Jannis Moore',
-    initials: 'JM',
-    category: 'voice',
-    specialty: 'Voice AI Agency Builder & SaaS Founder',
-    youtubeChannel: 'https://www.youtube.com/@jannismoore',
-    videos: [
-      { id: 'wOmtvSPp2_k', title: "How I'd Start a Voice AI Agency in 2025" },
-    ],
-    skoolLink: 'https://www.skool.com/voice-ai-bootcamp',
-    gradient: 'from-yellow-500 to-amber-600',
-    description:
-      'Jannis built multiple SaaS companies and co-runs the Voice AI Bootcamp. He showed me exactly how to build and scale voice AI systems  from first agent to fully automated phone operations that save businesses thousands per month. His approach: never let another call go unanswered, and turn every missed call into a booked job.',
-  },
-  {
-    id: 7,
-    name: 'Roberts',
-    initials: 'JR',
-    category: 'web',
-    specialty: 'AI-Powered Web Design & Vibe Coding',
-    youtubeChannel: 'https://www.youtube.com/@Itssssss_Jack',
-    videos: [
-      {
-        id: 'gh9Y3tHeFXQ',
-        title: 'Build Web Apps with V0 + Claude AI + Cursor',
-      },
-    ],
-    skoolLink: null,
-    gradient: 'from-amber-600 to-yellow-700',
-    description:
-      'Roberts taught me how to build stunning, custom websites using AI tools  in days, not months. No cookie-cutter templates. Your business gets a high-converting site that matches your brand perfectly. That means more leads from your website, faster turnaround, and thousands saved compared to traditional web agencies.',
-  },
-  {
-    id: 8,
-    name: 'Mark Kashef',
-    initials: 'MK',
-    category: 'claude',
-    specialty: 'Claude Code Expert & AI Consultant',
-    youtubeChannel: 'https://www.youtube.com/@Mark_Kashef',
-    videos: [
-      { id: 'dlb_XgFVrHQ', title: 'Claude Code: Build Apps Without Coding' },
-    ],
-    skoolLink: null,
-    gradient: 'from-orange-500 to-amber-600',
-    description:
-      'Mark trained 700+ professionals and has 2M+ views teaching AI on YouTube. He showed me how to use Claude Code as a personal development team  building custom tools, automating repetitive tasks, and replacing expensive software subscriptions. That means lower overhead costs for your business and faster delivery on every project.',
-  },
-  {
-    id: 9,
-    name: 'Liam Ottley',
-    initials: 'LO',
-    category: 'mindset',
-    specialty: '#1 AI Business Educator (730K+ Subs)',
-    youtubeChannel: 'https://www.youtube.com/@LiamOttley',
-    videos: [{ id: 'ykRToEkWvpA', title: 'The #1 AI Automation Agency Niche' }],
-    skoolLink: 'https://www.skool.com/ai-automation-agency-hub-8466',
-    gradient: 'from-rose-500 to-red-600',
-    description:
-      'Liam built an $18M+ AI business portfolio and teaches 35,000+ agency owners. His AI Automation Agency model taught me exactly which AI solutions make businesses the most money  and how to deliver them reliably. Every strategy I use to grow your revenue and cut your costs comes from frameworks proven in his community.',
-  },
-  {
-    id: 10,
-    name: 'Alex Hormozi',
-    initials: 'AH',
-    category: 'mindset',
-    specialty: '$250M/yr Business Empire Builder',
-    youtubeChannel: 'https://www.youtube.com/@AlexHormozi',
-    videos: [
-      { id: 'ZuJryiwxjDw', title: 'How to Grow Your Business Fast in 2025' },
-    ],
-    skoolLink: 'https://www.skool.com/acquisitionuniversity',
-    gradient: 'from-red-500 to-orange-600',
-    description:
-      'Alex runs a $250M/year business empire and literally wrote the book on getting leads ($100M Leads). His frameworks taught me how to create offers customers can\'t refuse, generate leads on autopilot, and turn one-time buyers into repeat clients. When I build your systems, they\'re designed around his proven "get more customers" playbook.',
-  },
-  {
-    id: 11,
-    name: 'Nick Saraev',
-    initials: 'NS',
-    category: 'mindset',
-    specialty: '#1 No-Code Community & AI Automations',
-    youtubeChannel: 'https://www.youtube.com/@nicksaraev',
-    videos: [
-      { id: 'gcuR_-rzlDw', title: 'n8n For Everyone: AI Agents & Workflows' },
-    ],
-    skoolLink: 'https://www.skool.com/makemoneywithmake',
-    gradient: 'from-amber-500 to-red-600',
-    description:
-      'Nick runs the #1 no-code automation community on Skool and teaches 220K+ people. His workflows showed me how to build automations that save businesses 20+ hours a week  lead follow-ups, appointment reminders, customer onboarding  all running on autopilot while you focus on the work that actually pays.',
-  },
-];
 
 /* ─── Section Copy (Multi-language) ──────────────────────────────── */
 
@@ -221,27 +22,27 @@ const SECTION_COPY: Record<
   }
 > = {
   en: {
-    eyebrow: 'Battle-Tested AI Expertise',
-    title: 'The World-Class AI Experts',
-    highlight: 'Powering Every System We Build.',
+    eyebrow: 'Expert Network',
+    title: 'The Expert Network',
+    highlight: 'Behind Every System We Launch.',
     description:
-      'We stay plugged into the top AI operators on the planet and turn their proven frameworks into real results for your business -more calls answered, more leads booked, more revenue captured. Enterprise-level AI at a fraction of the price.',
+      'We learn from operators building with AI across automation, voice, web, and growth. Their frameworks sharpen how we design dependable systems for your business.',
     cta: 'View My Skool Profile',
   },
   fr: {
-    eyebrow: 'Expertise IA \u00c9prouv\u00e9e',
-    title: 'Les Experts IA de Classe Mondiale',
-    highlight: 'Qui Alimentent Chaque Syst\u00e8me Que Nous Construisons.',
+    eyebrow: 'R\u00e9seau d\u2019Experts',
+    title: 'Le R\u00e9seau d\u2019Experts',
+    highlight: 'Derri\u00e8re Chaque Syst\u00e8me Que Nous Lan\u00e7ons.',
     description:
-      'Nous restons branch\u00e9s sur les meilleurs op\u00e9rateurs IA et transformons leurs m\u00e9thodes prouv\u00e9es en r\u00e9sultats concrets pour votre entreprise \u2014 plus d\u2019appels r\u00e9pondus, plus de rendez-vous, plus de revenus.',
+      'Nous apprenons aupr\u00e8s d\u2019op\u00e9rateurs qui construisent avec l\u2019IA dans l\u2019automatisation, la voix, le web et la croissance. Leurs m\u00e9thodes renforcent la fiabilit\u00e9 des syst\u00e8mes que nous concevons pour votre entreprise.',
     cta: 'Voir Mon Profil Skool',
   },
   nl: {
-    eyebrow: 'Bewezen AI-Expertise',
-    title: 'De Wereldklasse AI-Experts',
-    highlight: 'Die Elk Systeem Dat We Bouwen Aandrijven.',
+    eyebrow: 'Expert Netwerk',
+    title: 'Het Expert Netwerk',
+    highlight: 'Achter Elk Systeem Dat We Lanceren.',
     description:
-      'We blijven verbonden met de beste AI-specialisten ter wereld en vertalen hun bewezen methoden naar echte resultaten voor jouw bedrijf \u2014 meer oproepen beantwoord, meer leads geboekt, meer omzet.',
+      'We leren van operators die met AI bouwen in automatisering, voice, web en groei. Hun frameworks helpen ons betrouwbaardere systemen voor jouw bedrijf te ontwerpen.',
     cta: 'Bekijk Mijn Skool Profiel',
   },
 };
@@ -270,17 +71,18 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
   mentor,
   onClose,
 }) => {
+  // Use scroll lock hook instead of manual body style manipulation
+  useScrollLock(mentor !== null);
+
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     if (mentor) {
       document.addEventListener('keydown', handleEsc);
-      document.body.style.overflow = 'hidden';
     }
     return () => {
       document.removeEventListener('keydown', handleEsc);
-      document.body.style.overflow = '';
     };
   }, [mentor, onClose]);
 
@@ -294,9 +96,15 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
           onClick={onClose}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Details about ${mentor.name}`}
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            style={{ touchAction: 'none' }}
+          />
 
           {/* Modal */}
           <motion.div
@@ -306,25 +114,35 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
             transition={{ duration: 0.3, ease: 'easeOut' }}
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-2xl bg-bg-main border border-border shadow-2xl"
+            style={{
+              overscrollBehavior: 'contain',
+              WebkitOverflowScrolling: 'touch',
+              touchAction: 'pan-y',
+            }}
           >
             {/* Close Button */}
             <button
-              onClick={onClose}
-              className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-bg-card/80 hover:bg-bg-card border border-border/50 flex items-center justify-center transition-colors backdrop-blur-sm"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="absolute top-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full border border-border/70 bg-bg-glass/90 text-text-muted-strong backdrop-blur-md transition-colors hover:border-brand-primary/30 hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+              aria-label="Close modal"
             >
               <X className="w-4 h-4 text-text-primary" />
             </button>
 
             {/* Gradient Header */}
             <div
-              className={`relative h-44 bg-gradient-to-br ${mentor.gradient} opacity-25 rounded-t-2xl`}
+              className={`relative h-32 sm:h-44 bg-gradient-to-br ${mentor.gradient} opacity-25 rounded-t-2xl`}
             />
 
             {/* Identity Row */}
-            <div className="px-7 -mt-12 relative pb-6">
-              <div className="flex items-end gap-5 mb-5">
+            <div className="px-5 sm:px-7 -mt-8 sm:-mt-12 relative pb-6">
+              <div className="flex items-end gap-4 sm:gap-5 mb-5">
                 <div
-                  className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${mentor.gradient} flex items-center justify-center text-white text-2xl font-bold shadow-2xl border-4 border-bg-main shrink-0`}
+                  className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br ${mentor.gradient} flex items-center justify-center text-accent-ink text-xl sm:text-2xl font-bold shadow-2xl border-4 border-bg-main shrink-0`}
                 >
                   {mentor.initials}
                 </div>
@@ -332,7 +150,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                   <h3 className="text-2xl font-bold text-text-primary font-display leading-tight">
                     {mentor.name}
                   </h3>
-                  <p className="text-sm text-text-secondary mt-0.5">
+                  <p className="mt-0.5 text-sm text-text-muted-strong">
                     {mentor.specialty}
                   </p>
                 </div>
@@ -352,7 +170,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
               <h4 className="text-xs font-semibold text-brand-primary uppercase tracking-widest mb-3">
                 What I Learned & How It Helps Your Business
               </h4>
-              <p className="text-base text-text-secondary leading-relaxed">
+              <p className="text-base leading-relaxed text-text-muted-strong">
                 {mentor.description}
               </p>
             </div>
@@ -380,7 +198,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                           loading="lazy"
                         />
                       </div>
-                      <p className="text-sm text-text-secondary mt-2">
+                      <p className="mt-2 text-sm text-text-muted-strong">
                         {video.title}
                       </p>
                     </div>
@@ -398,7 +216,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                 href={mentor.youtubeChannel}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors border border-red-500/20"
+                className="inline-flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-3 min-h-[44px] text-sm font-medium text-red-400 transition-colors hover:bg-red-500/16"
               >
                 <Youtube className="w-4 h-4" />
                 Visit YouTube Channel
@@ -408,7 +226,7 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                   href={mentor.skoolLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 transition-colors border border-brand-primary/20"
+                  className="inline-flex items-center gap-2 rounded-xl border border-brand-primary/25 bg-brand-primary/10 px-4 py-3 min-h-[44px] text-sm font-medium text-brand-primary transition-colors hover:bg-brand-primary/16"
                 >
                   <Users className="w-4 h-4" />
                   Join Their Community
@@ -418,7 +236,13 @@ const MentorModal: React.FC<{ mentor: Mentor | null; onClose: () => void }> = ({
                 href={USER_SKOOL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors"
+                className="inline-flex items-center gap-2 rounded-full border border-brand-primary/25 px-5 py-3 text-sm font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+                style={{
+                  background:
+                    'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                  boxShadow:
+                    '0 12px 28px color-mix(in srgb, var(--accent-primary) 20%, transparent), 0 6px 20px rgba(0,0,0,0.2)',
+                }}
               >
                 <GraduationCap className="w-4 h-4" />
                 My Skool Profile
@@ -491,20 +315,17 @@ const MentorCards: React.FC = () => {
   }));
 
   return (
-    <section className="relative py-14 md:py-28 section-grid-bg" id="reviews">
+    <section
+      className="relative py-10 sm:py-14 md:py-28 section-grid-bg"
+      id="reviews"
+    >
       {/* Light mode subtle background layer */}
       <div className="absolute inset-0 dark:hidden bg-gradient-to-b from-transparent via-slate-100/50 to-transparent pointer-events-none" />
       <div className="page-container relative">
         {/* Section Header */}
-        <div className="mb-14 text-center">
+        <div className="mb-8 sm:mb-14 text-center">
           <div className="flex justify-center mb-4">
-            <span className="section-eyebrow">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-primary" />
-              </span>
-              {copy.eyebrow}
-            </span>
+            <span className="section-eyebrow">{copy.eyebrow}</span>
           </div>
 
           <h2 className="mx-auto mb-5 max-w-5xl text-3xl font-bold font-display leading-tight tracking-[-0.02em] text-text-primary md:text-4xl lg:text-5xl">
@@ -513,21 +334,22 @@ const MentorCards: React.FC = () => {
             <span className="text-gradient">{copy.highlight}</span>
           </h2>
 
-          <p className="mx-auto max-w-4xl text-base leading-relaxed text-text-secondary md:text-lg">
+          <p className="mx-auto max-w-4xl text-base leading-relaxed text-text-muted-strong md:text-lg">
             {copy.description}
           </p>
         </div>
 
         {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12">
+        <div className="flex flex-nowrap overflow-x-auto scrollbar-hide justify-start sm:justify-center gap-1.5 sm:gap-2 mb-8 sm:mb-12 px-2">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.id}
+              type="button"
               onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border cursor-pointer ${
+              className={`px-4 py-2.5 min-h-[44px] rounded-full text-sm font-medium transition-all duration-300 border cursor-pointer ${
                 activeCategory === cat.id
-                  ? 'bg-brand-primary text-white border-brand-primary shadow-lg shadow-brand-primary/25'
-                  : 'bg-transparent text-text-secondary border-slate-300 dark:border-border hover:border-brand-primary hover:text-text-primary'
+                  ? 'border-brand-primary bg-brand-primary text-accent-ink shadow-[0_12px_24px_var(--accent-glow)]'
+                  : 'bg-bg-glass/60 text-text-muted-strong border-border/80 hover:border-brand-primary/35 hover:text-text-primary'
               }`}
             >
               {cat.label}
@@ -538,7 +360,7 @@ const MentorCards: React.FC = () => {
         {/* FocusRail Carousel */}
         <div
           key={activeCategory}
-          className="rounded-3xl shadow-2xl shadow-slate-300/60 dark:shadow-none"
+          className="card-surface rounded-[20px] xs:rounded-[28px] md:rounded-[32px] border-border/80 bg-bg-card/75 shadow-[0_18px_44px_rgba(0,0,0,0.14)]"
         >
           <FocusRail
             items={railItems}
@@ -553,33 +375,38 @@ const MentorCards: React.FC = () => {
               const mentor = mentorMap[activeItem.id as number];
               if (!mentor) return null;
               return (
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center justify-center gap-1.5 xs:gap-2 w-full xs:w-auto flex-wrap">
                   <a
                     href={mentor.youtubeChannel}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 transition-colors"
+                    className="inline-flex items-center justify-center gap-1 rounded-lg border border-red-500/25 bg-red-500/10 px-2.5 py-2 min-h-[44px] text-xs font-medium text-red-400 transition-colors hover:bg-red-500/16 flex-1 xs:flex-none"
                   >
                     <Youtube className="w-4 h-4" />
-                    YouTube
+                    <span className="hidden xs:inline">YouTube</span>
                   </a>
                   {mentor.skoolLink && (
                     <a
                       href={mentor.skoolLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium bg-brand-primary/10 text-brand-primary hover:bg-brand-primary/20 border border-brand-primary/20 transition-colors"
+                      className="inline-flex items-center justify-center gap-1 rounded-lg border border-brand-primary/25 bg-brand-primary/10 px-2.5 py-2 min-h-[44px] text-xs font-medium text-brand-primary transition-colors hover:bg-brand-primary/16 flex-1 xs:flex-none"
                     >
                       <Users className="w-4 h-4" />
-                      Skool
+                      <span className="hidden xs:inline">Skool</span>
                     </a>
                   )}
                   <button
+                    type="button"
                     onClick={() => setSelectedMentor(mentor)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors"
+                    className="inline-flex items-center justify-center gap-1 rounded-full border border-brand-primary/25 px-3 py-2 min-h-[44px] text-xs font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main flex-1 xs:flex-none"
+                    style={{
+                      background:
+                        'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                    }}
                   >
                     <ExternalLink className="w-4 h-4" />
-                    Learn More
+                    <span>Learn More</span>
                   </button>
                 </div>
               );
@@ -593,23 +420,27 @@ const MentorCards: React.FC = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-20 text-center"
+          className="mt-12 sm:mt-16 md:mt-20 text-center"
         >
-          <div className="glass-card inline-flex flex-col sm:flex-row items-center gap-4 rounded-2xl px-8 py-6">
+          <div className="glass-card inline-flex flex-col items-center gap-4 rounded-[28px] bg-bg-glass/80 p-8 sm:flex-row">
             <div className="text-left">
               <p className="text-base font-semibold text-text-primary">
-                Want access to the same AI knowledge base?
+                Want access to the same expert network?
               </p>
-              <p className="text-sm text-text-secondary">
-                Connect with me on Skool and get direct access to proven AI
-                strategies that drive real revenue.
+              <p className="text-sm leading-relaxed text-text-muted-strong">
+                Connect with me on Skool for the playbooks, operators, and
+                practical AI strategies informing these builds.
               </p>
             </div>
             <a
               href={USER_SKOOL}
               target="_blank"
               rel="noopener noreferrer"
-              className="shrink-0 inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold bg-brand-primary text-white hover:bg-brand-primary/90 transition-colors shadow-lg shadow-brand-primary/25"
+              className="inline-flex shrink-0 items-center gap-2 rounded-full border border-brand-primary/25 px-6 py-3 text-sm font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_var(--accent-glow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+              style={{
+                background:
+                  'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+              }}
             >
               <GraduationCap className="w-4 h-4" />
               {copy.cta}

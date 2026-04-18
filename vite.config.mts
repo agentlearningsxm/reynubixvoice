@@ -42,7 +42,14 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             'framer-motion': ['framer-motion'],
             'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-            'groq-sdk': ['groq-sdk'],
+            monitoring: [
+              '@sentry/react',
+              '@vercel/analytics',
+              '@vercel/speed-insights',
+            ],
+            'voice-sdk': ['@google/genai'],
+            'data-sdk': ['@supabase/supabase-js', 'zustand'],
+            'ui-icons': ['lucide-react'],
           },
         },
       },

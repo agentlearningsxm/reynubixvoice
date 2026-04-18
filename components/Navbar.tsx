@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Globe, Menu, Moon, Palette, Pencil, Sun, X } from 'lucide-react';
+import { Check, Globe, Menu, Moon, Palette, Sun, X } from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -94,6 +94,8 @@ const Navbar: React.FC = () => {
   }, [updateHoverBubblePosition]);
 
   useEffect(() => {
+    // biome-ignore lint/suspicious/noExplicitAny: Cal.com embed SDK requires dynamic typing
+    // biome-ignore lint/complexity/noArguments: Cal.com embed SDK uses arguments for variadic calls
     ((C: any, A: any, L: any) => {
       const p = (a: any, ar: any) => {
         a.q.push(ar);
@@ -126,10 +128,12 @@ const Navbar: React.FC = () => {
           p(cal, ar);
         };
     })(window, 'https://app.cal.com/embed/embed.js', 'init');
+    // biome-ignore lint/suspicious/noExplicitAny: Cal.com embed SDK requires dynamic typing
     (window as any).Cal('init', 'let-s-talk', {
       origin: 'https://app.cal.com',
     });
 
+    // biome-ignore lint/suspicious/noExplicitAny: Cal.com embed SDK requires dynamic typing
     (window as any).Cal.ns['let-s-talk']('ui', {
       hideEventTypeDetails: false,
       layout: 'month_view',
@@ -188,17 +192,19 @@ const Navbar: React.FC = () => {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'py-3' : 'py-5'
+        isScrolled
+          ? 'py-3 bg-bg-main/95 backdrop-blur-md border-b border-border/50 shadow-md'
+          : 'py-5 bg-transparent'
       }`}
     >
       <div className="page-container">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-1.5 cursor-pointer">
-            <div className="w-10 h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
-              <Logo size={24} />
+          <Link to="/" className="flex items-center gap-2 cursor-pointer">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary">
+              <Logo size={22} />
             </div>
-            <span className="text-xl font-bold font-display tracking-tight text-text-primary">
+            <span className="text-base sm:text-xl font-bold font-display tracking-tight text-text-primary">
               ReynubixVoice
             </span>
           </Link>
@@ -247,11 +253,15 @@ const Navbar: React.FC = () => {
               {/* Language Selector */}
               <div className="control-item">
                 <button
+                  type="button"
                   onClick={() => {
                     setIsLangMenuOpen((prev) => !prev);
                     setIsThemeMenuOpen(false);
                   }}
                   className="control-btn"
+                  aria-label="Select language"
+                  aria-haspopup="menu"
+                  aria-expanded={isLangMenuOpen}
                 >
                   <Globe size={16} />
                   <span className="uppercase text-xs">{language}</span>
@@ -268,6 +278,7 @@ const Navbar: React.FC = () => {
                       {languages.map((lang) => (
                         <button
                           key={lang.code}
+                          type="button"
                           onClick={() => {
                             setLanguage(lang.code);
                             setIsLangMenuOpen(false);
@@ -288,6 +299,7 @@ const Navbar: React.FC = () => {
               {/* Dark/Light Mode Toggle */}
               <div className="control-item">
                 <button
+                  type="button"
                   onClick={toggleMode}
                   className="control-btn"
                   aria-label={
@@ -303,11 +315,15 @@ const Navbar: React.FC = () => {
               {/* Theme Toggle */}
               <div className="control-item">
                 <button
+                  type="button"
                   onClick={() => {
                     setIsThemeMenuOpen((prev) => !prev);
                     setIsLangMenuOpen(false);
                   }}
                   className="control-btn theme-btn"
+                  aria-label="Choose accent theme"
+                  aria-haspopup="menu"
+                  aria-expanded={isThemeMenuOpen}
                 >
                   <Palette size={16} />
                   <span className="w-2.5 h-2.5 rounded-full bg-brand-primary"></span>
@@ -325,6 +341,7 @@ const Navbar: React.FC = () => {
                         {themes.map((theme) => (
                           <button
                             key={theme.code}
+                            type="button"
                             onClick={() => {
                               setAccent(theme.code);
                               setIsThemeMenuOpen(false);
@@ -346,7 +363,11 @@ const Navbar: React.FC = () => {
 
                         <div className="divider"></div>
 
-                        <button onClick={toggleMode} className="dropdown-item">
+                        <button
+                          type="button"
+                          onClick={toggleMode}
+                          className="dropdown-item"
+                        >
                           <div className="flex items-center gap-2">
                             {mode === 'dark' ? (
                               <Moon size={14} />
@@ -385,14 +406,29 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Mobile Controls */}
-          <div className="lg:hidden flex items-center gap-3">
-            <button onClick={toggleMode} className="mobile-icon-btn">
+          <div className="lg:hidden flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleMode}
+              className="mobile-icon-btn"
+              aria-label={
+                mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
+              }
+            >
               {mode === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
             </button>
 
             <button
+              type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="mobile-icon-btn"
+              aria-label={
+                isMobileMenuOpen
+                  ? 'Close navigation menu'
+                  : 'Open navigation menu'
+              }
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-navigation-menu"
             >
               {isMobileMenuOpen ? <X /> : <Menu />}
             </button>
@@ -402,8 +438,8 @@ const Navbar: React.FC = () => {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="mobile-menu">
-          <div className="flex flex-col gap-3">
+        <div className="mobile-menu" id="mobile-navigation-menu">
+          <div className="flex flex-col gap-4">
             {navItems.map((item) => (
               <a
                 key={item.id}
@@ -430,6 +466,7 @@ const Navbar: React.FC = () => {
               {languages.map((lang) => (
                 <button
                   key={lang.code}
+                  type="button"
                   onClick={() => setLanguage(lang.code)}
                   className={`mobile-theme-btn ${language === lang.code ? 'active' : ''}`}
                 >
@@ -443,6 +480,7 @@ const Navbar: React.FC = () => {
               {themes.map((theme) => (
                 <button
                   key={theme.code}
+                  type="button"
                   onClick={() => setAccent(theme.code)}
                   className={`mobile-theme-btn ${accent === theme.code ? 'active' : ''}`}
                 >

@@ -1,12 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Use environment variables or placeholders if not defined
-const supabaseUrl =
-  (import.meta as any).env.VITE_SUPABASE_URL ||
-  'https://placeholder.supabase.co';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseKey =
-  (import.meta as any).env.VITE_SUPABASE_PUBLISHABLE_KEY ||
-  (import.meta as any).env.VITE_SUPABASE_ANON_KEY ||
-  'placeholder';
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error(
+    'Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in .env.local',
+  );
+}
 
 export const supabase = createClient(supabaseUrl, supabaseKey);

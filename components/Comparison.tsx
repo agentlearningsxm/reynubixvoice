@@ -1,41 +1,48 @@
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-
-const IMAGES = [
-  'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&q=80',
-  'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80',
-  'https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=80',
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80',
-  'https://images.unsplash.com/photo-1590650153855-d9e808231d41?w=600&q=80',
-  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&q=80',
-];
+import { IMAGES } from '../data/comparison-images';
+import { useAutoplayCarousel } from '../hooks/useAutoplayCarousel';
+import { useScrollLock } from '../hooks/useScrollLock';
 
 const Comparison = () => {
   const { t } = useLanguage();
-  const cards = t.comparison.gallery.map((card, i) => ({ ...card, image: IMAGES[i] }));
+  const [expandedCard, setExpandedCard] = useState<{
+    title: string;
+    subtitle: string;
+    description: string;
+    image: string;
+    index: number;
+  } | null>(null);
 
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: 'center' },
-    [Autoplay({ delay: 5000, stopOnInteraction: true, stopOnMouseEnter: true })],
-  );
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
+  useScrollLock(expandedCard !== null);
 
   useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', onSelect);
-    onSelect();
-    return () => { emblaApi.off('select', onSelect); };
-  }, [emblaApi, onSelect]);
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExpandedCard(null);
+    };
+    if (expandedCard) {
+      document.addEventListener('keydown', handleEsc);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [expandedCard]);
+
+  const cards = t.comparison.gallery.map((card, i) => ({
+    ...card,
+    image: IMAGES[i],
+  }));
+  const navButtonClassName =
+    'absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary';
+
+  const { emblaRef, emblaApi, selectedIndex } = useAutoplayCarousel({
+    delay: 5000,
+    loop: true,
+    align: 'center',
+  });
 
   // Voice agent carousel navigation (custom event)
   useEffect(() => {
@@ -46,7 +53,8 @@ const Comparison = () => {
       else if (action === 'prev') emblaApi.scrollPrev();
       else {
         const idx = parseInt(action, 10);
-        if (!Number.isNaN(idx) && idx >= 0 && idx < cards.length) emblaApi.scrollTo(idx);
+        if (!Number.isNaN(idx) && idx >= 0 && idx < cards.length)
+          emblaApi.scrollTo(idx);
       }
     };
     window.addEventListener('navigateCarousel', handler);
@@ -55,7 +63,7 @@ const Comparison = () => {
 
   return (
     <section
-      className="py-14 md:py-28 section-grid-bg overflow-hidden relative min-h-[550px] md:min-h-[650px] flex flex-col items-center justify-center"
+      className="py-10 sm:py-14 md:py-28 section-grid-bg overflow-hidden relative min-h-[420px] sm:min-h-[550px] md:min-h-[650px] flex flex-col items-center justify-center"
       id="comparison"
     >
       <div className="absolute inset-0 bg-gradient pointer-events-none" />
@@ -68,17 +76,20 @@ const Comparison = () => {
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-6xl font-bold font-display tracking-[-0.02em] text-text-primary">
             {t.comparison.title}{' '}
-            <span className="text-brand-primary">{t.comparison.titleHighlight}</span>
+            <span className="text-brand-primary">
+              {t.comparison.titleHighlight}
+            </span>
             {t.comparison.titleSuffix ? ` ${t.comparison.titleSuffix}` : ''}
           </h2>
         </header>
 
         {/* Carousel */}
-        <div className="relative w-full max-w-5xl mx-auto">
+        <div className="relative w-full max-w-[1400px] mx-auto">
           {/* Prev button */}
           <button
+            type="button"
             onClick={() => emblaApi?.scrollPrev()}
-            className="absolute left-1 md:left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full bg-bg-glass/80 backdrop-blur-sm border border-border-subtle flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+            className={`${navButtonClassName} left-2 sm:left-3 md:left-3 h-11 w-11 md:h-12 md:w-12`}
             aria-label="Previous comparison"
           >
             <ChevronLeft className="w-5 h-5" />
@@ -86,44 +97,71 @@ const Comparison = () => {
 
           {/* Next button */}
           <button
+            type="button"
             onClick={() => emblaApi?.scrollNext()}
-            className="absolute right-1 md:right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-9 md:w-10 md:h-10 rounded-full bg-bg-glass/80 backdrop-blur-sm border border-border-subtle flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors"
+            className={`${navButtonClassName} right-2 sm:right-3 md:right-3 h-11 w-11 md:h-12 md:w-12`}
             aria-label="Next comparison"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
 
           {/* Embla viewport */}
-          <div className="overflow-hidden" ref={emblaRef}>
+          <div
+            className="overflow-hidden mx-2 xs:mx-4 sm:mx-6 md:mx-10"
+            ref={emblaRef}
+          >
             <div className="flex touch-pan-y">
               {cards.map((card, i) => (
                 <div
-                  key={i}
-                  className="flex-[0_0_90%] md:flex-[0_0_70%] lg:flex-[0_0_60%] min-w-0 pl-4"
+                  key={card.title}
+                  className="flex-[0_0_88%] xs:flex-[0_0_85%] sm:flex-[0_0_75%] md:flex-[0_0_60%] lg:flex-[0_0_45%] min-w-0 pl-4 xs:pl-5"
                 >
                   <div
                     className={clsx(
-                      'relative rounded-2xl overflow-hidden border transition-all duration-500 ease-out motion-reduce:transition-none',
+                      'card-surface relative overflow-hidden rounded-[28px] transition-all duration-500 ease-out motion-reduce:transition-none',
                       i === selectedIndex
-                        ? 'scale-100 opacity-100 shadow-2xl border-brand-primary/30'
-                        : 'scale-95 opacity-60 shadow-md border-border-subtle',
+                        ? 'scale-100 border-brand-primary/30 bg-bg-card/90 opacity-100 shadow-[0_24px_60px_rgba(0,0,0,0.24)]'
+                        : 'scale-[0.97] border-border/70 bg-bg-card/70 opacity-75 shadow-[0_12px_30px_rgba(0,0,0,0.14)]',
                     )}
                   >
                     {/* Card image */}
-                    <div
-                      className="h-40 md:h-52 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${card.image})` }}
-                    />
+                    <div className="relative h-32 sm:h-40 md:h-52 overflow-hidden">
+                      <div
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-500"
+                        style={{ backgroundImage: `url(${card.image})` }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-bg-main via-bg-main/15 to-transparent" />
+                    </div>
                     {/* Card content */}
-                    <div className="p-5 md:p-6 bg-bg-glass/60 backdrop-blur-md">
-                      <div className="text-xs text-text-secondary mb-1">
+                    <div className="bg-bg-glass/80 p-4 sm:p-6 backdrop-blur-xl md:p-7">
+                      <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-text-secondary">
                         0{i + 1} / 0{cards.length}
                       </div>
-                      <h3 className="text-lg md:text-xl font-bold text-text-primary">{card.title}</h3>
-                      <p className="text-sm text-brand-primary font-medium mt-1">{card.subtitle}</p>
-                      <p className="text-xs md:text-sm text-text-secondary/80 mt-2 line-clamp-3">
+                      <h3 className="text-lg md:text-xl font-bold text-text-primary">
+                        {card.title}
+                      </h3>
+                      <p className="mt-1 text-sm font-semibold text-brand-primary">
+                        {card.subtitle}
+                      </p>
+                      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-text-secondary">
                         {card.description}
                       </p>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedCard({
+                            title: card.title,
+                            subtitle: card.subtitle,
+                            description: card.description,
+                            image: card.image,
+                            index: i,
+                          });
+                        }}
+                        className="md:hidden mt-3 text-xs font-medium text-brand-primary/80 underline underline-offset-2 decoration-brand-primary/30 hover:text-brand-primary hover:decoration-brand-primary/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 rounded"
+                      >
+                        Read more
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -136,17 +174,109 @@ const Comparison = () => {
         <div className="flex justify-center gap-2 mt-6">
           {cards.map((_, i) => (
             <button
-              key={i}
+              // biome-ignore lint/suspicious/noArrayIndexKey: static dot navigation, items never reorder
+              key={`comparison-dot-${i}`}
+              data-index={i}
+              type="button"
               onClick={() => emblaApi?.scrollTo(i)}
               className={clsx(
-                'h-2.5 rounded-full transition-all duration-300',
-                i === selectedIndex ? 'bg-brand-primary w-8' : 'bg-border-subtle hover:bg-text-secondary w-2.5',
+                'h-2.5 p-2 rounded-full transition-all duration-300',
+                i === selectedIndex
+                  ? 'w-8 bg-brand-primary'
+                  : 'w-2.5 bg-border/80 hover:bg-text-secondary/80',
               )}
               aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>
       </div>
+
+      {/* Expanded description modal - mobile only */}
+      <AnimatePresence>
+        {expandedCard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 md:hidden"
+            onClick={() => setExpandedCard(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Details about ${expandedCard.title}`}
+          >
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              style={{ touchAction: 'none' }}
+            />
+
+            {/* Modal */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-lg max-h-[80vh] overflow-y-auto rounded-2xl bg-bg-card border border-border/60 shadow-2xl"
+              style={{
+                overscrollBehavior: 'contain',
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+              }}
+            >
+              {/* Scrollable content */}
+              <div
+                className="overflow-y-auto"
+                style={{
+                  overscrollBehavior: 'contain',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                {/* Card image */}
+                <div className="relative h-40 rounded-t-2xl overflow-hidden">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${expandedCard.image})` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg-card via-bg-card/20 to-transparent" />
+                </div>
+
+                {/* Content */}
+                <div className="p-6">
+                  <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-text-secondary">
+                    {expandedCard.index + 1} / {cards.length}
+                  </div>
+                  <h3 className="text-xl font-bold text-text-primary font-display leading-tight">
+                    {expandedCard.title}
+                  </h3>
+                  <p className="mt-1 text-sm font-semibold text-brand-primary">
+                    {expandedCard.subtitle}
+                  </p>
+                  <p className="mt-4 text-[clamp(0.875rem,3vw,1rem)] leading-relaxed text-text-secondary">
+                    {expandedCard.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Close button */}
+              <div className="sticky bottom-0 px-6 pb-6 pt-3 bg-gradient-to-t from-bg-card to-transparent">
+                <button
+                  type="button"
+                  onClick={() => setExpandedCard(null)}
+                  className="w-full py-3.5 rounded-xl text-sm font-semibold text-accent-ink transition-all active:scale-[0.98] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

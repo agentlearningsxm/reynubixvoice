@@ -10,6 +10,7 @@ import {
   sanitizeEventName,
   sanitizeText,
 } from '../../lib/telemetry/shared.js';
+import { GEMINI_LIVE_MODEL } from '../../lib/voice/models.js';
 import { getClientIp, hashIp } from './http.js';
 import { getSupabaseAdmin } from './supabaseAdmin.js';
 
@@ -319,7 +320,7 @@ export async function createVoiceSession(input: {
       session_id: sessionDbId,
       lead_id: input.context?.leadId ?? null,
       provider: 'gemini',
-      model: 'gemini-live',
+      model: GEMINI_LIVE_MODEL,
       status: 'created',
       started_at: now,
       consent_accepted: input.consent.accepted,

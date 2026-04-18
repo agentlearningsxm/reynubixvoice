@@ -1,33 +1,64 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import type React from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import useEmblaCarousel from 'embla-carousel-react';
-import Autoplay from 'embla-carousel-autoplay';
+import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { fallbackImage, industryImages } from '../data/industry-images';
+import { useAutoplayCarousel } from '../hooks/useAutoplayCarousel';
+import { useScrollLock } from '../hooks/useScrollLock';
 import { cn } from '../lib/utils';
-
-const industryImages: Record<string, string> = {
-  hvac: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?q=80&w=800&auto=format&fit=crop',
-  dental: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=800&auto=format&fit=crop',
-  roofing: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?q=80&w=800&auto=format&fit=crop',
-  tree: 'https://images.unsplash.com/photo-1502082553048-f009c37129b9?q=80&w=800&auto=format&fit=crop',
-  auto: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?q=80&w=800&auto=format&fit=crop',
-};
-
-const fallbackImage = 'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=800&auto=format&fit=crop';
 
 const IndustrySlider: React.FC = () => {
   const { t } = useLanguage();
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
   const prefersReducedMotion =
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    typeof window !== 'undefined' &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [expandedCard, setExpandedCard] = useState<{
+    title: string;
+    description: string;
+    image: string;
+  } | null>(null);
 
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    { loop: true, align: 'center', skipSnaps: false, dragFree: false },
-    prefersReducedMotion
-      ? []
-      : [Autoplay({ delay: 4000, stopOnInteraction: true, stopOnMouseEnter: true })],
-  );
+  // Lock body scroll when bottom sheet is open
+  useScrollLock(expandedCard !== null);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setExpandedCard(null);
+    };
+    if (expandedCard) {
+      document.addEventListener('keydown', handleEsc);
+    }
+    return () => {
+      document.removeEventListener('keydown', handleEsc);
+    };
+  }, [expandedCard]);
+
+  const { emblaRef, emblaApi, selectedIndex } = useAutoplayCarousel({
+    delay: 4000,
+    loop: true,
+    align: 'center',
+    skipSnaps: false,
+    dragFree: false,
+    disableAutoplay: prefersReducedMotion,
+  });
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const selectHandler = () => setIsDragging(false);
+    const dragStartHandler = () => setIsDragging(true);
+    const dragEndHandler = () => setIsDragging(false);
+    emblaApi.on('select', selectHandler);
+    emblaApi.on('pointerDown', dragStartHandler);
+    emblaApi.on('pointerUp', dragEndHandler);
+    return () => {
+      emblaApi.off('select', selectHandler);
+      emblaApi.off('pointerDown', dragStartHandler);
+      emblaApi.off('pointerUp', dragEndHandler);
+    };
+  }, [emblaApi]);
 
   const industries = Object.entries(t.industries.items).map(([key, item]) => {
     const data = item as { name: string; desc: string };
@@ -38,18 +69,6 @@ const IndustrySlider: React.FC = () => {
       image: industryImages[key] || fallbackImage,
     };
   });
-
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', onSelect);
-    onSelect();
-    return () => { emblaApi.off('select', onSelect); };
-  }, [emblaApi, onSelect]);
 
   // Voice agent carousel navigation
   useEffect(() => {
@@ -74,83 +93,134 @@ const IndustrySlider: React.FC = () => {
   return (
     <section
       id="solutions"
-      className="relative w-full py-16 md:py-24 section-grid-bg text-(--text-primary)"
-      style={{ minHeight: '600px' }}
+      className="relative w-full py-16 md:py-24 section-grid-bg text-text-primary"
+      style={{ minHeight: '480px' }}
     >
       {/* Header */}
-      <div className="text-center px-6 mb-10 md:mb-14">
+      <div className="text-center px-4 sm:px-6 mb-8 md:mb-14">
         <div className="flex justify-center mb-4">
           <span className="section-eyebrow">Industries We Serve</span>
         </div>
-        <h2 className="text-3xl sm:text-5xl lg:text-7xl font-display font-bold leading-tight tracking-[-0.02em] mb-3">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold leading-tight tracking-[-0.02em] mb-3">
           <span className="text-text-primary">{t.industries.title} </span>
-          <span className="text-brand-primary">{t.industries.titleHighlight}</span>
+          <span className="text-brand-primary">
+            {t.industries.titleHighlight}
+          </span>
           <span className="text-text-primary"> {t.industries.titleSuffix}</span>
         </h2>
-        <p className="text-text-secondary text-lg opacity-70">{t.industries.subtitle}</p>
+        <p className="mx-auto max-w-2xl text-base text-text-secondary md:text-lg">
+          {t.industries.subtitle}
+        </p>
       </div>
 
       {/* Carousel */}
-      <div className="relative max-w-7xl mx-auto px-4">
+      <div className="relative max-w-[1400px] mx-auto px-4">
         {/* Prev / Next arrowsvisible on ALL viewports */}
         <button
           type="button"
           onClick={() => emblaApi?.scrollPrev()}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[var(--bg-glass)] border border-[var(--border)] flex items-center justify-center text-text-primary backdrop-blur-sm transition-colors hover:bg-[var(--accent-subtle)] cursor-pointer"
+          className="absolute left-2 sm:left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary"
           aria-label="Previous industry"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M15 18l-6-6 6-6" /></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-5 h-5"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
         </button>
         <button
           type="button"
           onClick={() => emblaApi?.scrollNext()}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 rounded-full bg-[var(--bg-glass)] border border-[var(--border)] flex items-center justify-center text-text-primary backdrop-blur-sm transition-colors hover:bg-[var(--accent-subtle)] cursor-pointer"
+          className="absolute right-2 sm:right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary"
           aria-label="Next industry"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><path d="M9 18l6-6-6-6" /></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-5 h-5"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M9 18l6-6-6-6" />
+          </svg>
         </button>
 
         {/* Embla viewport */}
-        <div className="overflow-hidden mx-8 md:mx-14" ref={emblaRef}>
+        <div
+          className="overflow-hidden mx-2 xs:mx-4 sm:mx-6 md:mx-14 cursor-grab active:cursor-grabbing"
+          ref={emblaRef}
+        >
           <div className="flex">
             {industries.map((card, i) => {
               const isActive = i === selectedIndex;
               return (
                 <div
                   key={card.id}
-                  className="flex-[0_0_80%] md:flex-[0_0_33.333%] min-w-0 pl-4"
+                  className="flex-[0_0_88%] xs:flex-[0_0_85%] sm:flex-[0_0_75%] md:flex-[0_0_33.333%] min-w-0 pl-4 xs:pl-5"
                 >
                   <div
                     className={cn(
-                      'relative rounded-2xl overflow-hidden aspect-[5/7] group transition-all duration-300',
+                      'card-surface group relative aspect-[4/5] xs:aspect-[3/4] md:aspect-[5/7] overflow-hidden rounded-[20px] xs:rounded-[24px] md:rounded-[28px] border-border/80 transition-all duration-300',
                       isActive
-                        ? 'scale-100 md:scale-105 shadow-2xl z-10 opacity-100'
-                        : 'scale-95 shadow-lg opacity-70',
+                        ? 'z-10 scale-[1.02] border-brand-primary/30 bg-bg-card/90 opacity-100 shadow-[0_24px_60px_rgba(0,0,0,0.24)]'
+                        : 'scale-[0.97] bg-bg-card/70 opacity-80 shadow-[0_12px_30px_rgba(0,0,0,0.14)]',
                     )}
                   >
                     <img
                       src={card.image}
                       alt={card.title}
                       draggable={false}
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:blur-[3px] group-hover:brightness-40 pointer-events-none select-none"
+                      className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    {/* Gradient scrim for title readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                    {/* Always-visible title at bottom */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-[1]">
-                      <h3 className="font-display font-bold text-xl md:text-2xl text-white drop-shadow-lg">
-                        {card.title}
-                      </h3>
-                    </div>
-                    {/* Hover overlay with description */}
-                    <div className="absolute inset-0 bg-black/50 flex flex-col justify-center items-center p-4 md:p-6 text-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-400 z-[2] overflow-y-auto scrollbar-none">
-                      <h3 className="font-display font-bold text-xl md:text-2xl mb-3 drop-shadow-lg">
-                        {card.title}
-                      </h3>
-                      <p className="text-sm md:text-base leading-relaxed opacity-90">
-                        {card.description}
-                      </p>
-                    </div>
+                    <div
+                      className={cn(
+                        'absolute inset-0 transition-colors duration-300',
+                        isActive
+                          ? 'bg-black/28'
+                          : 'bg-black/38 group-hover:bg-black/52',
+                      )}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/40 to-black/10" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_42%)] opacity-70" />
+                                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-[1]">
+                                                <p className="mb-1.5 md:mb-2 text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
+                                                        Use Case
+                                                </p>
+                                                <h3 className="font-display font-bold text-base md:text-xl lg:text-2xl text-white drop-shadow-lg leading-tight mb-2 md:mb-3">
+                                                        {card.title}
+                                                </h3>
+								<p className="text-xs md:text-sm lg:text-base leading-relaxed text-white/85 mb-3 line-clamp-2 md:line-clamp-none">
+									{card.description}
+								</p>
+                                                <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setExpandedCard({
+                                                                        title: card.title,
+                                                                        description: card.description,
+                                                                        image: card.image,
+                                                                });
+                                                        }}
+                                                        className="md:hidden text-xs font-medium text-brand-primary hover:text-brand-primary/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 rounded"
+                                                >
+                                                        Read more →
+                                                </button>
+                                        </div>
                   </div>
                 </div>
               );
@@ -158,8 +228,23 @@ const IndustrySlider: React.FC = () => {
           </div>
         </div>
 
+{/* Swipe hint - mobile only */}
+<div className="flex justify-center items-center gap-2 mt-4 md:hidden">
+<svg className="w-4 h-4 text-text-secondary animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" >
+<path d="M14 4.5V12l2.5-1.5M14 12l-2.5-1.5M14 12v7.5" strokeLinecap="round" strokeLinejoin="round"/>
+<path d="M10 4.5V12l-2.5-1.5M10 12l2.5-1.5M10 12v7.5" strokeLinecap="round" strokeLinejoin="round"/>
+</svg>
+<span className="text-xs text-text-secondary font-medium">
+Drag cards to explore
+</span>
+</div>
+
         {/* Dots */}
-        <div className="flex justify-center gap-2 mt-8" role="tablist" aria-label="Industry slides">
+        <div
+          className="flex justify-center gap-2 mt-6 md:mt-8"
+          role="tablist"
+          aria-label="Industry slides"
+        >
           {industries.map((card, i) => (
             <button
               key={card.id}
@@ -169,15 +254,106 @@ const IndustrySlider: React.FC = () => {
               aria-label={card.title}
               onClick={() => emblaApi?.scrollTo(i)}
               className={cn(
-                'w-2.5 h-2.5 rounded-full transition-all duration-300 cursor-pointer',
+                'w-2.5 h-2.5 p-2 rounded-full transition-all duration-300 cursor-pointer',
                 i === selectedIndex
                   ? 'bg-[var(--accent-primary)] scale-125'
-                  : 'bg-[var(--text-secondary)] opacity-40 hover:opacity-70',
+                  : 'bg-text-secondary/55 hover:bg-text-secondary/80',
               )}
             />
           ))}
         </div>
       </div>
+
+      {/* Expanded description modal - mobile only */}
+      <AnimatePresence>
+        {expandedCard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-end justify-center md:hidden"
+            onClick={() => setExpandedCard(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Details about ${expandedCard.title}`}
+          >
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              style={{ touchAction: 'none' }}
+            />
+
+            {/* Bottom sheet */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-h-[80vh] landscape:max-h-[92vh] rounded-t-3xl bg-gradient-to-b from-[#1a1714] to-[#0d0b09] border-t border-border/60 shadow-2xl"
+              style={{
+                overscrollBehavior: 'contain',
+                WebkitOverflowScrolling: 'touch',
+                touchAction: 'pan-y',
+              }}
+            >
+              {/* Scrollable content wrapper */}
+              <div
+                className="overflow-y-auto"
+                style={{
+                  overscrollBehavior: 'contain',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
+                {/* Handle bar */}
+                <div className="sticky top-0 z-10 flex justify-center pt-3 pb-2 bg-gradient-to-b from-[#1a1714] to-transparent">
+                  <div className="w-10 h-1 rounded-full bg-white/20" />
+                </div>
+
+                {/* Hero image preview */}
+                <div className="relative h-36 mx-4 rounded-2xl overflow-hidden mb-5">
+                  <img
+                    src={expandedCard.image}
+                    alt={expandedCard.title}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a1714] via-black/30 to-transparent" />
+                </div>
+
+                {/* Content */}
+                <div className="px-4 sm:px-6 pb-8">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-primary/80 mb-2">
+                    Use Case
+                  </p>
+                  <h3 className="text-xl font-bold font-display text-white mb-4 leading-tight">
+                    {expandedCard.title}
+                  </h3>
+                  <p className="text-[clamp(0.875rem,3vw,1rem)] leading-relaxed text-white/85">
+                    {expandedCard.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Close button */}
+              <div className="sticky bottom-0 px-4 sm:px-6 pb-6 pt-3 bg-gradient-to-t from-[#1a1714] to-transparent">
+                <button
+                  type="button"
+                  onClick={() => setExpandedCard(null)}
+                  className="w-full py-3.5 rounded-xl text-sm font-semibold text-accent-ink transition-all active:scale-[0.98] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

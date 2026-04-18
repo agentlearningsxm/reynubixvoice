@@ -11,6 +11,18 @@ interface TokenResponse {
 let cachedAccessToken: string | null = null;
 let tokenExpiresAt = 0;
 
+const REQUIRED_GOOGLE_SHEETS_ENV_VARS = [
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'GOOGLE_REFRESH_TOKEN',
+  'GOOGLE_SHEET_ID',
+] as const;
+
+const REQUIRED_POST_CALL_SYNC_ENV_VARS = [
+  ...REQUIRED_GOOGLE_SHEETS_ENV_VARS,
+  'GROQ_API_KEY',
+] as const;
+
 function requireEnv(name: string): string {
   const value = process.env[name]?.trim();
   if (!value) {
@@ -50,7 +62,7 @@ async function getAccessToken(): Promise<string> {
   return data.access_token;
 }
 
-const HEADERS = [
+export const SHEET_HEADERS = [
   'Date',
   'Time',
   'Duration (s)',
@@ -72,6 +84,22 @@ const HEADERS = [
   'Call Outcome',
 ];
 
+export function hasPostCallSheetSyncConfig(
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  return REQUIRED_POST_CALL_SYNC_ENV_VARS.every((name) => !!env[name]?.trim());
+}
+
+function hasExactSheetHeaders(values: unknown): boolean {
+  if (!Array.isArray(values) || values.length !== SHEET_HEADERS.length) {
+    return false;
+  }
+
+  return SHEET_HEADERS.every(
+    (header, index) => String(values[index] ?? '').trim() === header,
+  );
+}
+
 export async function ensureSheetHeaders() {
   const sheetId = requireEnv('GOOGLE_SHEET_ID');
   const sheetName = process.env.GOOGLE_SHEET_NAME || 'reyna web';
@@ -85,7 +113,9 @@ export async function ensureSheetHeaders() {
 
   if (getRes.ok) {
     const data = await getRes.json();
-    if (data.values?.length && data.values[0]?.length >= HEADERS.length) return; // all headers exist
+    if (data.values?.length && hasExactSheetHeaders(data.values[0])) {
+      return;
+    }
   }
 
   const putRes = await fetch(
@@ -96,7 +126,7 @@ export async function ensureSheetHeaders() {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ values: [HEADERS] }),
+      body: JSON.stringify({ values: [SHEET_HEADERS] }),
     },
   );
 
@@ -128,6 +158,8 @@ export async function appendSheetRow(values: (string | number | null)[]) {
   if (!response.ok) {
     const body = await response.text();
     console.error('[google-sheets] Append row error:', body);
-    throw new Error(`Failed to append row to Google Sheet (${response.status})`);
+    throw new Error(
+      `Failed to append row to Google Sheet (${response.status})`,
+    );
   }
 }

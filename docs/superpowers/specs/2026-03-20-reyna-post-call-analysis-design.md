@@ -20,7 +20,7 @@ The website voice agent (Reyna, Gemini API) has existing code to sync call data 
 No architecture changes needed. The existing flow is correct:
 ```
 Voice session ends → /api/voice/session/end.ts → syncSessionToSheet() via waitUntil()
-→ Supabase queries → Gemini analysis → Google Sheets append
+→ Supabase queries → Groq analysis → Google Sheets append
 ```
 
 ### Changes
@@ -35,7 +35,7 @@ Voice session ends → /api/voice/session/end.ts → syncSessionToSheet() via wa
 #### 2. Upgrade Gemini model
 - From: `gemini-2.0-flash`
 - To: `gemini-2.5-pro`
-- Location: `api/_lib/gemini-summary.ts`
+- Location: `api/_lib/groq-summary.ts`
 
 #### 3. Expand analysis prompt
 Gemini 2.5 Pro will return 7 fields instead of 2:
@@ -93,9 +93,9 @@ All 5 new analysis fields must have safe defaults if Gemini returns partial/malf
 
 | File | Change |
 |------|--------|
-| `api/_lib/gemini-summary.ts` | Upgrade model to `gemini-2.5-pro`, expand prompt, return 7 fields with fallback defaults |
+| `api/_lib/groq-summary.ts` | Current post-call analysis path; keep the 7-field contract and fallback defaults aligned with Groq |
 | `api/_lib/google-sheets.ts` | Update HEADERS array (19 columns), update ranges from `A:N`/`A1:N1` to `A:S`/`A1:S1` |
-| `api/_lib/sheet-sync.ts` | Map 5 new Gemini analysis fields to row values + fix recording URL bucket name + use signed URLs |
+| `api/_lib/sheet-sync.ts` | Map the Groq analysis fields to row values + fix recording URL bucket name + use signed URLs |
 | Vercel env vars | Deploy 5 Google env vars via CLI |
 
 ## Google Sheet

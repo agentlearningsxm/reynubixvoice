@@ -14,7 +14,12 @@ const Logo: React.FC<LogoProps> = ({ className = '', size = 32 }) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
+      role="img"
+      aria-label="ReynubixVoice logo"
     >
+      <title>ReynubixVoice logo</title>
+      <title>ReynubixVoice logo</title>
+      <title>ReynubixVoice logo</title>
       <defs>
         <linearGradient id="logo-gradient" x1="0" y1="0.5" x2="1" y2="0.5">
           <stop offset="0%" stopColor="#c8a960" />
