@@ -67,7 +67,7 @@ async function run() {
 
   // Mirror exactly what the browser client does (lib/voice/models.ts + useGeminiLive.ts)
   const GEMINI_LIVE_API_VERSION = 'v1beta';
-  const GEMINI_LIVE_MODEL = 'gemini-2.5-flash-native-audio-latest';
+  const GEMINI_LIVE_MODEL = 'gemini-3.1-flash-live-preview';
 
   const ai = new GoogleGenAI({
     apiKey: tokenResp.token,

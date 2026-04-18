@@ -14,13 +14,6 @@ export function buildGeminiLiveConfig(
     sessionResumptionHandle?: string | null;
   } = {},
 ): LiveConnectConfig {
-  // The Gemini API accepts session resumption handles, but the current
-  // @google/genai Gemini transport rejects the `transparent` flag even though
-  // it exists in the shared type surface.
-  const sessionResumption = options.sessionResumptionHandle
-    ? { handle: options.sessionResumptionHandle }
-    : {};
-
   return {
     responseModalities: ['audio' as any],
     systemInstruction,
@@ -28,7 +21,11 @@ export function buildGeminiLiveConfig(
     contextWindowCompression: {
       slidingWindow: {},
     },
-    sessionResumption,
+    // Omit sessionResumption entirely on fresh sessions — sending an empty
+    // object causes the server to close the WebSocket at setup (code 1000).
+    ...(options.sessionResumptionHandle
+      ? { sessionResumption: { handle: options.sessionResumptionHandle } }
+      : {}),
     speechConfig: {
       voiceConfig: {
         prebuiltVoiceConfig: {

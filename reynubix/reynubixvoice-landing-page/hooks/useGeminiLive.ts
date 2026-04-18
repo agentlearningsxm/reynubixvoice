@@ -713,7 +713,6 @@ export function useGeminiLive() {
       outputNodeRef.current = outputAudioContextRef.current.createGain();
       outputNodeRef.current.connect(outputAudioContextRef.current.destination);
 
-      // Build dynamic system instruction with silence mode
       const silenceMode =
         localStorage.getItem('reyna-silence-mode') || 'checkin';
       const silenceContext =
@@ -768,18 +767,6 @@ export function useGeminiLive() {
       const liveConfig = buildGeminiLiveConfig(fullInstruction, {
         sessionResumptionHandle: resumptionHandle,
       });
-      console.log('[gemini-connect] Config being sent:', JSON.stringify({
-        model: GEMINI_LIVE_MODEL,
-        responseModalities: liveConfig.responseModalities,
-        speechConfig: liveConfig.speechConfig,
-        sessionResumption: liveConfig.sessionResumption,
-        contextWindowCompression: liveConfig.contextWindowCompression,
-        inputAudioTranscription: liveConfig.inputAudioTranscription,
-        outputAudioTranscription: liveConfig.outputAudioTranscription,
-        systemInstructionLength: typeof liveConfig.systemInstruction === 'string'
-          ? liveConfig.systemInstruction.length
-          : JSON.stringify(liveConfig.systemInstruction).length,
-      }));
 
       restoreContextOnConnectRef.current =
         shouldResumeSession &&
@@ -949,6 +936,10 @@ export function useGeminiLive() {
           },
 
           onmessage: async (msg: LiveServerMessage) => {
+            if ((msg as any).setupComplete) {
+              console.log('[gemini-msg] setupComplete');
+            }
+
             if (msg.sessionResumptionUpdate) {
               sessionResumptionHandleRef.current =
                 msg.sessionResumptionUpdate.newHandle ??
@@ -1201,6 +1192,7 @@ export function useGeminiLive() {
 
           onerror: (e: ErrorEvent | Event) => {
             const msg = (e as ErrorEvent).message || 'Unknown WebSocket error';
+            console.error('[gemini-error] raw event:', e, 'message:', msg);
             setIsConnecting(false);
             resolvedSessionRef.current = null;
 
