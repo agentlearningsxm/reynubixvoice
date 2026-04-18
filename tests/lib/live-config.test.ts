@@ -6,9 +6,7 @@ describe('buildGeminiLiveConfig', () => {
     const config = buildGeminiLiveConfig('Stay helpful.');
 
     expect(config).not.toHaveProperty('sessionResumption');
-    expect(config.contextWindowCompression).toEqual({
-      slidingWindow: {},
-    });
+    expect(config).not.toHaveProperty('contextWindowCompression');
     expect(config.speechConfig).toEqual({
       voiceConfig: {
         prebuiltVoiceConfig: {

@@ -18,9 +18,10 @@ export function buildGeminiLiveConfig(
     responseModalities: ['audio' as any],
     systemInstruction,
     ...(GEMINI_LIVE_TOOLS.length > 0 ? { tools: GEMINI_LIVE_TOOLS } : {}),
-    contextWindowCompression: {
-      slidingWindow: {},
-    },
+    // Omit contextWindowCompression entirely — sending { slidingWindow: {} }
+    // with an empty SlidingWindow object causes the server to close the
+    // WebSocket cleanly at setup (code 1000), same failure mode as the
+    // previously documented empty sessionResumption bug.
     // Omit sessionResumption entirely on fresh sessions — sending an empty
     // object causes the server to close the WebSocket at setup (code 1000).
     ...(options.sessionResumptionHandle
