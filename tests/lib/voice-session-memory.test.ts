@@ -1,4 +1,4 @@
-import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   buildResumeContextNote,
   buildResumeTurns,
@@ -7,18 +7,24 @@ import {
   inferGreetingDelivered,
   readVoiceSessionBackup,
   toTranscriptTurnPayload,
-  writeVoiceSessionBackup,
   VOICE_SESSION_BACKUP_KEY,
   VOICE_SESSION_BACKUP_MAX_AGE_MS,
+  writeVoiceSessionBackup,
 } from '../../lib/voice/sessionMemory.js';
 
 const mockSessionStorage = (() => {
   let store: Record<string, string> = {};
   return {
     getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    clear: () => { store = {}; },
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    clear: () => {
+      store = {};
+    },
   };
 })();
 

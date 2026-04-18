@@ -1,5 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import type { VoiceSessionStartPayload, VoiceSessionStartResponse } from '../lib/telemetry/shared.js';
+import type {
+  VoiceSessionStartPayload,
+  VoiceSessionStartResponse,
+} from '../lib/telemetry/shared.js';
 import { readJsonBody, rejectMethod } from './_lib/http.js';
 import { createVoiceSession, recordEvent } from './_lib/telemetry.js';
 

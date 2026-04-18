@@ -31,9 +31,9 @@ const Calculator: React.FC = () => {
   const presentationTimeouts = useRef<ReturnType<typeof setTimeout>[]>([]);
   const animationFrames = useRef<number[]>([]);
   const alreadyScrolledRef = useRef(false);
-  const runPresentationRef = useRef<(targetRevenue: number, targetCalls: number) => void>(
-    () => {},
-  );
+  const runPresentationRef = useRef<
+    (targetRevenue: number, targetCalls: number) => void
+  >(() => {});
 
   // Logic: Missed Calls * 30 Days * 25% Booking Rate * Avg Ticket Price
   const monthlyLoss = useMemo(() => {

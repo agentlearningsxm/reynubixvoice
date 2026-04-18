@@ -111,9 +111,7 @@ export function InteractionsPage() {
         .range(from, to);
       if (typeFilter) query = query.eq('type', typeFilter);
       if (search)
-        query = query.or(
-          `title.ilike.%${search}%,body.ilike.%${search}%`,
-        );
+        query = query.or(`title.ilike.%${search}%,body.ilike.%${search}%`);
       const { data, error, count } = await query;
       if (error) throw error;
       setInteractions((data as Interaction[]) || []);
@@ -137,9 +135,7 @@ export function InteractionsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-white">Interactions</h1>
-        <p className="text-zinc-400">
-          {totalCount} total interactions
-        </p>
+        <p className="text-zinc-400">{totalCount} total interactions</p>
       </div>
 
       <div className="flex gap-4">
@@ -274,9 +270,7 @@ export function InteractionsPage() {
                                 </span>
                               </div>
                               <div>
-                                <span className="text-zinc-500">
-                                  Company:{' '}
-                                </span>
+                                <span className="text-zinc-500">Company: </span>
                                 <span className="text-white">
                                   {lead.company || '-'}
                                 </span>
@@ -285,9 +279,7 @@ export function InteractionsPage() {
                                 <span className="text-zinc-500">Email: </span>
                                 <span className="text-white">
                                   {!lead.email ||
-                                  lead.email.includes(
-                                    '@lead.reynubix.local',
-                                  )
+                                  lead.email.includes('@lead.reynubix.local')
                                     ? 'Not provided'
                                     : lead.email}
                                 </span>

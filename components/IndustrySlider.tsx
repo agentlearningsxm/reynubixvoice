@@ -196,31 +196,31 @@ const IndustrySlider: React.FC = () => {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/40 to-black/10" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_42%)] opacity-70" />
-                                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-[1]">
-                                                <p className="mb-1.5 md:mb-2 text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
-                                                        Use Case
-                                                </p>
-                                                <h3 className="font-display font-bold text-base md:text-xl lg:text-2xl text-white drop-shadow-lg leading-tight mb-2 md:mb-3">
-                                                        {card.title}
-                                                </h3>
-								<p className="text-xs md:text-sm lg:text-base leading-relaxed text-white/85 mb-3 line-clamp-2 md:line-clamp-none">
-									{card.description}
-								</p>
-                                                <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setExpandedCard({
-                                                                        title: card.title,
-                                                                        description: card.description,
-                                                                        image: card.image,
-                                                                });
-                                                        }}
-                                                        className="md:hidden text-xs font-medium text-brand-primary hover:text-brand-primary/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 rounded"
-                                                >
-                                                        Read more →
-                                                </button>
-                                        </div>
+                    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-[1]">
+                      <p className="mb-1.5 md:mb-2 text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
+                        Use Case
+                      </p>
+                      <h3 className="font-display font-bold text-base md:text-xl lg:text-2xl text-white drop-shadow-lg leading-tight mb-2 md:mb-3">
+                        {card.title}
+                      </h3>
+                      <p className="text-xs md:text-sm lg:text-base leading-relaxed text-white/85 mb-3 line-clamp-2 md:line-clamp-none">
+                        {card.description}
+                      </p>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedCard({
+                            title: card.title,
+                            description: card.description,
+                            image: card.image,
+                          });
+                        }}
+                        className="md:hidden text-xs font-medium text-brand-primary hover:text-brand-primary/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 rounded"
+                      >
+                        Read more →
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -228,16 +228,31 @@ const IndustrySlider: React.FC = () => {
           </div>
         </div>
 
-{/* Swipe hint - mobile only */}
-<div className="flex justify-center items-center gap-2 mt-4 md:hidden">
-<svg className="w-4 h-4 text-text-secondary animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" >
-<path d="M14 4.5V12l2.5-1.5M14 12l-2.5-1.5M14 12v7.5" strokeLinecap="round" strokeLinejoin="round"/>
-<path d="M10 4.5V12l-2.5-1.5M10 12l2.5-1.5M10 12v7.5" strokeLinecap="round" strokeLinejoin="round"/>
-</svg>
-<span className="text-xs text-text-secondary font-medium">
-Drag cards to explore
-</span>
-</div>
+        {/* Swipe hint - mobile only */}
+        <div className="flex justify-center items-center gap-2 mt-4 md:hidden">
+          <svg
+            className="w-4 h-4 text-text-secondary animate-pulse"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
+            <path
+              d="M14 4.5V12l2.5-1.5M14 12l-2.5-1.5M14 12v7.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M10 4.5V12l-2.5-1.5M10 12l2.5-1.5M10 12v7.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span className="text-xs text-text-secondary font-medium">
+            Drag cards to explore
+          </span>
+        </div>
 
         {/* Dots */}
         <div

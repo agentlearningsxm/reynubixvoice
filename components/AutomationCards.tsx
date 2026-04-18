@@ -633,9 +633,7 @@ const DesktopCardStream: React.FC = () => {
         />
 
         {/* Card stream */}
-        <div
-          className="card-stream absolute w-full flex items-center overflow-visible h-[140px] sm:h-[160px] md:h-[180px]"
-        >
+        <div className="card-stream absolute w-full flex items-center overflow-visible h-[140px] sm:h-[160px] md:h-[180px]">
           <motion.button
             type="button"
             ref={cardLineRef}

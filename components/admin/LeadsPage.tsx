@@ -379,9 +379,7 @@ export function LeadsPage() {
       {editingLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <div className="w-full max-w-md rounded-xl border border-zinc-700 bg-zinc-900 p-6">
-            <h2 className="mb-4 text-lg font-semibold text-white">
-              Edit Lead
-            </h2>
+            <h2 className="mb-4 text-lg font-semibold text-white">Edit Lead</h2>
             <form onSubmit={handleEditLead} className="space-y-4">
               <input
                 required

@@ -1,4 +1,4 @@
-import { type LiveConnectConfig } from '@google/genai';
+import type { LiveConnectConfig } from '@google/genai';
 import {
   buildReconnectRestoreTurns as buildSessionReconnectRestoreTurns,
   type TranscriptLike,

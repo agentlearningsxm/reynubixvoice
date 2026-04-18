@@ -1,4 +1,11 @@
-import { AlertCircle, Calendar, Check, Plus, Search, Trash2 } from 'lucide-react';
+import {
+  AlertCircle,
+  Calendar,
+  Check,
+  Plus,
+  Search,
+  Trash2,
+} from 'lucide-react';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';

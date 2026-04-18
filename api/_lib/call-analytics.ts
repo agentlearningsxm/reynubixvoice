@@ -315,7 +315,10 @@ export async function analyzeAndStoreSession(voiceSessionPublicId: string) {
       // Create follow-up task for qualified leads
       if (analysis.callOutcome === 'qualified-lead') {
         const callerLabel =
-          analysis.callerName || analysis.callerCompany || leadEmail || 'Anonymous caller';
+          analysis.callerName ||
+          analysis.callerCompany ||
+          leadEmail ||
+          'Anonymous caller';
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(9, 0, 0, 0);
