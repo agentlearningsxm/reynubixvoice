@@ -764,9 +764,12 @@ export function useGeminiLive() {
         httpOptions: { apiVersion: GEMINI_LIVE_API_VERSION },
       });
 
-      const liveConfig = buildGeminiLiveConfig(fullInstruction, {
-        sessionResumptionHandle: resumptionHandle,
-      });
+      const liveConfig = buildGeminiLiveConfig(
+        'You are Reyna, a friendly AI voice assistant for ReynubixVoice. Keep answers short and warm.',
+        {
+          sessionResumptionHandle: resumptionHandle,
+        },
+      );
 
       restoreContextOnConnectRef.current =
         shouldResumeSession &&
