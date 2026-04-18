@@ -1,4 +1,4 @@
-import type { LiveConnectConfig } from '@google/genai';
+import { Modality, type LiveConnectConfig } from '@google/genai';
 import {
   buildReconnectRestoreTurns as buildSessionReconnectRestoreTurns,
   type TranscriptLike,
@@ -15,7 +15,7 @@ export function buildGeminiLiveConfig(
   } = {},
 ): LiveConnectConfig {
   return {
-    responseModalities: ['audio' as any],
+    responseModalities: [Modality.AUDIO],
     systemInstruction,
     ...(GEMINI_LIVE_TOOLS.length > 0 ? { tools: GEMINI_LIVE_TOOLS } : {}),
     // Omit contextWindowCompression entirely — sending { slidingWindow: {} }
