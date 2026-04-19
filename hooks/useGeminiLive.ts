@@ -177,6 +177,14 @@ export function useGeminiLive() {
   // Resilience Refs
   const intentionalDisconnectRef = useRef(false);
   const reconnectAttemptsRef = useRef(0);
+  // Mirror of `connected`/`isConnecting` state so stable callbacks
+  // (notably `disconnect`) can read the latest value without re-memoizing —
+  // critical because Hero.tsx used to subscribe to `gemini.disconnect` in a
+  // useEffect cleanup; any time the callback's identity changed mid-handshake
+  // the previous effect's cleanup would fire, tearing down the WebSocket
+  // 20-40ms after the setup frame and producing the spurious code 1000 close.
+  const connectedStateRef = useRef(false);
+  const isConnectingStateRef = useRef(false);
   const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const goAwayReconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -242,6 +250,14 @@ export function useGeminiLive() {
     },
     [syncSessionBackup],
   );
+
+  // Keep refs in sync with state so stable callbacks see latest values.
+  useEffect(() => {
+    connectedStateRef.current = connected;
+  }, [connected]);
+  useEffect(() => {
+    isConnectingStateRef.current = isConnecting;
+  }, [isConnecting]);
 
   // ─── AudioContext Resume on Tab Switch ────────────────────────────
   useEffect(() => {
@@ -491,8 +507,17 @@ export function useGeminiLive() {
 
   // ─── Disconnect (user-initiated full teardown) ─────────────────
   const disconnect = useCallback(() => {
-    // Guard: prevent double-disconnect (e.g. rapid button clicks)
-    if (!voiceSessionIdRef.current && !connected && !isConnecting) return;
+    // Guard: prevent double-disconnect (e.g. rapid button clicks).
+    // Read from refs (not state) so this callback stays referentially stable
+    // — consumers that put `disconnect` in a useEffect dep array would
+    // otherwise re-run their cleanup every time state changes, killing the
+    // WebSocket during connect.
+    if (
+      !voiceSessionIdRef.current &&
+      !connectedStateRef.current &&
+      !isConnectingStateRef.current
+    )
+      return;
 
     intentionalDisconnectRef.current = true;
     reconnectAttemptsRef.current = 0;
@@ -600,14 +625,7 @@ export function useGeminiLive() {
     setIsAgentSpeaking(false);
     setIsUserSpeaking(false);
     setTranscript([]);
-  }, [
-    clearSessionBackup,
-    closeSession,
-    cleanupAudio,
-    connected,
-    isConnecting,
-    setTranscript,
-  ]);
+  }, [clearSessionBackup, closeSession, cleanupAudio, setTranscript]);
 
   // ─── Reconnect (automatic recovery) ────────────────────────────
   const reconnect = useCallback(
@@ -764,12 +782,9 @@ export function useGeminiLive() {
         httpOptions: { apiVersion: GEMINI_LIVE_API_VERSION },
       });
 
-      const liveConfig = buildGeminiLiveConfig(
-        'You are Reyna, a friendly AI voice assistant for ReynubixVoice. Keep answers short and warm.',
-        {
-          sessionResumptionHandle: resumptionHandle,
-        },
-      );
+      const liveConfig = buildGeminiLiveConfig(fullInstruction, {
+        sessionResumptionHandle: resumptionHandle,
+      });
 
       restoreContextOnConnectRef.current =
         shouldResumeSession &&

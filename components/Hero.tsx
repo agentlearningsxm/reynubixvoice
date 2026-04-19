@@ -7,7 +7,7 @@ import {
   PhoneOff,
 } from 'lucide-react';
 import type * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useGeminiLive } from '../hooks/useGeminiLive';
 import { trackEventFireAndForget } from '../lib/telemetry/browser';
@@ -52,11 +52,20 @@ const Hero: React.FC = () => {
   const [consentAccepted, setConsentAccepted] = useState(false);
   const [consentError, setConsentError] = useState<string | null>(null);
 
+  // Keep a stable ref to disconnect so the unmount cleanup below only fires
+  // on true unmount (not every time the hook re-memoizes disconnect due to
+  // state changes like isConnecting flipping, which would abort the session
+  // mid-handshake and cause an immediate client-side ws.close(1000)).
+  const disconnectRef = useRef(gemini.disconnect);
+  useEffect(() => {
+    disconnectRef.current = gemini.disconnect;
+  }, [gemini.disconnect]);
+
   useEffect(() => {
     return () => {
-      gemini.disconnect();
+      disconnectRef.current?.();
     };
-  }, [gemini.disconnect]);
+  }, []);
 
   const latestTranscriptEntries = transcript
     .filter((entry) => entry.text.trim())
