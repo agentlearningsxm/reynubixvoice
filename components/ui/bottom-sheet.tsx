@@ -156,10 +156,15 @@ export function BottomSheet({
                 WebkitOverflowScrolling: 'touch',
               }}
             >
-              {/* Drag handle */}
+              {/* Drag handle — larger tap target, premium visibility */}
               {showHandle && variant === 'bottom' && (
-                <div className="sticky top-0 z-10 flex justify-center pt-3 pb-2 bg-gradient-to-b from-[#1a1714] to-transparent">
-                  <div className="w-10 h-1 rounded-full bg-white/20" />
+                <div
+                  data-drag-handle
+                  aria-hidden="true"
+                  className="sticky top-0 z-10 flex justify-center pt-3 pb-3 bg-gradient-to-b from-[#1a1714] to-transparent cursor-grab active:cursor-grabbing select-none"
+                  style={{ touchAction: 'none' }}
+                >
+                  <div className="w-12 h-1.5 rounded-full bg-white/25 transition-colors duration-200 hover:bg-white/40" />
                 </div>
               )}
 

@@ -156,20 +156,20 @@ const Hero: React.FC = () => {
 
   return (
     <section
-      className="relative pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-16 sm:pb-24 lg:pb-32 overflow-x-clip"
+      className="relative pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-16 sm:pb-24 lg:pb-32 overflow-x-clip landscape:max-lg:pt-8 landscape:max-lg:pb-10"
       id="receptionist"
     >
       {/* Grid provided by full-page square-grid in App.tsx -no local grid needed */}
 
       <div
-        className="absolute inset-x-0 top-0 h-[400px] sm:h-[550px] lg:h-[700px] pointer-events-none"
+        className="absolute inset-x-0 top-0 h-[min(50dvh,420px)] sm:h-[min(58dvh,580px)] lg:h-[min(66dvh,720px)] pointer-events-none"
         style={{
           background:
             'radial-gradient(ellipse 70% 50% at 50% -10%, rgba(200,169,96,0.11) 0%, transparent 70%)',
         }}
       />
       <div
-        className="absolute bottom-0 inset-x-0 h-40 pointer-events-none"
+        className="absolute bottom-0 inset-x-0 h-28 sm:h-40 pointer-events-none"
         style={{
           background: 'linear-gradient(to top, var(--bg-main), transparent)',
         }}
@@ -429,7 +429,7 @@ const Hero: React.FC = () => {
 
               {/* Phone body */}
               <div
-                className="hero-phone-bg relative w-[240px] xs:w-[280px] h-[480px] xs:h-[560px] rounded-[2.5rem] overflow-hidden transition-shadow duration-700"
+                className="hero-phone-bg relative w-[220px] xs:w-[280px] h-[440px] xs:h-[560px] max-w-[min(85vw,280px)] max-h-[min(170vw,560px)] rounded-[2.5rem] overflow-hidden transition-shadow duration-700"
                 style={{ boxShadow: phoneBoxShadow, zIndex: 1 }}
               >
                 {/* Dynamic notch */}

@@ -83,7 +83,7 @@ const Footer: React.FC = () => {
                 cta: 'book_free_demo',
               })
             }
-            className="group inline-flex cursor-pointer items-center gap-2.5 rounded-full px-10 py-4 text-base font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_var(--accent-glow)] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
+            className="group inline-flex w-full max-w-sm sm:max-w-none sm:w-auto cursor-pointer items-center justify-center gap-2.5 rounded-full px-6 xs:px-8 sm:px-10 py-4 text-base font-semibold text-accent-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_16px_34px_var(--accent-glow)] active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-bg-main"
             style={footerCtaStyle}
           >
             Book a Free Demo
@@ -377,7 +377,7 @@ const Footer: React.FC = () => {
         />
 
         <div className="py-6">
-          <div className="page-container flex items-center justify-between">
+          <div className="page-container flex flex-col xs:flex-row items-center justify-between gap-4 xs:gap-0 text-center xs:text-left">
             <p className="text-xs text-text-muted-strong">
               &copy; 2026 ReynubixVoice. {t.footer.rights}
             </p>
