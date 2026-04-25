@@ -1686,21 +1686,33 @@ main > section:nth-last-child(-n+2)::after {
   color: var(--accent-primary);
 }
 
+.mobile-picker-group {
+  padding: 4px 0;
+}
+
+.mobile-picker-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted-strong);
+  margin-bottom: 8px;
+}
+
 .mobile-theme-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 12px 0;
-  overflow-x: auto;
+  gap: 6px;
+  padding: 0;
 }
 
 .mobile-theme-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 8px 12px;
-  min-height: 44px;
-  border-radius: 500px;
+  min-height: 40px;
+  border-radius: 999px;
   border: 1px solid var(--border-subtle);
   background: transparent;
   color: var(--text-muted-strong);
@@ -1708,7 +1720,6 @@ main > section:nth-last-child(-n+2)::after {
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  flex-shrink: 0;
   transition:
     color 0.15s ease,
     background-color 0.15s ease,

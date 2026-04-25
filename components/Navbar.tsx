@@ -436,7 +436,7 @@ const Navbar: React.FC = () => {
                 mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
               }
             >
-              {mode === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+              {mode === 'dark' ? <Moon size={22} strokeWidth={2} /> : <Sun size={22} strokeWidth={2} />}
             </button>
 
             <button
@@ -451,7 +451,7 @@ const Navbar: React.FC = () => {
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-navigation-menu"
             >
-              {isMobileMenuOpen ? <X /> : <Menu />}
+              {isMobileMenuOpen ? <X size={22} strokeWidth={2} /> : <Menu size={22} strokeWidth={2} />}
             </button>
           </div>
         </div>
@@ -505,36 +505,43 @@ const Navbar: React.FC = () => {
                   </a>
                 ))}
 
-                {/* Language Switcher Row */}
-                <div className="mobile-theme-row">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      type="button"
-                      onClick={() => setLanguage(lang.code)}
-                      className={`mobile-theme-btn ${language === lang.code ? 'active' : ''}`}
-                    >
-                      <Globe size={12} />
-                      {lang.label}
-                    </button>
-                  ))}
+                {/* Language Switcher */}
+                <div className="mobile-picker-group">
+                  <p className="mobile-picker-label">Language</p>
+                  <div className="mobile-theme-row">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        type="button"
+                        onClick={() => setLanguage(lang.code)}
+                        className={`mobile-theme-btn ${language === lang.code ? 'active' : ''}`}
+                      >
+                        <Globe size={12} />
+                        {lang.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="mobile-theme-row">
-                  {themes.map((theme) => (
-                    <button
-                      key={theme.code}
-                      type="button"
-                      onClick={() => setAccent(theme.code)}
-                      className={`mobile-theme-btn ${accent === theme.code ? 'active' : ''}`}
-                    >
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: theme.color }}
-                      ></span>
-                      {theme.label}
-                    </button>
-                  ))}
+                {/* Theme / Accent Picker */}
+                <div className="mobile-picker-group">
+                  <p className="mobile-picker-label">Theme</p>
+                  <div className="mobile-theme-row">
+                    {themes.map((theme) => (
+                      <button
+                        key={theme.code}
+                        type="button"
+                        onClick={() => setAccent(theme.code)}
+                        className={`mobile-theme-btn ${accent === theme.code ? 'active' : ''}`}
+                      >
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: theme.color }}
+                        ></span>
+                        {theme.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <Button
