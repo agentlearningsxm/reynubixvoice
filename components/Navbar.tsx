@@ -155,6 +155,27 @@ const Navbar: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Close mobile menu on Escape key
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMobileMenuOpen(false);
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [isMobileMenuOpen]);
+
+  // Body scroll lock while mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [isMobileMenuOpen]);
+
   const languages: { code: Language; label: string; flag: string }[] = [
     { code: 'en', label: 'English', flag: 'EN' },
     { code: 'fr', label: 'Français', flag: 'FR' },
@@ -415,7 +436,7 @@ const Navbar: React.FC = () => {
                 mode === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
               }
             >
-              {mode === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+              {mode === 'dark' ? <Moon size={22} strokeWidth={2} /> : <Sun size={22} strokeWidth={2} />}
             </button>
 
             <button
@@ -430,88 +451,120 @@ const Navbar: React.FC = () => {
               aria-expanded={isMobileMenuOpen}
               aria-controls="mobile-navigation-menu"
             >
-              {isMobileMenuOpen ? <X /> : <Menu />}
+              {isMobileMenuOpen ? <X size={22} strokeWidth={2} /> : <Menu size={22} strokeWidth={2} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="mobile-menu" id="mobile-navigation-menu">
-          <div className="flex flex-col gap-4">
-            {navItems.map((item) => (
-              <a
-                key={item.id}
-                href={item.id === 'contact' ? '/contact' : `#${item.id}`}
-                className={`mobile-nav-link ${activeNav === item.id ? 'active' : ''}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (item.id === 'contact') {
-                    navigate('/contact');
-                    setActiveNav('contact');
-                  } else {
-                    setActiveNav(item.id);
-                    handleNavClick(item.id);
-                  }
-                  setIsMobileMenuOpen(false);
-                }}
-              >
-                {item.label}
-              </a>
-            ))}
+      {/* Mobile Menu - Animated with backdrop */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            {/* Backdrop — closes menu on tap, smooths out the transition */}
+            <motion.div
+              key="mobile-menu-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="lg:hidden fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+              aria-hidden="true"
+            />
 
-            {/* Language Switcher Row */}
-            <div className="mobile-theme-row">
-              {languages.map((lang) => (
-                <button
-                  key={lang.code}
-                  type="button"
-                  onClick={() => setLanguage(lang.code)}
-                  className={`mobile-theme-btn ${language === lang.code ? 'active' : ''}`}
-                >
-                  <Globe size={12} />
-                  {lang.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="mobile-theme-row">
-              {themes.map((theme) => (
-                <button
-                  key={theme.code}
-                  type="button"
-                  onClick={() => setAccent(theme.code)}
-                  className={`mobile-theme-btn ${accent === theme.code ? 'active' : ''}`}
-                >
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: theme.color }}
-                  ></span>
-                  {theme.label}
-                </button>
-              ))}
-            </div>
-
-            <Button
-              className="w-full"
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                trackEventFireAndForget('cta_click', {
-                  location: 'navbar_mobile',
-                  target: 'cal.com',
-                  cta: 'book_demo',
-                });
-              }}
-              data-cal-link="reynubix-voice/let-s-talk"
-              data-cal-namespace="let-s-talk"
-              data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+            {/* Menu panel */}
+            <motion.div
+              key="mobile-menu-panel"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="mobile-menu"
+              id="mobile-navigation-menu"
             >
-              {t.nav.bookDemo}
-            </Button>
-          </div>
-        </div>
-      )}
+              <div className="flex flex-col gap-4">
+                {navItems.map((item) => (
+                  <a
+                    key={item.id}
+                    href={item.id === 'contact' ? '/contact' : `#${item.id}`}
+                    className={`mobile-nav-link ${activeNav === item.id ? 'active' : ''}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (item.id === 'contact') {
+                        navigate('/contact');
+                        setActiveNav('contact');
+                      } else {
+                        setActiveNav(item.id);
+                        handleNavClick(item.id);
+                      }
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+
+                {/* Language Switcher */}
+                <div className="mobile-picker-group">
+                  <p className="mobile-picker-label">Language</p>
+                  <div className="mobile-theme-row">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        type="button"
+                        onClick={() => setLanguage(lang.code)}
+                        className={`mobile-theme-btn ${language === lang.code ? 'active' : ''}`}
+                      >
+                        <Globe size={12} />
+                        {lang.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Theme / Accent Picker */}
+                <div className="mobile-picker-group">
+                  <p className="mobile-picker-label">Theme</p>
+                  <div className="mobile-theme-row">
+                    {themes.map((theme) => (
+                      <button
+                        key={theme.code}
+                        type="button"
+                        onClick={() => setAccent(theme.code)}
+                        className={`mobile-theme-btn ${accent === theme.code ? 'active' : ''}`}
+                      >
+                        <span
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: theme.color }}
+                        ></span>
+                        {theme.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    trackEventFireAndForget('cta_click', {
+                      location: 'navbar_mobile',
+                      target: 'cal.com',
+                      cta: 'book_demo',
+                    });
+                  }}
+                  data-cal-link="reynubix-voice/let-s-talk"
+                  data-cal-namespace="let-s-talk"
+                  data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+                >
+                  {t.nav.bookDemo}
+                </Button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </nav>
   );
 };

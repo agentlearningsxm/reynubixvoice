@@ -1637,10 +1637,17 @@ main > section:nth-last-child(-n+2)::after {
   top: 100%;
   left: 0;
   right: 0;
+  z-index: 50;
+  max-height: calc(100dvh - 80px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: linear-gradient(180deg, var(--surface-overlay), var(--surface-raised));
   border-top: 1px solid var(--border-subtle);
   padding: 20px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .light .mobile-menu {
@@ -1679,21 +1686,33 @@ main > section:nth-last-child(-n+2)::after {
   color: var(--accent-primary);
 }
 
+.mobile-picker-group {
+  padding: 4px 0;
+}
+
+.mobile-picker-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted-strong);
+  margin-bottom: 8px;
+}
+
 .mobile-theme-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 12px 0;
-  overflow-x: auto;
+  gap: 6px;
+  padding: 0;
 }
 
 .mobile-theme-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   padding: 8px 12px;
-  min-height: 44px;
-  border-radius: 500px;
+  min-height: 40px;
+  border-radius: 999px;
   border: 1px solid var(--border-subtle);
   background: transparent;
   color: var(--text-muted-strong);
@@ -1701,7 +1720,6 @@ main > section:nth-last-child(-n+2)::after {
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
-  flex-shrink: 0;
   transition:
     color 0.15s ease,
     background-color 0.15s ease,
@@ -2825,5 +2843,87 @@ button, a, input[type="range"], input[type="checkbox"], [role="button"], [role="
     padding-top: var(--space-lg);
     padding-bottom: var(--space-lg);
   }
+}
+
+/* ===== Landscape orientation for short viewports ===== */
+@media (orientation: landscape) and (max-height: 520px) {
+  /* Reduce vertical section padding aggressively. !important is required because
+     Tailwind utility classes (specificity 0-1-0) outweigh the bare `section` selector. */
+  main > section {
+    padding-top: clamp(1.25rem, 3vh, 2.5rem) !important;
+    padding-bottom: clamp(1.25rem, 3vh, 2.5rem) !important;
+  }
+
+  /* Hero: allow content to breathe horizontally, shrink vertical rhythm */
+  section#receptionist {
+    padding-top: clamp(3.5rem, 8vh, 5rem) !important; /* leave room under navbar */
+    padding-bottom: clamp(1rem, 3vh, 2rem) !important;
+  }
+
+  /* Reduce h1 size slightly to avoid taking full viewport height */
+  h1 {
+    font-size: clamp(1.5rem, 5.5vh, 2.25rem) !important;
+    line-height: 1.15 !important;
+  }
+  h2 {
+    font-size: clamp(1.25rem, 4.5vh, 1.875rem) !important;
+    line-height: 1.2 !important;
+  }
+}
+
+/* ===== GPU-acceleration hints for animated elements =====
+   Note: .card-line already has will-change: transform at line ~1790,
+   so we intentionally exclude it from the list below to avoid redundancy. */
+.hero-phone-bg,
+.voice-orb,
+.orb-wrap,
+.carousel-container,
+.carousel-track {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-phone-bg,
+  .voice-orb,
+  .carousel-track {
+    will-change: transform;
+  }
+}
+
+/* ===== Ultra-small portrait screens (<360px) safety =====
+   Scoped to portrait so the landscape rule above wins in landscape
+   on devices like 359×640 rotated to 640×359. */
+@media (max-width: 359px) and (orientation: portrait) {
+  /* Reduce hero headline further to prevent vertical stacking issues */
+  h1 {
+    font-size: clamp(1.5rem, 6.5vw, 1.875rem) !important;
+    letter-spacing: -0.015em !important;
+  }
+
+  /* Calculator and cards tighter */
+  .page-container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  /* Footer stats grid — prevent 4-col cramping at tiny sizes */
+  footer .grid.grid-cols-2 > div {
+    padding: 10px 8px !important;
+  }
+
+  /* CTA buttons already w-full at mobile; ensure horizontal padding is compact */
+  button[class*="px-10"] {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+}
+
+/* ===== Touch-action hardening for draggable elements ===== */
+/* Prevent iOS rubber-band scroll fighting with modal drags */
+[role="dialog"] [data-drag-handle] {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
