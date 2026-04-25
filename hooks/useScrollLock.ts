@@ -46,7 +46,7 @@ export function useScrollLock(isLocked: boolean) {
       document.body.style.top = '';
       document.body.style.width = '';
       document.body.style.overflow = '';
-      window.scrollTo(0, scrollY);
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
       scrollYRef.current = null;
     };
   }, [isLocked]);

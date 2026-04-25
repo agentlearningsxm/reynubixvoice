@@ -14,6 +14,7 @@ const IndustrySlider: React.FC = () => {
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const [expandedCard, setExpandedCard] = useState<{
     title: string;
+    stat: string;
     description: string;
     image: string;
   } | null>(null);
@@ -61,10 +62,11 @@ const IndustrySlider: React.FC = () => {
   }, [emblaApi]);
 
   const industries = Object.entries(t.industries.items).map(([key, item]) => {
-    const data = item as { name: string; desc: string };
+    const data = item as { name: string; stat: string; desc: string };
     return {
       id: key,
       title: key === 'hvac' ? 'Plumbing & AC' : data.name,
+      stat: data.stat,
       description: data.desc,
       image: industryImages[key] || fallbackImage,
     };
@@ -203,7 +205,7 @@ const IndustrySlider: React.FC = () => {
                       <h3 className="font-display font-bold text-base md:text-xl lg:text-2xl text-white drop-shadow-lg leading-tight mb-2 md:mb-3">
                         {card.title}
                       </h3>
-                      <p className="text-xs md:text-sm lg:text-base leading-relaxed text-white/85 mb-3 line-clamp-2 md:line-clamp-none">
+                      <p className="text-xs md:text-sm lg:text-base leading-relaxed text-white/85 mb-3 line-clamp-3">
                         {card.description}
                       </p>
                       <button
@@ -212,13 +214,14 @@ const IndustrySlider: React.FC = () => {
                           e.stopPropagation();
                           setExpandedCard({
                             title: card.title,
+                            stat: card.stat,
                             description: card.description,
                             image: card.image,
                           });
                         }}
-                        className="md:hidden text-xs font-medium text-brand-primary hover:text-brand-primary/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 rounded"
+                        className="text-xs font-medium text-brand-primary hover:text-brand-primary/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 rounded"
                       >
-                        Read more →
+                        Learn More →
                       </button>
                     </div>
                   </div>
@@ -279,7 +282,7 @@ const IndustrySlider: React.FC = () => {
         </div>
       </div>
 
-      {/* Expanded description modal - mobile only */}
+      {/* Expanded description modal */}
       <AnimatePresence>
         {expandedCard && (
           <motion.div
@@ -287,7 +290,7 @@ const IndustrySlider: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-end justify-center md:hidden"
+            className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
             onClick={() => setExpandedCard(null)}
             role="dialog"
             aria-modal="true"
@@ -299,14 +302,14 @@ const IndustrySlider: React.FC = () => {
               style={{ touchAction: 'none' }}
             />
 
-            {/* Bottom sheet */}
+            {/* Bottom sheet / centered dialog */}
             <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 16 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-h-[80vh] landscape:max-h-[92vh] rounded-t-3xl bg-gradient-to-b from-[#1a1714] to-[#0d0b09] border-t border-border/60 shadow-2xl"
+              className="relative w-full md:max-w-xl md:mx-4 md:mb-8 max-h-[85vh] landscape:max-h-[92vh] rounded-t-3xl md:rounded-3xl bg-gradient-to-b from-[#1a1714] to-[#0d0b09] border-t md:border border-border/60 shadow-2xl"
               style={{
                 overscrollBehavior: 'contain',
                 WebkitOverflowScrolling: 'touch',
@@ -327,11 +330,11 @@ const IndustrySlider: React.FC = () => {
                 </div>
 
                 {/* Hero image preview */}
-                <div className="relative h-36 mx-4 rounded-2xl overflow-hidden mb-5">
+                <div className="relative h-52 mx-4 rounded-2xl overflow-hidden mb-5">
                   <img
                     src={expandedCard.image}
                     alt={expandedCard.title}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-cover object-center"
                     loading="lazy"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a1714] via-black/30 to-transparent" />
@@ -342,9 +345,12 @@ const IndustrySlider: React.FC = () => {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-primary/80 mb-2">
                     Use Case
                   </p>
-                  <h3 className="text-xl font-bold font-display text-white mb-4 leading-tight">
+                  <h3 className="text-xl font-bold font-display text-white mb-3 leading-tight">
                     {expandedCard.title}
                   </h3>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-primary/10 border border-brand-primary/20 mb-4">
+                    <span className="text-xs font-bold text-brand-primary">{expandedCard.stat}</span>
+                  </div>
                   <p className="text-[clamp(0.875rem,3vw,1rem)] leading-relaxed text-white/85">
                     {expandedCard.description}
                   </p>
