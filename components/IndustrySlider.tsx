@@ -12,6 +12,7 @@ const IndustrySlider: React.FC = () => {
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   const [expandedCard, setExpandedCard] = useState<{
     title: string;
     stat: string;
@@ -19,20 +20,14 @@ const IndustrySlider: React.FC = () => {
     image: string;
   } | null>(null);
 
-  // Lock body scroll when bottom sheet is open
   useScrollLock(expandedCard !== null);
 
-  // Close on Escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setExpandedCard(null);
     };
-    if (expandedCard) {
-      document.addEventListener('keydown', handleEsc);
-    }
-    return () => {
-      document.removeEventListener('keydown', handleEsc);
-    };
+    if (expandedCard) document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
   }, [expandedCard]);
 
   const { emblaRef, emblaApi, selectedIndex } = useAutoplayCarousel({
@@ -44,21 +39,11 @@ const IndustrySlider: React.FC = () => {
     disableAutoplay: prefersReducedMotion,
   });
 
-  const [isDragging, setIsDragging] = useState(false);
-
   useEffect(() => {
     if (!emblaApi) return;
-    const selectHandler = () => setIsDragging(false);
-    const dragStartHandler = () => setIsDragging(true);
-    const dragEndHandler = () => setIsDragging(false);
-    emblaApi.on('select', selectHandler);
-    emblaApi.on('pointerDown', dragStartHandler);
-    emblaApi.on('pointerUp', dragEndHandler);
-    return () => {
-      emblaApi.off('select', selectHandler);
-      emblaApi.off('pointerDown', dragStartHandler);
-      emblaApi.off('pointerUp', dragEndHandler);
-    };
+    const onPointerUp = () => {};
+    emblaApi.on('pointerUp', onPointerUp);
+    return () => emblaApi.off('pointerUp', onPointerUp);
   }, [emblaApi]);
 
   const industries = Object.entries(t.industries.items).map(([key, item]) => {
@@ -105,9 +90,7 @@ const IndustrySlider: React.FC = () => {
         </div>
         <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-display font-bold leading-tight tracking-[-0.02em] mb-3">
           <span className="text-text-primary">{t.industries.title} </span>
-          <span className="text-brand-primary">
-            {t.industries.titleHighlight}
-          </span>
+          <span className="text-brand-primary">{t.industries.titleHighlight}</span>
           <span className="text-text-primary"> {t.industries.titleSuffix}</span>
         </h2>
         <p className="mx-auto max-w-2xl text-base text-text-secondary md:text-lg">
@@ -117,46 +100,26 @@ const IndustrySlider: React.FC = () => {
 
       {/* Carousel */}
       <div className="relative max-w-[1400px] mx-auto px-4">
-        {/* Prev / Next arrowsvisible on ALL viewports */}
+        {/* Prev arrow */}
         <button
           type="button"
           onClick={() => emblaApi?.scrollPrev()}
           className="absolute left-2 sm:left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary"
           aria-label="Previous industry"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="w-5 h-5"
-            aria-hidden="true"
-            focusable="false"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" aria-hidden="true" focusable="false">
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
+
+        {/* Next arrow */}
         <button
           type="button"
           onClick={() => emblaApi?.scrollNext()}
           className="absolute right-2 sm:right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border/80 bg-bg-glass/85 text-text-secondary shadow-[0_14px_32px_rgba(0,0,0,0.16)] backdrop-blur-md transition-all duration-300 hover:border-brand-primary/35 hover:bg-bg-card hover:text-text-primary"
           aria-label="Next industry"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="w-5 h-5"
-            aria-hidden="true"
-            focusable="false"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5" aria-hidden="true" focusable="false">
             <path d="M9 18l6-6-6-6" />
           </svg>
         </button>
@@ -166,48 +129,50 @@ const IndustrySlider: React.FC = () => {
           className="overflow-hidden mx-2 xs:mx-4 sm:mx-6 md:mx-14 cursor-grab active:cursor-grabbing"
           ref={emblaRef}
         >
-          <div className="flex">
+          <div className="flex items-stretch">
             {industries.map((card, i) => {
               const isActive = i === selectedIndex;
               return (
                 <div
                   key={card.id}
-                  className="flex-[0_0_88%] xs:flex-[0_0_85%] sm:flex-[0_0_75%] md:flex-[0_0_33.333%] min-w-0 pl-4 xs:pl-5"
+                  className="flex-[0_0_80%] xs:flex-[0_0_75%] sm:flex-[0_0_65%] md:flex-[0_0_32%] min-w-0 pl-4 xs:pl-5"
                 >
+                  {/*
+                   * Card: image-first design — no card-surface class (avoids opaque
+                   * gradient background + backdrop-filter compositing issues).
+                   * Content is minimal: title + Learn More button only so every
+                   * card looks identical regardless of description length.
+                   */}
                   <div
                     className={cn(
-                      'card-surface group relative aspect-[4/5] xs:aspect-[3/4] md:aspect-[5/7] overflow-hidden rounded-[20px] xs:rounded-[24px] md:rounded-[28px] border-border/80 transition-all duration-300',
+                      'group relative aspect-[3/4] md:aspect-[2/3] overflow-hidden rounded-2xl md:rounded-3xl border transition-all duration-500',
                       isActive
-                        ? 'z-10 scale-[1.02] border-brand-primary/30 bg-bg-card/90 opacity-100 shadow-[0_24px_60px_rgba(0,0,0,0.24)]'
-                        : 'scale-[0.97] bg-bg-card/70 opacity-80 shadow-[0_12px_30px_rgba(0,0,0,0.14)]',
+                        ? 'border-brand-primary/40 shadow-[0_24px_60px_rgba(0,0,0,0.35)] scale-100 opacity-100'
+                        : 'border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.25)] scale-[0.97] opacity-90',
                     )}
                   >
+                    {/* Full-cover background image */}
                     <img
                       src={card.image}
                       alt={card.title}
                       draggable={false}
-                      className="pointer-events-none absolute inset-0 h-full w-full select-none object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="absolute inset-0 h-full w-full object-cover object-center select-none pointer-events-none transition-transform duration-700 group-hover:scale-105"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = fallbackImage;
+                      }}
                     />
-                    <div
-                      className={cn(
-                        'absolute inset-0 transition-colors duration-300',
-                        isActive
-                          ? 'bg-black/28'
-                          : 'bg-black/38 group-hover:bg-black/52',
-                      )}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/88 via-black/40 to-black/10" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.18),transparent_42%)] opacity-70" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-[1]">
-                      <p className="mb-1.5 md:mb-2 text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
+
+                    {/* Single gradient — light at top, heavy at bottom for text legibility */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/5" />
+
+                    {/* Card content — anchored to bottom, minimal so all cards match */}
+                    <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/55 mb-1.5">
                         Use Case
                       </p>
-                      <h3 className="font-display font-bold text-base md:text-xl lg:text-2xl text-white drop-shadow-lg leading-tight mb-2 md:mb-3">
+                      <h3 className="font-display font-bold text-xl md:text-2xl text-white leading-tight mb-4 line-clamp-1">
                         {card.title}
                       </h3>
-                      <p className="text-xs md:text-sm lg:text-base leading-relaxed text-white/85 mb-3 line-clamp-3">
-                        {card.description}
-                      </p>
                       <button
                         type="button"
                         onClick={(e) => {
@@ -219,9 +184,12 @@ const IndustrySlider: React.FC = () => {
                             image: card.image,
                           });
                         }}
-                        className="text-xs font-medium text-brand-primary hover:text-brand-primary/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50 rounded"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-brand-primary/60 bg-brand-primary/20 px-4 py-2 text-xs font-semibold text-brand-primary backdrop-blur-sm transition-all hover:bg-brand-primary/35 hover:border-brand-primary/80 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/50"
                       >
-                        Learn More →
+                        Learn More
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
                       </button>
                     </div>
                   </div>
@@ -231,38 +199,17 @@ const IndustrySlider: React.FC = () => {
           </div>
         </div>
 
-        {/* Swipe hint - mobile only */}
+        {/* Swipe hint — mobile only */}
         <div className="flex justify-center items-center gap-2 mt-4 md:hidden">
-          <svg
-            className="w-4 h-4 text-text-secondary animate-pulse"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            aria-hidden="true"
-          >
-            <path
-              d="M14 4.5V12l2.5-1.5M14 12l-2.5-1.5M14 12v7.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M10 4.5V12l-2.5-1.5M10 12l2.5-1.5M10 12v7.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+          <svg className="w-4 h-4 text-text-secondary animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M14 4.5V12l2.5-1.5M14 12l-2.5-1.5M14 12v7.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M10 4.5V12l-2.5-1.5M10 12l2.5-1.5M10 12v7.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-          <span className="text-xs text-text-secondary font-medium">
-            Drag cards to explore
-          </span>
+          <span className="text-xs text-text-secondary font-medium">Drag cards to explore</span>
         </div>
 
-        {/* Dots */}
-        <div
-          className="flex justify-center gap-2 mt-6 md:mt-8"
-          role="tablist"
-          aria-label="Industry slides"
-        >
+        {/* Dot indicators */}
+        <div className="flex justify-center gap-2 mt-6 md:mt-8" role="tablist" aria-label="Industry slides">
           {industries.map((card, i) => (
             <button
               key={card.id}
@@ -282,14 +229,14 @@ const IndustrySlider: React.FC = () => {
         </div>
       </div>
 
-      {/* Expanded description modal */}
+      {/* Detail modal — works on all screen sizes */}
       <AnimatePresence>
         {expandedCard && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.18 }}
             className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
             onClick={() => setExpandedCard(null)}
             role="dialog"
@@ -298,74 +245,81 @@ const IndustrySlider: React.FC = () => {
           >
             {/* Backdrop */}
             <div
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/75 backdrop-blur-sm"
               style={{ touchAction: 'none' }}
             />
 
-            {/* Bottom sheet / centered dialog */}
+            {/* Panel — flex column so close button never gets cut off */}
             <motion.div
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 16 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              exit={{ opacity: 0, y: 24 }}
+              transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full md:max-w-xl md:mx-4 md:mb-8 max-h-[85vh] landscape:max-h-[92vh] rounded-t-3xl md:rounded-3xl bg-gradient-to-b from-[#1a1714] to-[#0d0b09] border-t md:border border-border/60 shadow-2xl"
-              style={{
-                overscrollBehavior: 'contain',
-                WebkitOverflowScrolling: 'touch',
-                touchAction: 'pan-y',
-              }}
+              className="relative z-10 flex w-full flex-col md:max-w-xl md:mx-4 md:mb-6 max-h-[90vh] landscape:max-h-[95vh] rounded-t-3xl md:rounded-3xl overflow-hidden"
+              style={{ background: 'linear-gradient(180deg, #1c1916 0%, #0e0c0a 100%)' }}
             >
-              {/* Scrollable content wrapper */}
-              <div
-                className="overflow-y-auto"
-                style={{
-                  overscrollBehavior: 'contain',
-                  WebkitOverflowScrolling: 'touch',
-                }}
-              >
-                {/* Handle bar */}
-                <div className="sticky top-0 z-10 flex justify-center pt-3 pb-2 bg-gradient-to-b from-[#1a1714] to-transparent">
-                  <div className="w-10 h-1 rounded-full bg-white/20" />
+              {/* Hero image — fixed height, never shrinks */}
+              <div className="relative flex-shrink-0 h-56 md:h-72">
+                <img
+                  src={expandedCard.image}
+                  alt={expandedCard.title}
+                  className="h-full w-full object-cover object-center"
+                />
+                {/* Fade into panel background */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1c1916] via-transparent to-transparent" />
+
+                {/* Mobile handle bar */}
+                <div className="absolute top-3 inset-x-0 flex justify-center md:hidden pointer-events-none">
+                  <div className="w-10 h-1 rounded-full bg-white/25" />
                 </div>
 
-                {/* Hero image preview */}
-                <div className="relative h-52 mx-4 rounded-2xl overflow-hidden mb-5">
-                  <img
-                    src={expandedCard.image}
-                    alt={expandedCard.title}
-                    className="h-full w-full object-cover object-center"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a1714] via-black/30 to-transparent" />
-                </div>
-
-                {/* Content */}
-                <div className="px-4 sm:px-6 pb-8">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-primary/80 mb-2">
-                    Use Case
-                  </p>
-                  <h3 className="text-xl font-bold font-display text-white mb-3 leading-tight">
-                    {expandedCard.title}
-                  </h3>
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-primary/10 border border-brand-primary/20 mb-4">
-                    <span className="text-xs font-bold text-brand-primary">{expandedCard.stat}</span>
-                  </div>
-                  <p className="text-[clamp(0.875rem,3vw,1rem)] leading-relaxed text-white/85">
-                    {expandedCard.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Close button */}
-              <div className="sticky bottom-0 px-4 sm:px-6 pb-6 pt-3 bg-gradient-to-t from-[#1a1714] to-transparent">
+                {/* Quick-close ✕ */}
                 <button
                   type="button"
                   onClick={() => setExpandedCard(null)}
-                  className="w-full py-3.5 rounded-xl text-sm font-semibold text-accent-ink transition-all active:scale-[0.98] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                  aria-label="Close"
+                  className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-sm text-white/80 hover:bg-black/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Scrollable body */}
+              <div
+                className="flex-1 overflow-y-auto px-5 pt-3 pb-2 md:px-7 md:pt-4"
+                style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-primary/75 mb-2">
+                  Use Case
+                </p>
+                <h3 className="text-2xl font-bold font-display text-white leading-tight mb-3">
+                  {expandedCard.title}
+                </h3>
+
+                {/* Stat chip — the ROI metric */}
+                <div className="w-fit px-3 py-1.5 rounded-lg border border-brand-primary/25 bg-brand-primary/10 mb-4">
+                  <span className="text-xs font-bold text-brand-primary leading-none">
+                    {expandedCard.stat}
+                  </span>
+                </div>
+
+                <p className="text-sm md:text-base leading-relaxed text-white/80 pb-2">
+                  {expandedCard.description}
+                </p>
+              </div>
+
+              {/* Footer close button — flex-shrink-0 so it is always in view */}
+              <div
+                className="flex-shrink-0 px-5 py-4 md:px-7"
+                style={{ background: '#0e0c0a', borderTop: '1px solid rgba(255,255,255,0.07)' }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setExpandedCard(null)}
+                  className="w-full rounded-xl py-3.5 text-sm font-semibold text-accent-ink transition-all active:scale-[0.98] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
                   style={{
-                    background:
-                      'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                    background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
                   }}
                 >
                   Close
