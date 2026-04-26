@@ -273,16 +273,6 @@ const IndustrySlider: React.FC = () => {
                 <div className="w-10 h-1 rounded-full bg-white/30" />
               </div>
 
-              {/* Quick-close ✕ */}
-              <button
-                type="button"
-                onClick={() => setExpandedCard(null)}
-                aria-label="Close"
-                className="absolute top-4 right-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white/80 text-sm font-medium hover:bg-black/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-              >
-                ✕
-              </button>
-
               {/* Content — pushed to bottom, floats over the gradient */}
               <div className="relative z-10 mt-auto flex flex-col">
                 {/* Scrollable text — capped so close button stays on screen */}
