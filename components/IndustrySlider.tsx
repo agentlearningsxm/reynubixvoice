@@ -229,7 +229,7 @@ const IndustrySlider: React.FC = () => {
         </div>
       </div>
 
-      {/* Detail modal — works on all screen sizes */}
+      {/* Detail modal — z-[70] sits above the navbar (z-50) */}
       <AnimatePresence>
         {expandedCard && (
           <motion.div
@@ -237,93 +237,95 @@ const IndustrySlider: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
-            className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+            className="fixed inset-0 z-[70] flex items-end md:items-center justify-center"
             onClick={() => setExpandedCard(null)}
             role="dialog"
             aria-modal="true"
             aria-label={`Details about ${expandedCard.title}`}
           >
-            {/* Backdrop */}
+            {/* Backdrop — fully covers navbar */}
             <div
-              className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
               style={{ touchAction: 'none' }}
             />
 
-            {/* Panel — flex column so close button never gets cut off */}
+            {/* Full-bleed image panel — image is the background, text floats over it */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 24 }}
               transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="relative z-10 flex w-full flex-col md:max-w-xl md:mx-4 md:mb-6 max-h-[90vh] landscape:max-h-[95vh] rounded-t-3xl md:rounded-3xl overflow-hidden"
-              style={{ background: 'linear-gradient(180deg, #1c1916 0%, #0e0c0a 100%)' }}
+              className="relative z-10 flex w-full flex-col h-[88vh] landscape:h-[95vh] md:h-auto md:max-h-[85vh] md:max-w-xl md:mx-4 md:mb-6 rounded-t-3xl md:rounded-3xl overflow-hidden"
             >
-              {/* Hero image — fixed height, never shrinks */}
-              <div className="relative flex-shrink-0 h-56 md:h-72">
-                <img
-                  src={expandedCard.image}
-                  alt={expandedCard.title}
-                  className="h-full w-full object-cover object-center"
-                />
-                {/* Fade into panel background */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1c1916] via-transparent to-transparent" />
+              {/* Image fills the entire panel as background */}
+              <img
+                src={expandedCard.image}
+                alt={expandedCard.title}
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
 
-                {/* Mobile handle bar */}
-                <div className="absolute top-3 inset-x-0 flex justify-center md:hidden pointer-events-none">
-                  <div className="w-10 h-1 rounded-full bg-white/25" />
-                </div>
+              {/* Gradient overlay — transparent at top, opaque at bottom for text legibility */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
 
-                {/* Quick-close ✕ */}
-                <button
-                  type="button"
-                  onClick={() => setExpandedCard(null)}
-                  aria-label="Close"
-                  className="absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-sm text-white/80 hover:bg-black/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-                >
-                  ✕
-                </button>
+              {/* Mobile swipe handle */}
+              <div className="absolute top-3 inset-x-0 flex justify-center pointer-events-none md:hidden">
+                <div className="w-10 h-1 rounded-full bg-white/30" />
               </div>
 
-              {/* Scrollable body */}
-              <div
-                className="flex-1 overflow-y-auto px-5 pt-3 pb-2 md:px-7 md:pt-4"
-                style={{ overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}
+              {/* Quick-close ✕ */}
+              <button
+                type="button"
+                onClick={() => setExpandedCard(null)}
+                aria-label="Close"
+                className="absolute top-4 right-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white/80 text-sm font-medium hover:bg-black/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
               >
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-primary/75 mb-2">
-                  Use Case
-                </p>
-                <h3 className="text-2xl font-bold font-display text-white leading-tight mb-3">
-                  {expandedCard.title}
-                </h3>
+                ✕
+              </button>
 
-                {/* Stat chip — the ROI metric */}
-                <div className="w-fit px-3 py-1.5 rounded-lg border border-brand-primary/25 bg-brand-primary/10 mb-4">
-                  <span className="text-xs font-bold text-brand-primary leading-none">
-                    {expandedCard.stat}
-                  </span>
-                </div>
-
-                <p className="text-sm md:text-base leading-relaxed text-white/80 pb-2">
-                  {expandedCard.description}
-                </p>
-              </div>
-
-              {/* Footer close button — flex-shrink-0 so it is always in view */}
-              <div
-                className="flex-shrink-0 px-5 py-4 md:px-7"
-                style={{ background: '#0e0c0a', borderTop: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <button
-                  type="button"
-                  onClick={() => setExpandedCard(null)}
-                  className="w-full rounded-xl py-3.5 text-sm font-semibold text-accent-ink transition-all active:scale-[0.98] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+              {/* Content — pushed to bottom, floats over the gradient */}
+              <div className="relative z-10 mt-auto flex flex-col">
+                {/* Scrollable text — capped so close button stays on screen */}
+                <div
+                  className="overflow-y-auto px-5 md:px-7 pt-6 pb-3"
                   style={{
-                    background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                    maxHeight: '55vh',
+                    overscrollBehavior: 'contain',
+                    WebkitOverflowScrolling: 'touch',
                   }}
                 >
-                  Close
-                </button>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-brand-primary/80 mb-2">
+                    Use Case
+                  </p>
+                  <h3 className="text-2xl font-bold font-display text-white leading-tight mb-3">
+                    {expandedCard.title}
+                  </h3>
+
+                  {/* ROI stat chip */}
+                  <div className="w-fit px-3 py-1.5 rounded-lg border border-brand-primary/30 bg-brand-primary/15 mb-4">
+                    <span className="text-xs font-bold text-brand-primary leading-none">
+                      {expandedCard.stat}
+                    </span>
+                  </div>
+
+                  <p className="text-sm md:text-base leading-relaxed text-white/85">
+                    {expandedCard.description}
+                  </p>
+                </div>
+
+                {/* Close button — always visible, never scrolls away */}
+                <div className="flex-shrink-0 px-5 md:px-7 pb-6 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setExpandedCard(null)}
+                    className="w-full rounded-xl py-3.5 text-sm font-semibold text-accent-ink transition-all active:scale-[0.98] min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                    style={{
+                      background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
