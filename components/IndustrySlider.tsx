@@ -30,6 +30,15 @@ const IndustrySlider: React.FC = () => {
     return () => document.removeEventListener('keydown', handleEsc);
   }, [expandedCard]);
 
+  // Preload all industry images on mount so subsequent slides don't flash
+  useEffect(() => {
+    const urls = [...Object.values(industryImages), fallbackImage];
+    urls.forEach((url) => {
+      const img = new Image();
+      img.src = url;
+    });
+  }, []);
+
   const { emblaRef, emblaApi, selectedIndex } = useAutoplayCarousel({
     delay: 4000,
     loop: true,
@@ -39,12 +48,17 @@ const IndustrySlider: React.FC = () => {
     disableAutoplay: prefersReducedMotion,
   });
 
+  // Pause/resume autoplay imperatively when modal opens/closes.
+  // Toggling the plugin array on the hook does NOT work because
+  // useEmblaCarousel only reads its plugins at init time.
   useEffect(() => {
-    if (!emblaApi) return;
-    const onPointerUp = () => {};
-    emblaApi.on('pointerUp', onPointerUp);
-    return () => emblaApi.off('pointerUp', onPointerUp);
-  }, [emblaApi]);
+    const autoplay = (emblaApi?.plugins() as any)?.autoplay;
+    if (expandedCard !== null) {
+      autoplay?.stop();
+    } else {
+      autoplay?.play();
+    }
+  }, [emblaApi, expandedCard]);
 
   const industries = Object.entries(t.industries.items).map(([key, item]) => {
     const data = item as { name: string; stat: string; desc: string };
@@ -145,10 +159,10 @@ const IndustrySlider: React.FC = () => {
                    */}
                   <div
                     className={cn(
-                      'group relative aspect-[3/4] md:aspect-[2/3] overflow-hidden rounded-2xl md:rounded-3xl border transition-[opacity,transform,border-color] duration-500',
+                      'group relative aspect-[3/4] md:aspect-[2/3] overflow-hidden rounded-2xl md:rounded-3xl border transition-[opacity,border-color] duration-300',
                       isActive
-                        ? 'border-brand-primary/40 shadow-[0_24px_60px_rgba(0,0,0,0.35)] scale-100 opacity-100'
-                        : 'border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.25)] scale-[0.97] opacity-90',
+                        ? 'border-brand-primary/40 shadow-[0_24px_60px_rgba(0,0,0,0.35)] opacity-100'
+                        : 'border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.25)] opacity-95',
                     )}
                   >
                     {/* Full-cover background image */}
@@ -156,14 +170,18 @@ const IndustrySlider: React.FC = () => {
                       src={card.image}
                       alt={card.title}
                       draggable={false}
+                      loading="eager"
+                      decoding="async"
+                      fetchPriority="high"
                       className="absolute inset-0 h-full w-full object-cover object-center select-none pointer-events-none"
+                      style={{ filter: 'brightness(0.95) contrast(1.08) saturate(0.92)' }}
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).src = fallbackImage;
                       }}
                     />
 
                     {/* Single gradient — light at top, heavy at bottom for text legibility */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/30 to-black/5" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
 
                     {/* Card content — anchored to bottom, minimal so all cards match */}
                     <div className="absolute inset-x-0 bottom-0 p-4 md:p-6">
@@ -263,6 +281,7 @@ const IndustrySlider: React.FC = () => {
                 src={expandedCard.image}
                 alt={expandedCard.title}
                 className="absolute inset-0 h-full w-full object-cover object-center"
+                style={{ filter: 'brightness(0.95) contrast(1.08) saturate(0.92)' }}
               />
 
               {/* Gradient overlay — transparent at top, opaque at bottom for text legibility */}
