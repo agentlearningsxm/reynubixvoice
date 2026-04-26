@@ -145,7 +145,7 @@ const IndustrySlider: React.FC = () => {
                    */}
                   <div
                     className={cn(
-                      'group relative aspect-[3/4] md:aspect-[2/3] overflow-hidden rounded-2xl md:rounded-3xl border transition-all duration-500',
+                      'group relative aspect-[3/4] md:aspect-[2/3] overflow-hidden rounded-2xl md:rounded-3xl border transition-[opacity,transform,border-color] duration-500',
                       isActive
                         ? 'border-brand-primary/40 shadow-[0_24px_60px_rgba(0,0,0,0.35)] scale-100 opacity-100'
                         : 'border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.25)] scale-[0.97] opacity-90',
@@ -156,7 +156,7 @@ const IndustrySlider: React.FC = () => {
                       src={card.image}
                       alt={card.title}
                       draggable={false}
-                      className="absolute inset-0 h-full w-full object-cover object-center select-none pointer-events-none transition-transform duration-700 group-hover:scale-105"
+                      className="absolute inset-0 h-full w-full object-cover object-center select-none pointer-events-none"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).src = fallbackImage;
                       }}
